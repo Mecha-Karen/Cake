@@ -8,21 +8,29 @@ classifiers = [
   'Programming Language :: Python :: 3'
 ]
 
+packages = [
+    'cake'
+]
+
 setup(
-  name='Cake',
-  version='0.0.1a',
-  description='An object orientated math library',
-  long_description=open('README.md').read(),
-  long_description_content_type = "text/markdown",
-  url = "https://github.com/Mecha-Karen/Cake", 
-  project_urls={
-   "Documentation": "https://docs.mechakaren.xyz/cake",
-   "Issue tracker": "https://github.com/Mecha-Karen/Cake/issues",
-   },
-  author='Seniatical',
-  license='MIT License', 
-  classifiers=classifiers,
-  keywords='Math,Python,OOP', 
-  packages=find_packages(),
-  install_requires=[] 
+    name='Cake',
+    version='0.0.1a',
+    description='An object orientated math library',
+    long_description=open('README.md').read(),
+    long_description_content_type = "text/markdown",
+
+    url = "https://github.com/Mecha-Karen/Cake", 
+    project_urls={
+        "Documentation": "https://docs.mechakaren.xyz/cake",
+        "Issue tracker": "https://github.com/Mecha-Karen/Cake/issues",
+    },
+
+    author='Seniatical',
+
+    license='MIT License',
+    classifiers=classifiers,
+    keywords='Math,Python,OOP', 
+    
+    packages=packages,
+    install_requires=[] 
 )
