@@ -48,15 +48,6 @@ def is_prime(n: int) -> bool:
 
 
 def factor_tree(x: int) -> list:
-    r"""
-    Generate factor trees by finding a prime number and another number which multiply to find the current level
-
-    Parameters
-    ----------
-
-    x : int
-        A number or any object with the `value` attribute
-    """
     if is_prime(x):
         return [x]
 
