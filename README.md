@@ -1,8 +1,12 @@
 <h1 align="center">Cake</h1>
-<p align="center">An object orientated math library!</p>
+<p align="center">An object orientated math library, Built with power and simplicity!</p>
 
 <h2>Features</h2>
-<p>...</p>
+<ul>
+    <li>Generally is fast and provides simple solutions for complex problems</li>
+    <li>Simple to use and learn</li>
+    <li>Provides support for algebra and equation substitution</li>
+</ul>
 
 <h2>Links</h2>
 <ul>
