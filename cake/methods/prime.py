@@ -90,5 +90,13 @@ def factor_tree(x: int) -> list:
             x = x / biggest
 
         tree.append(x)
+
+    # Break tree down further
+    to_break = filter(lambda sub: not is_prime(sub), tree)
+    for factor in to_break:
+        factorTree = factor_tree(factor)
+
+        tree.remove(factor)
+        tree.extend(factorTree)
     
     return tree
