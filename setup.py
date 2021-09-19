@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 import re
 
+version = ''
+
 with open('cake/__init__.py') as f:
     contents = f.read()
 
