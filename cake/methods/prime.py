@@ -24,6 +24,7 @@ SOFTWARE.
 Generate factor tree of a integer
 """
 from cake.abc import ODD_NUMBERS
+from math import sqrt
 
 
 def _is_even(num):
@@ -48,55 +49,39 @@ def is_prime(n: int) -> bool:
 
 
 def factor_tree(x: int) -> list:
+    if hasattr(x, 'value'):
+        x = int(x.value)
+
     if is_prime(x):
         return [x]
+    tree = list()
 
-    tree = []
+    while _is_even(x) and not is_prime(x):
+        # Constantly divide by 2, till odd or is prime
+        x /= 2
+        tree.append(2)
 
-    if _is_even(x):
-        current = x
-        while not is_prime(current) and _is_even(current):
-            current = current / 2
-            tree.append(2)
+    while _is_odd(x) and not is_prime(x):
+        is_square = sqrt(x)
+        if int(is_square) - is_square == 0:
+            x /= is_square
+            tree.append(is_square)
+            break
 
-        
-        if is_prime(current):
-            tree.append(current)
-            return tree
-
-
-        x = current
-
-
-    if _is_odd(x):
-
-        while not is_prime(x):
-            groups = list(filter(lambda _: x % _ == 0 and _ != x, ODD_NUMBERS))
-
-
-            if not groups:
-                tree.append(x)
-                break
-
+        groups = list(filter(lambda _: x % _ == 0, ODD_NUMBERS))
+        if groups:
             biggest = groups[-1]
-
             if not is_prime(biggest):
-                as_tree = factor_tree(biggest)
+                subTree = factor_tree(biggest)
+                tree.extend(subTree)
+                x /= biggest
 
-                tree.extend(as_tree)
-            else:
-                tree.append(biggest)
+    tree.append(x)
 
-            x = x / biggest
+    invalidFactors = list(filter(lambda _: not is_prime(_), tree))
+    if invalidFactors:
+        for toFactorise in invalidFactors:
+            tree.remove(toFactorise)
+            tree.extend(factor_tree(toFactorise))
 
-        tree.append(x)
-
-    # Break tree down further
-    to_break = filter(lambda sub: not is_prime(sub), tree)
-    for factor in to_break:
-        factorTree = factor_tree(factor)
-
-        tree.remove(factor)
-        tree.extend(factorTree)
-    
     return tree
