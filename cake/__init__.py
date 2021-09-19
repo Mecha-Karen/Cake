@@ -28,8 +28,9 @@ from typing import NamedTuple, Literal
 from .errors import *
 
 from .equation import Equation
-from .number import Number
+from .real import Real
 from .surd import Surd
+from .unknown import Unknown
 
 __file__ = __import__('os').path.abspath(__file__)
 __doc__ = 'An object orientated maths library'

@@ -21,16 +21,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import sqrt
 
 
-class Number(float):
+class Unknown(object):
+    """
+    An object representing an unknown value
+    """
+    def __init__(
+        self, value: str, *,
+        square: int, 
+    ):
+        self.value = value
+        self.square = square
 
-    @property
-    def sqrt(self):
-        from .surd import Surd
+    def multiply(self, other):
+        raise NotImplementedError()
 
-        is_rational = sqrt(self)
-        if int(is_rational) - is_rational != 0:
-            return Surd(is_rational)
-        return is_rational
+    def add(self, other):
+        raise NotImplementedError()
+
+    def divmod(self, other):
+        raise NotImplementedError()
+
