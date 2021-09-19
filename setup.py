@@ -1,4 +1,20 @@
 from setuptools import setup, find_packages
+import re
+
+with open('cake/__init__.py') as f:
+    contents = f.read()
+
+    _match = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        contents,
+        re.MULTILINE
+    )
+
+    version = _match.group(1)
+
+if not version:
+    raise RuntimeError('Cannot resolve version')
+    
 
 classifiers = [
   'Development Status :: 1 - Planning',
@@ -10,7 +26,7 @@ classifiers = [
 
 setup(
     name='Cake',
-    version='0.0.1a',
+    version=version,
     description='An object orientated math library',
     long_description=open('README.md').read(),
     long_description_content_type = "text/markdown",
