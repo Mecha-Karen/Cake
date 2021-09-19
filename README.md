@@ -8,6 +8,15 @@
     <li>Provides support for algebra and equation substitution</li>
 </ul>
 
+<h2>Installation</h2>
+As this library is in early development, you will need to install it from github directly
+
+```sh
+git clone https://github.com/Mecha-Karen/Cake
+cd Cake
+pip install .
+```
+
 <h2>Links</h2>
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
