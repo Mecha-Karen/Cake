@@ -8,10 +8,6 @@ classifiers = [
   'Programming Language :: Python :: 3'
 ]
 
-packages = [
-    'cake'
-]
-
 setup(
     name='Cake',
     version='0.0.1a',
@@ -31,6 +27,6 @@ setup(
     classifiers=classifiers,
     keywords='Math,Python,OOP', 
     
-    packages=packages,
+    packages=find_packages(),
     install_requires=[] 
 )
