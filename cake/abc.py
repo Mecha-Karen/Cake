@@ -6,7 +6,7 @@ OPERATORS: typing.Set[str] = {
     "//", "&", ">>", "<<", "|"
 }
 
-KEYWORDS: typing.Mapping[str, typing.Callable[[typing.Any], ]] = {
+KEYWORDS: typing.Mapping[str, typing.Callable[[int], int]] = {
     "!": math.factorial,
     "sqrt": math.sqrt,
 }
