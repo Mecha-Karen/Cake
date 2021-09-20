@@ -1,18 +1,22 @@
 import math
+import typing
 
-OPERATORS = {
+OPERATORS: typing.Set[str] = {
     "+", "-", "/", "*", "**", "^",
     "//", "&", ">>", "<<", "|"
 }
 
-KEYWORDS = {
-    "pi": math.pi,
+KEYWORDS: typing.Mapping[str, typing.Callable[[typing.Any], ]] = {
     "!": math.factorial,
-    "mod": lambda x, y: x % y,
     "sqrt": math.sqrt,
 }
 
-SCALES = {
+CONSTANTS: typing.Mapping[str, str] = {
+    'pi': math.pi,
+    'e': math.e
+}
+
+SCALES: typing.Mapping[str, int] = {
     "hundred": 1 * (10 * 2),
     "thousand": 1 * (10 * 3),
     "million": 1 * (10 ** 6),
@@ -20,7 +24,7 @@ SCALES = {
     "trillion": 1 * (10 ** 12),
 }
 
-NUMBERS = {
+NUMBERS: typing.Mapping[str, int] = {
     "zero": 0,
     "one": 1,
     "two": 2,
@@ -51,4 +55,4 @@ NUMBERS = {
     "ninety": 90,
 },
 
-ODD_NUMBERS = filter(lambda _: _ % 2 != 0, range(100))
+ODD_NUMBERS: typing.Iterable[int] = filter(lambda _: _ % 2 != 0, range(100))
