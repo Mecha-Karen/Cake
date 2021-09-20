@@ -1,5 +1,26 @@
-*__pycache__
+# Virtual enviroment
+/.venv/
+
+# Regular Python bytecode file
 *.pyc
-.vscode
-build
-.idea
+__pycache__/
+
+# Optimized Python bytecode file
+*.pyo
+
+# Vim's swap files
+*.sw[op]
+
+# VSCode settings file
+.vscode/
+
+# PyCharm settings file
+/.idea/
+
+# Generated files from Jython
+*$py.class
+
+# PyPi upload folders
+build/
+dist/
+Cake.egg-info/
