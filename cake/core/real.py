@@ -33,8 +33,11 @@ class Real(object):
 
     def __abs__(self):
         if self.__value < 0:
-            return self.__value * -1
-        return self.__value
+            new_val = self.__value * -1
+        else:
+            new_val = self.__value
+
+        return super(Real, self).__new__(Real, new_val)
 
     def __add__(self, other):
         other = self._get_value(other, getattr(self, 'check_value_attr', True),
