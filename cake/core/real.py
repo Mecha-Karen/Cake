@@ -50,8 +50,71 @@ class Real(object):
 
         return super(Real, self).__new__(Real, result)
 
+    def __sub__(self, other):
+        other = self._get_value(other, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.add(self)
+
+            return other
+
+        result = self.__value - other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __mul__(self, other):
+        return self.__call__(other, 
+            self.check_value_attr, *self.args,
+            **self.kwargs
+        )
+
     def __ceil__(self):
+
         return ceil(self.__value)
+
+    def __truediv__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.truediv(self)
+
+            return other
+
+        result = self.__value / other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __floordiv__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.floordiv(self)
+
+            return other
+
+        result = self.__value // other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __mod__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.mod(self)
+
+            return other
+
+        result = self.__value % other
+
+        return super(Real, self).__new__(Real, result)
 
     def __divmod__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -63,7 +126,91 @@ class Real(object):
 
             return other
 
-        result = self.__value // other
+        result = divmod(self.__value, other)
+
+        return super(Real, self).__new__(Real, result)
+
+    def __pow__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.pow(self)
+
+            return other
+
+        result = self.__value ** other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __lshift__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.lshift(self)
+
+            return other
+
+        result = self.__value << other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __rshift__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.rshift(self)
+
+            return other
+
+        result = self.__value >> other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __and__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other._and(self)
+
+            return other
+
+        result = self.__value & other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __xor__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other.xor(self)
+
+            return other
+
+        result = self.__value ^ other
+
+        return super(Real, self).__new__(Real, result)
+
+    def __or__(self, value):
+        other = self._get_value(value, getattr(self, 'check_value_attr', True),
+            *self.args, **self.kwargs
+        )
+
+        if isinstance(other, Unknown):
+            other._or(self)
+
+            return other
+
+        result = self.__value | other
 
         return super(Real, self).__new__(Real, result)
 
@@ -148,6 +295,9 @@ class Real(object):
     def __float__(self):
         return float(self.__value)
 
+    def __complex__(self):
+        return complex(self.__value)
+
     def __str__(self):
         return str(self.__value)
 
@@ -158,7 +308,7 @@ class Real(object):
     # ################
 
     def __repr__(self) -> str:
-        return str(self.__value)
+        return f'Real({self.__value})'
 
     @property
     def value(self) -> float:
