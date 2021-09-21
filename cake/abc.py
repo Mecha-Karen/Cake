@@ -1,17 +1,20 @@
 import math
 import typing
 
+# Types
+NUMBER = typing.TypeVar('NUMBER', int, float, complex)
+
 OPERATORS: typing.Set[str] = {
     "+", "-", "/", "*", "**", "^",
     "//", "&", ">>", "<<", "|"
 }
 
-KEYWORDS: typing.Mapping[str, typing.Callable[[int], int]] = {
+KEYWORDS: typing.Mapping[str, typing.Callable[[NUMBER], NUMBER]] = {
     "!": math.factorial,
     "sqrt": math.sqrt,
 }
 
-CONSTANTS: typing.Mapping[str, typing.Union[int, float]] = {
+CONSTANTS: typing.Mapping[str, NUMBER] = {
     'pi': math.pi,
     'e': math.e
 }
