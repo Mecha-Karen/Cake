@@ -11,7 +11,7 @@ KEYWORDS: typing.Mapping[str, typing.Callable[[int], int]] = {
     "sqrt": math.sqrt,
 }
 
-CONSTANTS: typing.Mapping[str, str] = {
+CONSTANTS: typing.Mapping[str, typing.Union[int, float]] = {
     'pi': math.pi,
     'e': math.e
 }
