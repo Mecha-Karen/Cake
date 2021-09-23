@@ -3,9 +3,15 @@ from typing import NamedTuple, Literal
 
 from .errors import *
 
-from .core import (
-    Equation, Number, Surd, Unknown, Operator
-)
+# Core Types
+from .core.equation import Equation
+from .core.number import Number
+from .core.operator import Operator
+from .core.surd import Surd
+from .core.unknown import Unknown
+
+# Built in types
+from .core.types.integer import Integer
 
 from . import errors, abc
 
