@@ -59,3 +59,7 @@ NUMBERS: typing.Mapping[str, int] = {
 },
 
 ODD_NUMBERS: typing.Iterable[int] = filter(lambda _: _ % 2 != 0, range(100))
+
+
+class IntegerType(typing.Protocol):
+    def __int__(self) -> int: ...
