@@ -1,10 +1,10 @@
 from math import sqrt
 
-from .real import Real
+from .number import Number
 from cake import errors
 
 
-class Surd(Real):
+class Surd(Number):
     r"""
     An object representing an irrational number
 
@@ -22,7 +22,7 @@ class Surd(Real):
         is_rational = sqrt(integer)
 
         if int(is_rational) - is_rational == 0:
-            return Real(is_rational)
+            return Number(is_rational)
 
         return super(Surd, cls).__new__(cls, is_rational)
 
@@ -35,8 +35,8 @@ class Surd(Real):
         raise NotImplementedError()
 
     
-    def __add__(self, other) -> Real:
+    def __add__(self, other) -> Number:
         if isinstance(other, Surd):
             ...
         
-        return Real(self.value + other)
+        return Number(self.value + other)

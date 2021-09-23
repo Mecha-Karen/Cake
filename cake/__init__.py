@@ -4,7 +4,7 @@ from typing import NamedTuple, Literal
 from .errors import *
 
 from .core import (
-    Equation, Real, Surd, Unknown, Operator
+    Equation, Number, Surd, Unknown, Operator
 )
 
 from . import errors, abc
