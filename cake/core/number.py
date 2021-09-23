@@ -29,8 +29,11 @@ class Number(object):
     check_value_attr: :class:`bool`
         When a user preforms an arithmetic action it will check the `other` argument for the `value` attribute
         If found, it replaces the argument with that value, else returns the original argument
-    base_type: :class:`~typing.Callable[[typing.Any], typing.Any]`
+    base_type: :class:`~typing.Callable[[..., ], typing.Any]`
         A function or class, which is used to convert the input value to, defaults to :class:`float`
+    return_me: :class:`typing.Callable[[..., ], typing.Any]`
+        A function or class which is returned when an arithmetic operator is used on the class.
+        This is different from `base_type` as this returns the specified class as opposed to just converting the input to specific type.
     *args: :class:`~typing.Any`
         Additional arguments which you may supply when using arithmetic operators such as ``+``
     **kwargs: :class:`~typing.Any`
@@ -44,6 +47,7 @@ class Number(object):
     def __init__(self, value: typing.Any,
         check_value_attr: bool = True, 
         base_type: typing.Callable[[..., ], typing.Any] = float,
+        return_me: typing.Callable[[..., ], typing.Any] = ...,
         *args, **kwargs,
     ):
         self._value = base_type(value)
@@ -53,6 +57,13 @@ class Number(object):
 
         self.args = args
         self.kwargs = kwargs
+
+        if return_me == ...:
+            self.return_class = Number
+        else:
+            if not callable(return_me):
+                raise TypeError('return_me value must be a callable object')
+            self.return_class = return_me
 
     # ##############
     #
@@ -74,7 +85,11 @@ class Number(object):
 
         result = self._value * other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __abs__(self):
         if self._value < 0:
@@ -96,7 +111,11 @@ class Number(object):
 
         result = self._value + other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __sub__(self, other):
         other = self._get_value(other, getattr(self, 'check_value_attr', True),
@@ -110,7 +129,11 @@ class Number(object):
 
         result = self._value - other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __mul__(self, other):
         return self.__call__(other, 
@@ -119,8 +142,13 @@ class Number(object):
         )
 
     def __ceil__(self):
+        result = ceil(self._value)
 
-        return ceil(self._value)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __truediv__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -134,7 +162,11 @@ class Number(object):
 
         result = self._value / other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __floordiv__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -148,7 +180,11 @@ class Number(object):
 
         result = self._value // other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __mod__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -162,7 +198,11 @@ class Number(object):
 
         result = self._value % other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __divmod__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -176,7 +216,11 @@ class Number(object):
 
         result = divmod(self._value, other)
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __pow__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -190,7 +234,11 @@ class Number(object):
 
         result = self._value ** other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __lshift__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -204,7 +252,11 @@ class Number(object):
 
         result = self._value << other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __rshift__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -218,7 +270,11 @@ class Number(object):
 
         result = self._value >> other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __and__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -232,7 +288,11 @@ class Number(object):
 
         result = self._value & other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __xor__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -246,7 +306,11 @@ class Number(object):
 
         result = self._value ^ other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __or__(self, value):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
@@ -260,7 +324,11 @@ class Number(object):
 
         result = self._value | other
 
-        return super(Number, self).__new__(Number, result)
+        return self.return_class(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     # #########
     #
