@@ -5,6 +5,12 @@ import typing
 class IntegerType(typing.Protocol):
     def __int__(self) -> int: ...
 
+class FloatType(typing.Protocol):
+    def __float__(self) -> float: ...
+
+class ComplexType(typing.Protocol):
+    def __complex__(self) -> complex: ...
+
 
 OPERATORS: typing.Set[str] = {
     "+", "-", "/", "*", "**", "^",
