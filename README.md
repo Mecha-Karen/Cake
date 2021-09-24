@@ -22,6 +22,27 @@ cd Cake
 pip install .
 ```
 
+<h2>Quick Example</h2>
+
+<h3>Quadratic Formula</h3>
+
+```py
+from cake import Equation
+
+eq = Equation("-b (+|-) sqrt ((b **2) - 4(a)(c))")
+# Top layer of the formula
+
+# (+|-) will return 2 solutions as stated in the documentation
+# Its one of the many ways of implements plus or minus
+
+eq.wrap_all("/", "2(a)")
+# Puts the entire current formula into brackets and divides by 2a
+
+print(eq.solve(a=10, b=-20, c=5))
+
+# Results: (1.70711, 0.292893)
+```
+
 <h2>Links</h2>
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
