@@ -2,19 +2,24 @@ import math
 import typing
 
 # Types
-NUMBER = typing.TypeVar('NUMBER', int, float, complex)
+class IntegerType(typing.Protocol):
+    def __int__(self) -> int: ...
+
 
 OPERATORS: typing.Set[str] = {
     "+", "-", "/", "*", "**", "^",
     "//", "&", ">>", "<<", "|"
 }
 
-KEYWORDS: typing.Mapping[str, typing.Callable[[NUMBER], NUMBER]] = {
+KEYWORDS: typing.Mapping[str, typing.Callable] = {
     "!": math.factorial,
     "sqrt": math.sqrt,
+    "sin": lambda degrees: math.sin(math.radians(degrees)),
+    "cos": lambda degrees: math.cos(math.radians(degrees)),
+    "tan": lambda degrees: math.tan(math.radians(degrees))
 }
 
-CONSTANTS: typing.Mapping[str, NUMBER] = {
+CONSTANTS: typing.Mapping[str, IntegerType] = {
     'pi': math.pi,
     'e': math.e
 }
@@ -59,7 +64,3 @@ NUMBERS: typing.Mapping[str, int] = {
 },
 
 ODD_NUMBERS: typing.Iterable[int] = filter(lambda _: _ % 2 != 0, range(100))
-
-
-class IntegerType(typing.Protocol):
-    def __int__(self) -> int: ...
