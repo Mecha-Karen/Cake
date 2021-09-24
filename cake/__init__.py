@@ -11,9 +11,13 @@ from .core.surd import Surd
 from .core.unknown import Unknown
 
 # Built in types
-from .core.types.integer import Integer
+from .core.types import (
+    Complex, Integer, Irrational, Prime, Real
+)
 
-from . import errors, abc
+from . import (
+    errors, abc, helpers
+)
 
 __file__ = __import__('os').path.abspath(__file__)
 __doc__ = 'An object orientated maths library'
