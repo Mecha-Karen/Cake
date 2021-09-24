@@ -22,6 +22,8 @@ class Number(object):
     
     For Quaternion's, the :class:`~cake.Number.value` can be a :class:`tuple`, or the class itself.
 
+    .. _Parameters:
+
     Parameters
     ----------
     value: :class:`~typing.Any`
@@ -34,6 +36,19 @@ class Number(object):
     return_me: :class:`typing.Callable[[..., ], typing.Any]`
         A function or class which is returned when an arithmetic operator is used on the class.
         This is different from `base_type` as this returns the specified class as opposed to just converting the input to specific type.
+    return_handler: :class:`typing.Callable[[..., ], typing.Any]`
+        skips the default return class and calls this method with the following arguments, in the same order.
+
+        .. code-block:: text
+
+            Result
+            Check Value Attribute
+            Type
+            Current Return Class
+            args
+            kwargs
+
+
     *args: :class:`~typing.Any`
         Additional arguments which you may supply when using arithmetic operators such as ``+``
     **kwargs: :class:`~typing.Any`
@@ -48,6 +63,7 @@ class Number(object):
         check_value_attr: bool = True, 
         base_type: typing.Callable[[..., ], typing.Any] = float,
         return_me: typing.Callable[[..., ], typing.Any] = ...,
+        return_handler: typing.Callable[[..., ], typing.Any] = None,
         *args, **kwargs,
     ):
         self._value = base_type(value)
@@ -62,8 +78,16 @@ class Number(object):
             self.return_class = Number
         else:
             if not callable(return_me):
-                raise TypeError('return_me value must be a callable object')
-            self.return_class = return_me
+                if hasattr(return_me, 'handler') and callable(return_me.handle):
+                    self.return_class = return_me.handler
+                else:
+                    raise TypeError('return_me value must be a callable object')
+            else:
+                self.return_class = return_me
+
+        if return_handler:
+            # Lazy method of keeping short and consise handlers
+            self.return_class = return_handler
 
     # ##############
     #
@@ -73,7 +97,18 @@ class Number(object):
 
     def __call__(self, other, check_value_attr: bool = True, *args, **kwargs):
         """
+        Implementation of chaining
 
+        Parameters
+        ---------
+        other: :class:`~cake.abc.IntegerType`
+            A class which follows the `cake.abc.IntegerType` and has the `__mul__` dunder method.
+        check_value_attr: :class:`bool`
+            See :ref:`Parameters`
+        *args: :class:`~typing.Any`
+            See :ref:`Parameters`
+        **kwargs: :class:`~typing.Any`
+            See :ref:`Parameters`
         """
 
         other = self._get_value(other, check_value_attr, *args, **kwargs)
@@ -97,7 +132,11 @@ class Number(object):
         else:
             new_val = self._value
 
-        return super(Number, self).__new__(Number, new_val)
+        return self.return_class(
+            new_val, self.check_value_attr,
+            self._type, self.return_class,
+            *self.args, **self.kwargs
+        )
 
     def __add__(self, other):
         other = self._get_value(other, getattr(self, 'check_value_attr', True),
@@ -430,6 +469,8 @@ class Number(object):
     def value(self) -> typing.Any:
         """
         Returns the value supplied when initialising the class, if it has been converted to the provided type, then that value is returned instead.
+        
+        This is overridable and deletable, if deleted value is set to 0.
         """
         return self._value
 
@@ -449,7 +490,7 @@ class Number(object):
         """
         Returns the value type which was set when intialising the class, this will always return the actual class which you was set.
 
-        This value is over-ridable
+        This value is overridable
         """
 
         return self._type
