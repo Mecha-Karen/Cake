@@ -6,9 +6,12 @@ from .errors import *
 # Core Types
 from .core.equation import Equation
 from .core.number import Number
-from .core.operator import Operator
 from .core.surd import Surd
 from .core.unknown import Unknown
+
+# Markers
+from .core.operator import Operator
+from .core.symbol import Symbol
 
 # Built in types
 from .core.types import (
