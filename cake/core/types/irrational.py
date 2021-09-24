@@ -46,7 +46,7 @@ class Irrational(Number):
     ):
         super().__init__(
             float(value), check_value_attr,
-            int, Irrational, *args, **kwargs
+            float, Irrational, *args, **kwargs
         )
 
     def __repr__(self) -> str:

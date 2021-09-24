@@ -33,11 +33,12 @@ class Complex(Number):
                 b = b[:-1]
             else:
                 raise TypeError('Incorrect formatting for complex number, should be in the format of "a + bi"')
-            integer = complex(int(a), int(b))
+        
+        integer = complex(float(a), float(b))
 
         super().__init__(
-            int(integer), check_value_attr,
-            int, Complex, *args, **kwargs
+            integer, check_value_attr,
+            complex, Complex, *args, **kwargs
         )
 
     def __repr__(self) -> str:

@@ -25,7 +25,7 @@ class Real(Number):
     ):
         super().__init__(
             float(integer), check_value_attr,
-            int, FloatType, *args, **kwargs
+            float, FloatType, *args, **kwargs
         )
 
     def __repr__(self) -> str:
