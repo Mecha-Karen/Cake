@@ -16,6 +16,18 @@
 <h2>Installation</h2>
 As this library is in early development, you will need to install it from github directly
 
+<h2>Installation</h2>
+
+```sh
+# Windows
+pip install MathCake
+
+# Linux/MacOS
+pip3 install MathCake
+```
+
+<h2>Installation</h2>
+
 ```sh
 git clone https://github.com/Mecha-Karen/Cake
 cd Cake
@@ -47,4 +59,5 @@ print(eq.substitute(a=10, b=-20, c=5))
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
     <li><a href="https://discord.gg/Q5mFhUM">Support Server</a></li>
+    <li><a href="https://pypi.org/project/MathCake/">PyPi Page</a></li>
 </ul>
