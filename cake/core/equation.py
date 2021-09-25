@@ -1,8 +1,37 @@
-import math
+import re
 import string
+import typing
+
+from cake import abc
+
+from cake import (
+    Complex, Integer, Irrational, Prime, Real,
+
+    Operator, Symbol
+)
 
 ASCII_CHARS = string.ascii_letters
 
+################
+#
+# Regex patterns
+#
+################
+
+FIND_UNKNOWNS = re.compile(
+    "[a-zA-Z]+",
+    re.IGNORECASE
+)
+
+LARGE_UNKNOWNS = re.compile(
+    "[0-9][a-zA-Z]+",
+    re.IGNORECASE
+)
+
+BLACKLISTED = list(abc.KEYWORDS.keys()) + list(abc.CONSTANTS.keys())
+
+
+# Main Object
 
 class Equation(object):
     """
@@ -38,75 +67,126 @@ class Equation(object):
         A set of keyword arguments use when substituting the equation, IF they have not been supplied during substitution.
         Compared to ``default_args``, this allows you to choose which arguments to supply.
 
+        **These will overwrite any values set in ``*args``!**
+
         Example
         -------
 
         .. code-block:: py
 
             >>> from cake import Equation
-            >>> eq = Equation("x ** 2 + y ** 2").bidmas()
-            >>> eq
-            "(x ** 2) + (y ** 2)"
+            >>> eq = Equation("x ** 2 + y ** 2")
             >>> eq._sub(y=10)
-            [Unknown(x), Operator(+), Integer(y)]
+            [Unknown(x), Operator(+), Integer(100)]
 
     
     """
+    def __new__(cls, equation: typing.Union[str, list], *default_args, **default_kwargs):
+        multiple = equation.split('\n') if type(equation) == str else equation
+        if len(multiple) > 1:
+            eqs = list()
+
+            for eq in multiple:
+                eqs.append(Equation(eq, *default_args, **default_kwargs))
+            return eqs
+
+        return super(Equation, cls).__new__(Equation, *default_args, **default_kwargs)
 
     def __init__(self, equation: str, *default_args, **default_kwargs) -> None:
         default_args = list(default_args)
 
-        self._eq = list(equation)
-        self.equation = equation
-        self.defaults = default_args
+        self.__equation = equation
+        self.args = default_args
         self.kwargs = default_kwargs
 
-        self.posfix = {}
+        self.__mappings = self._sort_values(*default_args, **default_kwargs)
 
-        for i in range(len(equation)):
-            char = equation[i]
-            if char in ASCII_CHARS:
-                is_kwarg = default_kwargs.get(char)
-                if is_kwarg:
-                    self.posfix[i] = is_kwarg
-                else:
-                    if default_args:
-                        default_val = default_args.pop(0)
-                        self.posfix[i] = default_val
+    def _sort_values(self, *args, **kwargs) -> dict:
+        unknowns = FIND_UNKNOWNS.findall(self.__equation)
+        for value in unknowns.copy():
+            # Copy stops the change size during iteration error
 
-        for index, value in self.posfix.items():
-            self._eq[index] = value
-        self._eq = list(filter(lambda element: element != ' ', self._eq))
+            if value in BLACKLISTED:
+                unknowns.remove(value)
+
+
+        as_dict = {i: [] for i in unknowns}
+        keys = list(as_dict.keys())
+
+        current_key = keys[0]
+        current_index = 0
+
+        for arg in args:
+            current_key = keys[current_index]
+
+            as_dict[current_key].append(arg)
+
+            if (current_index + 1) > len(keys):
+                current_index = 0
+            else:
+                current_index += 1
+
+        for key, value in kwargs.items():
+            if key in as_dict:
+                recurances = sum(1 for i in unknowns if i == key)
+                as_dict[key] = [value for i in range(recurances)]
+
+        return as_dict
 
     def _sub(self, *args, **kwargs):
-        """
-        Substitute values into your equation, and return a list containing your parsed equation.
-        For solving it is recomended to use ``solve`` instead of this if your intending to solve the result.
+        self.update_variables(*args, **kwargs)
 
-        Parameters
-        ----------
+        unknown_mapping = self.__mappings
+        presence = list()
 
-        *args: :class:`~typing.Any`
-            A set of arguments to substitute into your equation
-        **kwargs: :class:`~typing.Mapping[str, typing.Any]`
-            A set of keyword arguments to substitute into your equation.
-            Keyword provided replaces the one in the equation e.g. `x=10` replaces only x.
+        large_unknowns = LARGE_UNKNOWNS.findall(self.__equation)
+        index = 0
 
-        Returns
-        -------
-        :class:`list`
-        """
+        for lu in large_unknowns:
+            num_end = 0
+            while lu[num_end].isdigit():
+                num_end += 1
+            by_many = lu[:num_end]
+            unknown = lu[num_end:]
 
-        args = list(args)
+            value = unknown_mapping[unknown]            
 
-        def inner(element):
-            if element in kwargs:
-                return kwargs[element]
-            if args and (str(element) in ASCII_CHARS):
-                return args.pop(0)
-            return element
+        return presence
 
-        return list(map(inner, self._eq))
+    def substitute(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def solve(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def wrap_all(self, operator: str, ending: str, *eq_args, **eq_kwargs) -> None:
+        op = Operator(operator)
+
+        eq = f'({self.__equation})'
+        eq += f' {op.op} {ending}'
+
+        self.__equation = eq
+
+        self.update_variables(*eq_args, **eq_kwargs)
+
+    def update_variables(self, *args, **kwargs) -> None:
+        default_args = self.args + list(args)
+        default_kwargs = {**self.kwargs, **kwargs}
+
+        self.args = default_args
+        self.kwargs = default_kwargs
+
+        self.__mappings = self._sort_values(*default_args, **default_kwargs)
+
+    @property
+    def mapping(self):
+        """ Returns a copy of the variable mappings for unknowns """
+        return self.__mappings.copy()
+
+    @property
+    def equation(self):
+        """ Returns a copy of the equation used when initialsing the class """
+        return self.__equation
 
     def __repr__(self) -> str:
         """
