@@ -38,7 +38,7 @@ eq = Equation("-b (+|-) sqrt((b ** 2) - 4(a)(c))")
 eq.wrap_all("/", "2(a)")
 # Puts the entire current formula into brackets and divides by 2a
 
-print(eq.solve(a=10, b=-20, c=5))
+print(eq.substitute(a=10, b=-20, c=5))
 
 # Results: (1.70711, 0.292893)
 ```
