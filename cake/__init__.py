@@ -4,7 +4,6 @@ from typing import NamedTuple, Literal
 from .errors import *
 
 # Core Types
-from .core.equation import Equation
 from .core.number import Number
 from .core.surd import Surd
 from .core.unknown import Unknown
@@ -17,6 +16,9 @@ from .core.symbol import Symbol
 from .core.types import (
     Complex, Integer, Irrational, Prime, Real, Float
 )
+
+# Equation object
+from .core.equation import Equation
 
 from . import (
     errors, abc, helpers
