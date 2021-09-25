@@ -15,7 +15,7 @@ from .core.symbol import Symbol
 
 # Built in types
 from .core.types import (
-    Complex, Integer, Irrational, Prime, Real
+    Complex, Integer, Irrational, Prime, Real, Float
 )
 
 from . import (

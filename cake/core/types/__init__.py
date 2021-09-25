@@ -2,13 +2,13 @@ from .complex import Complex
 from .integer import Integer
 from .irrational import Irrational
 from .prime import Prime
-from .real import Real
+from .float import Real, Float
 
 from . import (
-    complex, integer, irrational, prime, real
+    complex, integer, irrational, prime, float
 )
 
 __all__ = (
-    "Complex", "Integer", "Irrational", "Prime", "Real",
-    "complex", "integer", "irrational", "prime", "real"
+    "Complex", "Integer", "Irrational", "Prime", "Real", "Float"
+    "complex", "integer", "irrational", "prime", "float"
 )

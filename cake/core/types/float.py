@@ -3,7 +3,7 @@ from cake.abc import FloatType
 import typing
 
 
-class Real(Number):
+class Float(Number):
     """
     A class representing a whole number, subclass of :class:`~cake.core.number.Number`
 
@@ -34,3 +34,5 @@ class Real(Number):
         """
 
         return f"Real({super().value})"
+
+Real = Float
