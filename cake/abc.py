@@ -17,6 +17,16 @@ OPERATORS: typing.Set[str] = {
     "//", "&", ">>", "<<", "|"
 }
 
+MAP_OPERATORS = {
+    "add": "+", "plus": "+",
+    "subtract": "-", "minus": "-",
+    "divide": "/",
+    "multiply": "*", "times by": "*",
+    "to the power of": "**",
+    "floor division": "//",
+    "modulus": "%"
+}
+
 KEYWORDS: typing.Mapping[str, typing.Callable] = {
     "!": math.factorial,
     "sqrt": math.sqrt,
