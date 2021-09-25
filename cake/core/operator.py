@@ -4,7 +4,7 @@ class Operator(object):
     __slots__ = ('op')
 
     def __init__(self, op: str) -> None:
-        self.op = MAP_OPERATORS.get(self.op) or op
+        self.op = MAP_OPERATORS.get(op.lower()) or op
 
         if not self.op in OPERATORS:
             raise TypeError('%s is not a valid operator' % self.op)
