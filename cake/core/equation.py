@@ -149,7 +149,8 @@ class Equation(object):
             by_many = lu[:num_end]
             unknown = lu[num_end:]
 
-            value = unknown_mapping[unknown]            
+            value = unknown_mapping[unknown]
+            print(value)
 
         return presence
 
@@ -163,7 +164,7 @@ class Equation(object):
         op = Operator(operator)
 
         eq = f'({self.__equation})'
-        eq += f' {op.op} {ending}'
+        eq += f' {op.value} {ending}'
 
         self.__equation = eq
 
@@ -194,3 +195,9 @@ class Equation(object):
         """
 
         return self.equation
+
+## Tests
+eq = Equation('-b (+|-) sqrt ((b ** 2) - 4(a)(c))')
+eq.wrap_all('divide', "2(a)")
+
+print(eq._sub(b=10))
