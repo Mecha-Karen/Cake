@@ -14,9 +14,9 @@
 </ul>
 
 <h2>Installation</h2>
-As this library is in early development, you will need to install it from github directly
+This library is currently in very early works! It does not have much to offer as of now, but we have a vision to make it full of features!
 
-<h2>Installation</h2>
+<h3>Stable</h3>
 
 ```sh
 # Windows
@@ -26,7 +26,7 @@ pip install MathCake
 pip3 install MathCake
 ```
 
-<h2>Installation</h2>
+<h3>Development</h3>
 
 ```sh
 git clone https://github.com/Mecha-Karen/Cake
@@ -37,6 +37,7 @@ pip install .
 <h2>Quick Example</h2>
 
 <h3>Quadratic Formula</h3>
+Note: This is currently just a concept!
 
 ```py
 from cake import Equation
