@@ -1,11 +1,10 @@
-from cake.abc import OPERATORS
-
+from cake.abc import OPERATORS, MAP_OPERATORS
 
 class Operator(object):
     __slots__ = ('op')
 
     def __init__(self, op: str) -> None:
-        self.op = op
+        self.op = MAP_OPERATORS.get(self.op) or op
 
         if not self.op in OPERATORS:
             raise TypeError('%s is not a valid operator' % self.op)
@@ -17,6 +16,7 @@ class Operator(object):
         r"""
         Shortcut method of evaluating simple queries
         """
+
         if not self.op in OPERATORS:
             raise TypeError('%s is not a valid operator' % self.op)
 
