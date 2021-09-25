@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 setup(
-    name='Cake',
+    name='MathCake',
     version=version,
     description='An object orientated math library',
     long_description=open('README.md').read(),
@@ -37,9 +37,10 @@ setup(
     project_urls={
         "Documentation": "https://docs.mechakaren.xyz/cake",
         "Issue tracker": "https://github.com/Mecha-Karen/Cake/issues",
+        "Organisation": "https://github.com/Mecha-Karen"
     },
 
-    author='Seniatical',
+    author='Mecha Karen',
 
     license='MIT License',
     classifiers=classifiers,
