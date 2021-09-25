@@ -29,7 +29,7 @@ pip install .
 ```py
 from cake import Equation
 
-eq = Equation("-b (+|-) sqrt ((b **2) - 4(a)(c))")
+eq = Equation("-b (+|-) sqrt((b ** 2) - 4(a)(c))")
 # Top layer of the formula
 
 # (+|-) will return 2 solutions as stated in the documentation
