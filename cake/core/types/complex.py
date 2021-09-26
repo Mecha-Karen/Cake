@@ -1,3 +1,4 @@
+from math import radians
 from cake import Number
 from cake.abc import IntegerType
 import typing
@@ -22,19 +23,30 @@ class Complex(Number):
     """
 
     def __init__(
-        self, a: IntegerType = 0, b: IntegerType = 0,
-        raw: str = None,
-        check_value_attr: bool = True,
+        self, a: typing.Optional[IntegerType] = 0, b: typing.Optional[IntegerType] = 0,
+        raw: typing.Optional[str] = None,
+        check_value_attr: typing.Optional[bool] = True,
         *args, **kwargs
     ):
         if raw:
+            raw = str(raw)
+
+            if raw[0] == '(' and raw[-1] == ')':
+                raw = raw[1:-1]
+
             a, b = raw.split('+')
             if b.endswith(('i', 'j')):
                 b = b[:-1]
             else:
                 raise TypeError('Incorrect formatting for complex number, should be in the format of "a + bi"')
         
-        integer = complex(float(a), float(b))
+        if isinstance(a, complex) and not b:
+            integer = a
+        elif isinstance(a, complex) and isinstance(b, complex):
+            # Sum both complexes
+            integer = a + b
+        else:
+            integer = complex(float(a), float(b))
 
         super().__init__(
             integer, check_value_attr,
