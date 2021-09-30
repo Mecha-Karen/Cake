@@ -28,11 +28,14 @@ MAP_OPERATORS = {
 }
 
 KEYWORDS: typing.Mapping[str, typing.Callable] = {
-    "!": math.factorial,
     "sqrt": math.sqrt,
     "sin": lambda degrees: math.sin(math.radians(degrees)),
     "cos": lambda degrees: math.cos(math.radians(degrees)),
     "tan": lambda degrees: math.tan(math.radians(degrees))
+}
+
+SYMBOL_KW: typing.Mapping[str, typing.Callable] = {
+    "!": math.factorial
 }
 
 CONSTANTS: typing.Mapping[str, IntegerType] = {
@@ -80,3 +83,30 @@ NUMBERS: typing.Mapping[str, int] = {
 },
 
 ODD_NUMBERS: typing.Iterable[int] = filter(lambda _: _ % 2 != 0, range(100))
+
+# Prettifiers
+PRETTY_PRINT_SYMBOLS = {
+    "sqrt": "√",
+    "pi": "π",
+    "e": "e",
+    "powers": {
+        "0": "⁰",
+        "1": "¹",
+        "2": "²",
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵",
+        "6": "⁶",
+        "7": "⁷",
+        "8": "⁸",
+        "9": "⁹",
+
+        "+": "⁺",
+        "-": "⁻",
+        "(": "⁽",
+        ")": "⁾",
+        "n": "ⁿ"
+    }
+}
+
+UNKNOWN_PRETTIFIER_SYMBOL = '?'
