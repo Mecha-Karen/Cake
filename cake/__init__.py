@@ -9,8 +9,9 @@ from .core.surd import Surd
 from .core.unknown import Unknown
 
 # Markers
-from .core.operator import Operator
-from .core.symbol import Symbol
+from .core.markers import (
+    Marker, Symbol, Operator, PlusOrMinus, Function
+)
 
 # Built in types
 from .core.types import (
