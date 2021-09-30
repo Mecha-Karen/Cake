@@ -312,8 +312,6 @@ class Equation(object):
                                     FUNC_EQ += ')'
                                     FUNC_EQ = '(' + FUNC_EQ
 
-                                print(FUNC_EQ)
-
                                 pre_presence = Equation(FUNC_EQ, *self.args, **self.kwargs)._sub(*args, **kwargs)
                                 
                                 FUNCTION = Function(
