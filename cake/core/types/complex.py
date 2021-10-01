@@ -38,7 +38,7 @@ class Complex(Number):
             if b.endswith(('i', 'j')):
                 b = b[:-1]
             else:
-                raise TypeError('Incorrect formatting for complex number, should be in the format of "a + bi"')
+                raise ValueError('Incorrect formatting for complex number, should be in the format of "a + bi"')
         
         if isinstance(a, complex) and not b:
             integer = a
