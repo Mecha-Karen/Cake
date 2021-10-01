@@ -95,4 +95,8 @@ class Function(Marker):
 
     def __repr__(self) -> str:
         function, inter = super().value
+
+        if not isinstance(function, str):
+            function = function.__qualname__
+
         return f"Function(name={function}, value={inter})"
