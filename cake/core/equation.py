@@ -40,6 +40,11 @@ INVALID_OPS = re.compile(
     "[a-zA-Z]+[0-9]+", re.IGNORECASE
 )
 
+MATCH_BRACKET = re.compile(
+    "\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)",
+    re.IGNORECASE
+)
+
 # Main Object
 
 class Equation(object):
@@ -215,13 +220,13 @@ class Equation(object):
                 CURRENT_INDEX = 0
 
                 MINI_SKIP = 0
+                ON_LAST = False
 
                 while True:
                     if MINI_SKIP:
                         MINI_SKIP -= 1
                         CURRENT_INDEX += 1
                         continue
-                    ON_LAST = False
 
                     if CURRENT_INDEX > (len(FROM) - 1):
                         if BRK_LAST:
@@ -275,10 +280,13 @@ class Equation(object):
                                     WRAPPED_IN_BRACKS = False
 
                                 if WRAPPED_IN_BRACKS and not TILL_END.endswith(')'):
-                                    if TILL_END[-2] == ')' and TILL_END[-1] == '!':
-                                        pass
-                                    else:
+                                    TILL_END = MATCH_BRACKET.match(TILL_END)
+                                    group = TILL_END.group()
+
+                                    if not group:
                                         raise errors.EquationParseError(f'"{INDEXED}" bracket was not closed')
+                                    else:
+                                        TILL_END = group
 
                                 for sub_sub_posfix in TILL_END:
                                     if sub_sub_posfix == ' ':
@@ -311,6 +319,10 @@ class Equation(object):
                                 if not FUNC_EQ.startswith('('):
                                     FUNC_EQ += ')'
                                     FUNC_EQ = '(' + FUNC_EQ
+                                else:
+                                    # Mysterious appending of 1 bracket
+                                    # Temporary solution
+                                    FUNC_EQ = FUNC_EQ[1:]
 
                                 pre_presence = Equation(FUNC_EQ, *self.args, **self.kwargs)._sub(*args, **kwargs)
                                 
@@ -336,7 +348,7 @@ class Equation(object):
                     CURRENT_INDEX += 1
 
             # Brackets
-            if posfix == "(":
+            elif posfix == "(":
                 SKIPPED = False
 
                 if INDEX < (len(self.equation) - 1):
@@ -389,23 +401,25 @@ class Equation(object):
                 OPEN_BRACKETS -= 1
                 presence.append(Symbol(')'))
 
-            try:
-                is_op = Operator(posfix)
+            elif posfix in abc.OPERATORS:
 
-                if INDEX < (len(self.equation) - 1):
-                    is_double = self.equation[INDEX + 1]
-                    try:
-                        is_op = Operator((posfix + is_double))
-                        SKIP_MANY += 1
-                    except ValueError:
-                        pass
+                try:
+                    is_op = Operator(posfix)
 
-                presence.append(is_op)
+                    if INDEX < (len(self.equation) - 1):
+                        is_double = self.equation[INDEX + 1]
+                        try:
+                            is_op = Operator((posfix + is_double))
+                            SKIP_MANY += 1
+                        except ValueError:
+                            pass
 
-            except ValueError:
-                pass
+                    presence.append(is_op)
 
-            if posfix.isdigit():
+                except ValueError as e:
+                    raise errors.EquationParseError(f'Failed to convert posfix to operator') from e
+
+            elif posfix.isdigit():
                 current_pos = self.equation[INDEX:]
                 CURRENT_INDEX = 0
 
@@ -456,6 +470,12 @@ class Equation(object):
                         u = Unknown(UNKNOWN)
 
                     presence.append(u)
+
+            else:
+                if posfix != ' ': 
+                    raise errors.EquationParseError(
+                        'Unknown Posfix Used: {}'.format(posfix)
+                    )
 
             INDEX += 1
 
