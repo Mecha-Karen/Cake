@@ -44,8 +44,8 @@ CONSTANTS: typing.Mapping[str, IntegerType] = {
 }
 
 SCALES: typing.Mapping[str, int] = {
-    "hundred": 1 * (10 * 2),
-    "thousand": 1 * (10 * 3),
+    "hundred": 1 * (10 ** 2),
+    "thousand": 1 * (10 ** 3),
     "million": 1 * (10 ** 6),
     "billion": 1 * (10 ** 9),
     "trillion": 1 * (10 ** 12),
