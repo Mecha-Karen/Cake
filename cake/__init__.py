@@ -19,7 +19,7 @@ from .core.types import (
 )
 
 # Equation object
-from .core.equation import Equation
+from .core.expression import Expression
 
 from . import (
     errors, abc, helpers
