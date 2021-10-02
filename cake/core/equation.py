@@ -1,6 +1,5 @@
-from math import factorial
+from token import INDENT
 from cake.core.markers import ALLOWED
-from cake.core.number import Number
 import re
 import typing
 import string
@@ -14,6 +13,18 @@ from cake import (
 )
 from cake.helpers import convert_type
 
+# Imports for tokenizing
+from tokenize import (
+    tokenize, 
+    
+    # IGNORE MARKERS
+    ENDMARKER, NEWLINE, ENCODING,
+    
+    # MARKERS TO SEARCH
+    OP, NAME, NUMBER, ERRORTOKEN
+)
+from io import BytesIO
+
 ASCII_CHARS = string.ascii_lowercase
 # Use lowercases so `X` is equal to `x`
 BLACKLISTED = list(abc.KEYWORDS.keys()) + list(abc.CONSTANTS.keys())
@@ -22,8 +33,8 @@ VALID_SYMBOLS = {
     "!", "(", ")"
 }
 # Used for parsing functions
-BREAK_ON_LAST = True
-# Iterates one last time including the last letter before breaking
+IGNORE = (ENDMARKER, NEWLINE, ENCODING)
+# Ignore any tokens from the tokeniser
 
 ################
 #
@@ -35,15 +46,12 @@ FIND_UNKNOWNS = re.compile(
     "[a-zA-Z]+",
     re.IGNORECASE
 )
+# Looks for any letters, this is useful when mapping values to a specific unknown
 
 INVALID_OPS = re.compile(
     "[a-zA-Z]+[0-9]+", re.IGNORECASE
 )
-
-MATCH_BRACKET = re.compile(
-    "\((?:[^)(]+|\((?:[^)(]+|\([^)(]*\))*\))*\)",
-    re.IGNORECASE
-)
+# Looks for any incorrect patterns such as `sqrt4`
 
 # Main Object
 
@@ -104,10 +112,14 @@ class Equation(object):
 
         return super(Equation, cls).__new__(Equation, *default_args, **default_kwargs)
 
-    def __init__(self, equation: str, *default_args, **default_kwargs) -> None:
+    def __init__(self, equation: typing.Union[str, typing.BinaryIO], *default_args, **default_kwargs) -> None:
         default_args = list(default_args)
 
-        self.__equation = equation.lower()
+        if hasattr(equation, 'seek'):
+            self.__equation = equation.read().decode(encoding='ASCII', errors='ignore')
+        else:
+            self.__equation = equation.lower()
+
         self.args = default_args
         self.kwargs = default_kwargs
 
@@ -146,15 +158,21 @@ class Equation(object):
 
         return as_dict
 
-    def _sub(self, update_mappings: bool = False, *args, **kwargs):
+    def _sub(self, 
+            update_mappings: bool = False,
+            return_tokens: bool = False,
+            *args, **kwargs
+        ):
         """
-        Simple tokenization, returns a list of tokens. This is usually only important to parsing.
+        Simple tokenization, returns a list of tokens. This is usually only important for parsing.
         An example of this can be found in the ``substitution`` method.
 
         Parameters
         ----------
         update_mappings: :class:`bool`
             Update the inner unknown mappings with any new args or kwargs
+        return_tokens: :class:`bool`
+            Returns a tuple with ``(Evaluated_Tokens, Tokens)``
         *args, **kwargs: :class:`~typing.Any`
             Overwrites or adds to pre-existing inner mappings for unknown values
         """
@@ -184,310 +202,251 @@ class Equation(object):
 
             raise errors.EquationParseError(f'String `{found_first}`, followed by integer. Perhaps you ment "{possible_correct}"')
 
+        as_file = BytesIO(self.equation.encode(encoding='ASCII', errors='ignore'))
+
+        as_file.seek(0)
+
+        tokens = list(tokenize(as_file.readline))
+
         presence = list()
 
         OPEN_BRACKETS = 0
-        INDEX = 0
-        SKIP_MANY = 0
-        BRK_LAST = BREAK_ON_LAST
+        ACTUAL_INDEX = 0
+        TOKEN_INDEX = 0
 
-        for posfix in self.equation:
+        SKIP = 0
 
-            if SKIP_MANY:
+        while True:
+            if TOKEN_INDEX > (len(tokens) - 1):
+                break
 
-                if INDEX == (len(self.equation) - 1):
-                    if OPEN_BRACKETS and self.equation[INDEX] == ')':
-                        presence.append(Symbol(')'))
-                        OPEN_BRACKETS -= 1
-
-                SKIP_MANY -= 1
-                INDEX += 1
-
+            if SKIP:
+                SKIP -= 1
+                TOKEN_INDEX += 1
                 continue
 
-            if posfix == '!':
-                previous = presence[-1]
-                if isinstance(previous, Operator):
-                    raise errors.EquationParseError(f'Factorial used on `{previous.value}`')
+            token = tokens[TOKEN_INDEX]
 
-                function = Function(factorial, ...)
-                # Factorial marker has no inner parameter
-                presence.append(function)
+            string = (token.string).lower()
+            type_ = token.type
 
-            elif posfix in ASCII_CHARS:
-                INDEXED = ""
-                FROM = self.equation[INDEX:]
-                CURRENT_INDEX = 0
+            if type_ in IGNORE:
+                pass
 
-                MINI_SKIP = 0
-                ON_LAST = False
+            elif type_ == OP:
+                if string == '(':
+                    POS_TOKENS = tokens[TOKEN_INDEX:]
 
-                while True:
-                    if MINI_SKIP:
-                        MINI_SKIP -= 1
-                        CURRENT_INDEX += 1
-                        continue
+                    is_plus = POS_TOKENS[0:5]
+                    to_mapping = ''.join([i.string for i in is_plus])
 
-                    if CURRENT_INDEX > (len(FROM) - 1):
-                        if BRK_LAST:
-                            BRK_LAST = False
-                            CURRENT_INDEX -= 1
-                            ON_LAST = True
-                        else:
-                            break
-
-                    sub_posfix = FROM[CURRENT_INDEX]
-
-                    if sub_posfix in ASCII_CHARS and not ON_LAST:
-                        INDEXED += sub_posfix
-                    elif sub_posfix == " ":
-                        pass
+                    if to_mapping in ['(+|-)', '(-|+)']:
+                        SKIP += 4
+                        presence.append(PlusOrMinus())
                     else:
                         try:
-                            next_posfix = FROM[CURRENT_INDEX + 1]
-                            if next_posfix in ASCII_CHARS:
-                                nextASCII = True
-                            else:
-                                nextASCII = False
-                        except IndexError:
-                            nextASCII = False
+                            comp = Complex(raw=to_mapping)
+                            presence.append(comp)
 
-                        if not nextASCII:
-
-                            constant = abc.CONSTANTS.get(INDEXED)
-                            func = abc.KEYWORDS.get(INDEXED)
-
-                            if func and constant:
-                                raise errors.EquationParseError(f'{INDEXED} is defined as both constant and function')
-                            elif constant:
-                                presence.append(Irrational(constant))
-                                break
-
-                            elif func:
-                                FUNC_OPEN_BRACKS = 0
-
-                                FUNC_EQ = ""
-                                # Create sep equation obj to evaluate captured parameters
-                                
-                                TILL_END = self.equation[INDEX + CURRENT_INDEX:].strip()
-
-                                if not TILL_END:
-                                    raise errors.EquationParseError(f'"{INDEXED}" Called with no parameters')
-
-                                if TILL_END.startswith('('):
-                                    WRAPPED_IN_BRACKS = True
-                                else:
-                                    WRAPPED_IN_BRACKS = False
-
-                                if WRAPPED_IN_BRACKS and not TILL_END.endswith(')'):
-                                    TILL_END = MATCH_BRACKET.match(TILL_END)
-                                    group = TILL_END.group()
-
-                                    if not group:
-                                        raise errors.EquationParseError(f'"{INDEXED}" bracket was not closed')
-                                    else:
-                                        TILL_END = group
-
-                                for sub_sub_posfix in TILL_END:
-                                    if sub_sub_posfix == ' ':
-
-                                        if not WRAPPED_IN_BRACKS:
-                                            break
-
-                                        continue
-
-                                    if sub_sub_posfix == '(':
-                                        FUNC_EQ += '('
-                                        FUNC_OPEN_BRACKS += 1
-
-                                    if sub_sub_posfix == ')':
-                                        if FUNC_OPEN_BRACKS < 1:
-                                            OPEN_BRACKETS -= 1
-                                            break
-                                        
-                                        FUNC_EQ += ')'
-                                        FUNC_OPEN_BRACKS -= 1
-
-                                    else:
-                                        FUNC_EQ += sub_sub_posfix
-
-                                    SKIP_MANY += 1
-
-                                if FUNC_OPEN_BRACKS > 1:
-                                    raise errors.EquationParseError(f"{FUNC_OPEN_BRACKS} unclosed brackets whilst parsing '{func.__qualname__}'")
-
-                                if not FUNC_EQ.startswith('('):
-                                    FUNC_EQ += ')'
-                                    FUNC_EQ = '(' + FUNC_EQ
-                                else:
-                                    # Mysterious appending of 1 bracket
-                                    # Temporary solution
-                                    FUNC_EQ = FUNC_EQ[1:]
-
-                                pre_presence = Equation(FUNC_EQ, *self.args, **self.kwargs)._sub(*args, **kwargs)
-                                
-                                FUNCTION = Function(
-                                    INDEXED, pre_presence
-                                )
-
-
-                                presence.append(FUNCTION)
-
-                                # presence.extend(pre_presence)
-                                # FUNCTION basically has `pre_presence` in it, so this is pretty much useless
-
-                                break
-
-                            # Create unknown
-                            unknown = Unknown(INDEXED)
-                            presence.append(unknown)
-                            break
-
-
-                    SKIP_MANY += 1
-                    CURRENT_INDEX += 1
-
-            # Brackets
-            elif posfix == "(":
-                SKIPPED = False
-
-                if INDEX < (len(self.equation) - 1):
-                    copy = self.equation[INDEX:]
-                    COPY_INDEX = 0
-                    COPY_OPEN_BRACKETS = 0
-
-                    # Contains everythings out of the bracket
-                    while True:
-
-                        if not copy:
-                            break
-                        if COPY_INDEX > (len(copy) - 1):
-                            break
-
-                        if copy[COPY_INDEX] == '(':
-                            COPY_OPEN_BRACKETS += 1
+                            SKIP += 4
+                        except ValueError:
+                            presence.append(Symbol('('))
                             OPEN_BRACKETS += 1
 
-                        if copy[COPY_INDEX] == ')':
-                            COPY_OPEN_BRACKETS -= 1
-                            OPEN_BRACKETS -= 1
-                            
-                            if not COPY_OPEN_BRACKETS:
-                                break
+                elif string == ')':
+                    if OPEN_BRACKETS < 1:
+                        INCORRECT_BRACK_INDEX = token.start[1]
 
-                        COPY_INDEX += 1
+                        raise errors.EquationParseError(f'Unexpected `)` at position {INCORRECT_BRACK_INDEX}')
 
-                    copy = copy[:(COPY_INDEX + 1)]
+                    presence.append(Symbol(')'))
+                    OPEN_BRACKETS -= 1
+
+                else:
+                    string_ = abc.MAP_OPERATORS.get(string, string)
+                    # Get the operator or just return the same string
 
                     try:
-                        complex_ = Complex(raw=copy, check_value_attr=True)
-                        SKIPPED = True
-                        SKIP_MANY += len(copy)
+                        op = Operator(string_)
+                        presence.append(op)
+                    except ValueError as e:
+                        raise errors.EquationParseError(
+                            f'Unknown Operator: {string}'
+                        ) from e
 
-                        presence.append(complex_)
-                    except Exception:
-                        if copy in ['(+|-)', '(-|+)']:
-                            presence.append(PlusOrMinus())
-                            SKIP_MANY += 5
-                            SKIPPED = True
+            elif type_ in [NAME, ERRORTOKEN]:
+                constant = abc.CONSTANTS.get(string)
+                function = abc.KEYWORDS.get(string)
+                symbol_func = abc.SYMBOL_KW.get(string)
+
+                if constant and function:
+                    raise errors.EquationParseError(f'{string} is defined both as a function and constant')
+
+                elif constant:
+                    presence.append(Irrational(constant))
+                
+                elif function:
+                    POS_TOKENS = tokens[(TOKEN_INDEX + 1):]
+                    # Start from next posfix, else the `function` NAME gets caught
+
+                    if not POS_TOKENS:
+                        raise errors.EquationParseError(f'{string} Called with no parameters')
+
+                    if POS_TOKENS[0].string == '(':
+                        WRAPPED_IN_BRACKETS = True
+                    else:
+                        WRAPPED_IN_BRACKETS = False
+
+                    if not WRAPPED_IN_BRACKETS:
+                        _, COL = POS_TOKENS[0].start
+
+                        EQ = self.equation[COL:]
+                        EVALUATE = EQ.split(' ')[0]
+
+                        TREE, TOKENS = Equation(EVALUATE)._sub(
+                            return_tokens=True,
+                            **self._sort_values(*args, **kwargs)
+                            )
                         
-                if not SKIPPED:
-                    OPEN_BRACKETS += 1
-                    presence.append(Symbol('('))
-
-            elif posfix == ")":
-                if OPEN_BRACKETS < 1:
-                    raise errors.EquationParseError(f'Unexpected token `)`. At index `{INDEX}`')
-                OPEN_BRACKETS -= 1
-                presence.append(Symbol(')'))
-
-            elif posfix in abc.OPERATORS:
-
-                try:
-                    is_op = Operator(posfix)
-
-                    if INDEX < (len(self.equation) - 1):
-                        is_double = self.equation[INDEX + 1]
-                        try:
-                            is_op = Operator((posfix + is_double))
-                            SKIP_MANY += 1
-                        except ValueError:
-                            pass
-
-                    presence.append(is_op)
-
-                except ValueError as e:
-                    raise errors.EquationParseError(f'Failed to convert posfix to operator') from e
-
-            elif posfix.isdigit():
-                current_pos = self.equation[INDEX:]
-                CURRENT_INDEX = 0
-
-                UNKNOWN = ""
-                NUMBER = ""
-
-                while True:
-                    if CURRENT_INDEX > (len(current_pos) - 1):
-                        break
-
-                    sub_posfix = current_pos[CURRENT_INDEX]
-
-                    if sub_posfix in ASCII_CHARS:
-                        UNKNOWN += sub_posfix
-                    elif sub_posfix.isdigit():
-                        NUMBER += sub_posfix
-                    elif sub_posfix == '.':
-                        NUMBER += '.'
                     else:
+                        FUNQ_EQ = ""
+                        BRACKS = 0
 
-                        break
+                        for POSFIX in POS_TOKENS:
 
-                    CURRENT_INDEX += 1
-                    SKIP_MANY += 1
+                            if POSFIX.string == '(':
+                                BRACKS += 1
+                                FUNQ_EQ += ' ( '
+                            elif POSFIX.string == ')':
+                                if BRACKS < 1:
+                                    OPEN_BRACKETS -= 1
+                                    presence.append(Symbol(')'))
+                                    break
+                                BRACKS -= 1
+                                FUNQ_EQ += ' ) '
 
-                if UNKNOWN and NUMBER:
-                    unknown_has_value = unknown_mapping.get(UNKNOWN)
-                    if unknown_has_value:
-                        u = convert_type(unknown_has_value)
+                            else:
+                                FUNQ_EQ += f' {POSFIX.string} '
+
+                        if BRACKS > 1:
+                            raise errors.EquationParseError(f'{BRACKS} Unclosed brackets whilst evaluating {function.__qualname__}')
+                        
+                        TREE, TOKENS = Equation(FUNQ_EQ)._sub(
+                            return_tokens=True, 
+                            **self._sort_values(*args, **kwargs)
+                            )
+
+                    if not TREE:
+                        raise errors.EquationParseError(f'{string} Called with no parameters')
+
+                    func = Function(function, TREE)
+                    SKIP += len(TOKENS)
+                    presence.append(func)
+
+                elif symbol_func:
+                    LAST_POSFIX = presence[-1]
+                    func_name = symbol_func.__qualname__.title()
+
+                    if isinstance(LAST_POSFIX, Operator):
+                        raise errors.EquationParseError(f'{func_name} called on an operator ({LAST_POSFIX.value}), at index {token.start[1]}.')                    
+
+                    if isinstance(LAST_POSFIX, Symbol):
+                        if LAST_POSFIX.value == '(':
+                            raise errors.EquationParseError(f'{func_name} called on an open bracket, at index {token.start[1]}')
+                        
+                        OPEN_BRACKS = 0
+
+                        raise NotImplementedError('Factorial on bracket groups is not yet implemented')
+
                     else:
-                        u = Unknown(UNKNOWN)
+                        new_pre = [
+                            Symbol('('),
+                            LAST_POSFIX,
+                            Symbol(')')
+                        ]
 
-                    pre_presence = [
-                        Symbol('('),
-                        Irrational(NUMBER),
-                        Operator('*'),
-                        u,
-                        Symbol(')')
-                    ]
-                    presence.extend(pre_presence)
-                elif NUMBER:
-                    presence.append(Irrational(NUMBER))
-                elif UNKNOWN:
-                    unknown_has_value = unknown_mapping.get(UNKNOWN)
-                    if unknown_has_value:
-                        u = convert_type(unknown_has_value)
+                        func = Function(
+                            symbol_func, new_pre
+                        )
+
+                        presence[-1] = func
+
+                else:
+                    unk = Unknown(string)
+                    value = unknown_mapping.get(string)
+
+                    if value:
+                        presence.append(convert_type(value))
                     else:
-                        u = Unknown(UNKNOWN)
+                        presence.append(unk)
 
-                    presence.append(u)
+            elif type_ == NUMBER:
+                POS_TOKENS = tokens[TOKEN_INDEX:]
+                CURRENT_NUMBER = convert_type(string)
+
+                if not POS_TOKENS:
+                    presence.append(CURRENT_NUMBER)
+                else:
+                    NEXT = POS_TOKENS[1]
+
+                    if NEXT.type == NAME:
+                        constant = abc.CONSTANTS.get(NEXT.string)
+                        function = abc.KEYWORDS.get(NEXT.string)
+
+                        value = unknown_mapping.get(NEXT.string)
+                        unk = Unknown(NEXT.string)
+
+                        if value:
+                            value = convert_type(value)
+                        else:
+                            value = unk
+
+                        if constant:
+                            SKIP += 1
+                            presence.append(Irrational(constant))
+
+                        elif not function:
+                            SKIP += 1
+
+                            presence.extend([
+                                Symbol('('),
+                                CURRENT_NUMBER,
+                                Operator('*'),
+                                value,
+                                Symbol(')')
+                            ])
+
+                        else:
+                            possible_correct = f'{string} * {NEXT.string}'
+
+                            raise errors.EquationParseError(
+                                f'Invalid use of function "{function.__qualname__}" at index {NEXT.start[1]}. Perhaps you ment "{possible_correct}"'
+                            )
+
+
+                    else:
+                        presence.append(CURRENT_NUMBER)
 
             else:
-                if posfix != ' ': 
-                    raise errors.EquationParseError(
-                        'Unknown Posfix Used: {}'.format(posfix)
-                    )
 
-            INDEX += 1
+                # Stops `' '` from raising an error
+                if string.strip(): 
+                    raise errors.EquationParseError(f'Unknown Token: {string}')
 
-        if OPEN_BRACKETS:
-            raise errors.EquationParseError(f'{OPEN_BRACKETS} Unclosed Brackets')
+            ACTUAL_INDEX += len(string)
+            TOKEN_INDEX += 1
 
+        if OPEN_BRACKETS > 1:
+            raise errors.EquationParseError(f'{OPEN_BRACKETS} Unclosed brackets')
+
+        if return_tokens:
+            return presence, tokens
         return presence
 
     def substitute(self, *args, **kwargs):
         """
         Supply values, or use pre-existing values to substitute into your equation.
-        Returns the result of the evaluated equation
+        Returns the result of the evaluated equation.
 
         Parameters
         ----------
