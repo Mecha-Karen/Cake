@@ -27,8 +27,9 @@ from . import (
 )
 
 __file__ = __import__('os').path.abspath(__file__)
-__doc__ = 'An object orientated maths library'
+__doc__ = 'An object orientated math library'
 __version__ = "0.0.1a2"
+__author__ = "Mecha Karen"
 
 
 class VersionInfo(NamedTuple):
