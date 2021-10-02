@@ -18,7 +18,8 @@ from .core.types import (
     Complex, Integer, Irrational, Prime, Real, Float
 )
 
-# Equation object
+# Alegebra
+from .core.equation import Equation
 from .core.expression import Expression
 
 from . import (
