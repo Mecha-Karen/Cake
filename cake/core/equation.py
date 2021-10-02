@@ -208,6 +208,12 @@ class Equation(object):
 
         tokens = list(tokenize(as_file.readline))
 
+        if not tokens:
+            return []
+
+        if tokens[0].type == ENCODING:
+            tokens.pop(0)
+
         presence = list()
 
         OPEN_BRACKETS = 0
@@ -351,12 +357,48 @@ class Equation(object):
                         raise errors.EquationParseError(f'{func_name} called on an operator ({LAST_POSFIX.value}), at index {token.start[1]}.')                    
 
                     if isinstance(LAST_POSFIX, Symbol):
-                        if LAST_POSFIX.value == '(':
+                        if LAST_POSFIX.value != ')':
                             raise errors.EquationParseError(f'{func_name} called on an open bracket, at index {token.start[1]}')
                         
                         OPEN_BRACKS = 0
+                        POS_INDEX = 0
+                        POS_TOKENS = tokens[:TOKEN_INDEX][::-1]
+                        # Searching Backwards
+                        # Factorial will be at the beginning
 
-                        raise NotImplementedError('Factorial on bracket groups is not yet implemented')
+                        for POS_TOKEN in POS_TOKENS:
+                            
+                            string = POS_TOKEN.string
+
+                            if string == ')':
+                                OPEN_BRACKS += 1
+                            elif string == '(':
+                                OPEN_BRACKS -= 1
+
+                                if OPEN_BRACKS < 1:
+                                    break
+
+                            POS_INDEX += 1
+
+                        if OPEN_BRACKS:
+                            raise errors.EquationParseError(f'{OPEN_BRACKS} Unclosed brackets whilst evalutating "{symbol_func.__qualname__}"')
+
+                        POS_TOKENS = POS_TOKENS[::-1]
+                        PS_IND = (len(POS_TOKENS) - 1) - POS_INDEX
+
+                        # Flip them back around
+
+                        as_eq = [i.string for i in POS_TOKENS[PS_IND:]]
+
+                        del presence[((TOKEN_INDEX - POS_INDEX) - 1):(TOKEN_INDEX + 1)]
+
+
+                        TREE = Equation(' '.join(as_eq))._sub(
+                            **self._sort_values(*args, **kwargs)
+                            )
+
+                        func = Function(symbol_func, TREE)
+                        presence.append(func)
 
                     else:
                         new_pre = [
@@ -372,6 +414,9 @@ class Equation(object):
                         presence[-1] = func
 
                 else:
+                    if not string in ASCII_CHARS:
+                        raise errors.EquationParseError(f'Unknown Token ({string}) at index {token.start[1]}')
+
                     unk = Unknown(string)
                     value = unknown_mapping.get(string)
 
@@ -423,7 +468,6 @@ class Equation(object):
                                 f'Invalid use of function "{function.__qualname__}" at index {NEXT.start[1]}. Perhaps you ment "{possible_correct}"'
                             )
 
-
                     else:
                         presence.append(CURRENT_NUMBER)
 
@@ -431,7 +475,7 @@ class Equation(object):
 
                 # Stops `' '` from raising an error
                 if string.strip(): 
-                    raise errors.EquationParseError(f'Unknown Token: {string}')
+                    raise errors.EquationParseError(f'Unknown Token ({string}) at index {token.start[1]}')
 
             ACTUAL_INDEX += len(string)
             TOKEN_INDEX += 1
