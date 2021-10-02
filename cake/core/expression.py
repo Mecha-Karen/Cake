@@ -9,7 +9,7 @@ from cake import abc, errors
 from cake import (
     Complex, Integer, Irrational, Prime, Float, Unknown,
 
-    Operator, Symbol, PlusOrMinus, Function
+    Operator, Symbol, PlusOrMinus, Function, Equation
 )
 from cake.helpers import convert_type
 
@@ -600,5 +600,5 @@ class Expression(object):
 
         return repr(self.expression)
 
-    def __eq__(self, other: "Expression") -> "expression":
+    def __eq__(self, other: "Expression") -> "Equation":
         raise NotImplementedError()
