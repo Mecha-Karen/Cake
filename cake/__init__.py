@@ -18,9 +18,9 @@ from .core.types import (
     Complex, Integer, Irrational, Prime, Real, Float
 )
 
-# Algebra
-from .algebra.equation import Equation
-from .algebra.expression import Expression
+
+from .parsing.equation import Equation
+from .parsing.expression import Expression
 
 # Functions
 from .functions.prime import (
