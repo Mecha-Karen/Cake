@@ -35,7 +35,8 @@ pip install .
 ```
 
 <h2>Documentation</h2>
-To compile the documentation click [me](https://github.com/Mecha-Karen/Documentation#compiling-cake) for further support.
+
+To compile the documentation, click [me](https://github.com/Mecha-Karen/Documentation#compiling-cake)for more information
 
 If you wish to view the live version, click [me](https://docs.mechakaren.xyz/cake).
 
