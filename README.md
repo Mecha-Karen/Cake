@@ -34,6 +34,11 @@ cd Cake
 pip install .
 ```
 
+<h2>Documentation</h2>
+To compile the documentation visit [me](https://github.com/Mecha-Karen/Documentation#compiling-cake) for further support.
+
+If you wish to view the live version, click [me](https://docs.mechakaren.xyz/cake).
+
 <h2>Quick Example</h2>
 
 <h3>Quadratic Formula</h3>
