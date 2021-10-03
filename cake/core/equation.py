@@ -1,2 +1,4 @@
 class Equation(object):
-    raise NotImplementedError()
+    
+    def __init__(self):
+        raise NotImplementedError()
