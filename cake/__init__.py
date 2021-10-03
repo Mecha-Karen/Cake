@@ -22,6 +22,12 @@ from .core.types import (
 from .core.equation import Equation
 from .core.expression import Expression
 
+# Functions
+from .functions.prime import (
+    is_prime, factor_tree
+)
+
+# Files
 from . import (
     errors, abc, helpers
 )
