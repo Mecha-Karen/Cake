@@ -62,6 +62,20 @@ print(expr.substitute(a=10, b=-20, c=5))
 # Results: (1.70711, 0.292893)
 ```
 
+<h3>Solving Simultaneous Equations</h3>
+
+```py
+from cake inport Expression
+from cake.simultaneous import Circle
+
+circle = Expression("x ** 2 + y ** 2 = 12")
+line = Expression("x + y = 4")
+
+eq = Circle(circle, line)
+eq.solve_by_sub()
+# Result: ((4, 0), (0, 4))
+```
+
 <h2>Links</h2>
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
