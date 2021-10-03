@@ -6,3 +6,6 @@ class InvalidObject(Exception):
 
 class EquationParseError(Exception):
     """ Raised when an error occurs whilst parsing your equation equation """
+
+class SubstitutionError(Exception):
+    """ Raised when an error occurs during substitution """
