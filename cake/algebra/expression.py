@@ -490,7 +490,7 @@ class Expression(object):
     def substitute(self, update_mapping: bool = False, *args, **kwargs):
         """
         Supply values, or use pre-existing values to substitute into your expression.
-        Returns the result of the evaluated expression.
+        Returns the result of the evaluated expression as a tuple.
 
         Parameters
         ----------
@@ -499,20 +499,61 @@ class Expression(object):
         **kwargs: :class:`~typing.Any`
             Keyworded arguments to supply into your expression.
         """
-        presence = self._sub()
+        presence = self._sub(update_mapping, *args, **kwargs)
+        result = list()
 
-    def solve(self, other: typing.Any, *args, **kwargs):
+        plusMinusCount = len(
+            list(
+                filter(lambda x: isinstance(x, PlusOrMinus), presence)
+            )
+        ) * 2
+        # How many solutions there can be in total
+
+        plusMinusIndexes = []
+
+        PRESENCE_INDEX = 0
+        RIGHT, LEFT = None, None
+
+        # First iter is remove any useless operators and evaluating brackets and functions
+        # Second iter is evaluating the entire equation, and adding plus/minus operators
+        while True:
+            if PRESENCE_INDEX > len(presence - 1):
+                break
+
+            POSFIX = presence[PRESENCE_INDEX]
+
+            if isinstance(POSFIX, PlusOrMinus):
+                plusMinusIndexes.append(PRESENCE_INDEX)
+
+            elif isinstance(POSFIX, Operator):
+                if (PRESENCE_INDEX + 1) >= (len(presence) - 1):
+                    raise errors.SubstitutionError(f'{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}')
+                NEXT_POSFIX = presence[(PRESENCE_INDEX + 1)]
+
+                if POSFIX.value == '-':
+                    # Negate the entire right side
+                    if isinstance(NEXT_POSFIX, Symbol):
+                        if NEXT_POSFIX.value == ')':
+                            raise errors.SubstitutionError(f'{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}')
+
+
+            PRESENCE_INDEX += 1
+
+        if len(result) < plusMinusCount:
+            raise errors.SubstitutionError(f'Evaluted expression returned {len(result)} results instead of {plusMinusCount}')
+
+        return tuple(result)
+
+    def solve(self, *args, **kwargs):
         """
         Equals your expression to ``0`` and solves it mathmatically.
 
         Parameters
         ----------
-        *args: :class:`~typing.Any`
+        *args:
             Arguments to supply in your expression
-        **kwargs: :class:`~typing.Any`
+        **kwargs:
             Keyworded arguments to supply into your expression.
-
-            **Warning:** Unlike `*args`, this will overwrite all instances of an unknown
         """
         raise NotImplementedError()
 
@@ -601,4 +642,9 @@ class Expression(object):
         return repr(self.expression)
 
     def __eq__(self, other: "Expression") -> "Equation":
+        """
+        Equality is not used for checking with an `Expression`.
+        This instead creates an ``Equation`` object, which states:
+            Expr1 = Expr2
+        """
         raise NotImplementedError()

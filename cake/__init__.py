@@ -19,8 +19,8 @@ from .core.types import (
 )
 
 # Algebra
-from .core.equation import Equation
-from .core.expression import Expression
+from .algebra.equation import Equation
+from .algebra.expression import Expression
 
 # Functions
 from .functions.prime import (
