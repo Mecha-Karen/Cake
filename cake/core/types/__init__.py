@@ -9,6 +9,6 @@ from . import (
 )
 
 __all__ = (
-    "Complex", "Integer", "Irrational", "Prime", "Real", "Float"
+    "Complex", "Integer", "Irrational", "Prime", "Real", "Float",
     "complex", "integer", "irrational", "prime", "float"
 )
