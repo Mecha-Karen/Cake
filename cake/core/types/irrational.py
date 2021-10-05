@@ -49,6 +49,14 @@ class Irrational(Number):
             float, Irrational, *args, **kwargs
         )
 
+    @staticmethod
+    def handler(res: FloatType, chk_value: bool, _, __, *args, **kwargs):
+        return Irrational(
+            real=float(res),
+            check_value_attr=chk_value,
+            *args, **kwargs
+        )
+
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class

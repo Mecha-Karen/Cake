@@ -53,6 +53,15 @@ class Complex(Number):
             complex, Complex, *args, **kwargs
         )
 
+    @staticmethod
+    def handler(res: complex, chk_value: bool, _, __, *args, **kwargs):
+        return Complex(
+            a = res.real,
+            b = res.imag,
+            check_value_attr=chk_value,
+            *args, **kwargs
+        )
+
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class

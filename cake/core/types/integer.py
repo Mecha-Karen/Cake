@@ -28,6 +28,14 @@ class Integer(Number):
             int, Integer, *args, **kwargs
         )
 
+    @staticmethod
+    def handler(res: IntegerType, chk_value: bool, _, __, *args, **kwargs):
+        return Integer(
+            integer=int(res),
+            check_value_attr=chk_value,
+            *args, **kwargs
+        )
+
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class

@@ -8,6 +8,7 @@ The root class for pretty much any number, digit in this library.
 from math import ceil
 from .unknown import Unknown
 import typing
+import inspect
 
 
 class Number(object):
@@ -77,11 +78,11 @@ class Number(object):
         if return_me == ...:
             self.return_class = Number
         else:
-            if not callable(return_me):
-                if hasattr(return_me, 'handler') and callable(return_me.handle):
+            if hasattr(return_me, 'handler'):
+                if callable(return_me.handler):
                     self.return_class = return_me.handler
                 else:
-                    raise TypeError('return_me value must be a callable object')
+                    raise TypeError('handler must be a callable object')
             else:
                 self.return_class = return_me
 
@@ -119,6 +120,14 @@ class Number(object):
             return other
 
         result = self._value * other
+
+        print(
+            result, self.check_value_attr,
+            self._type, self.return_class,
+            self.args, self.kwargs,
+
+            sep="\n"
+        )
 
         return self.return_class(
             result, self.check_value_attr,
