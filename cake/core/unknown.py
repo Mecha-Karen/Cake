@@ -1,12 +1,13 @@
-from cake.parsing.expression import Expression
-from math import exp, factorial as fc
+from math import factorial as fc
+import re
 from cake.abc import PRETTY_PRINT_SYMBOLS, UNKNOWN_PRETTIFIER_SYMBOL
 import typing
 
 VALID_DATA_KEYS = {
     "raised": 1,
     "multiplied": 1,
-    "op": None,
+    "divided": 1,
+    "op": 0,
     "sqrt": False,
     "factorial": False,
 }
@@ -24,6 +25,8 @@ class Unknown(object):
         Any additional data for the unknown, e.g. if its raised to a power
     """
     def __init__(self, value: str, **data):
+        self._init = False
+
         self.value = value
         self.data = {**VALID_DATA_KEYS, **data}
 
@@ -31,10 +34,12 @@ class Unknown(object):
             if key not in VALID_DATA_KEYS:
                 self.data.pop(key)
 
+        self._init = True
+
     def parse(self, dirty_string: str) -> "Unknown":
         raise NotImplementedError()
 
-    def multiply(self, other):
+    def multiply(self, other, *, create_new: bool = True):
         from ..parsing.expression import Expression
 
         if isinstance(other, Expression):
@@ -42,15 +47,40 @@ class Unknown(object):
 
             expr = f'{self.__repr__(safe=True)} * ({expr})'
 
-            return super(Expression, self).__new__(Expression, expr)
+            return Expression(expr, *other.args, **other.kwargs)
 
-        self.multiplied = (self.multiplied * other)
+        res = (other * self.data['multiplied'])
+        # Allows `Number` classes to be used
 
-        return self
-        
+        if not create_new:
+            self.data['multiplied'] = res
+            return self
 
-    def add(self, other):
-        raise NotImplementedError()
+        copy = self.data.copy()
+        copy['multiplied'] = res
+
+        return Unknown(value=self.value, **copy)
+
+    def add(self, other, *, create_new: bool = True):
+        from ..parsing.expression import Expression
+
+        if isinstance(other, Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} + ({expr})'
+
+            return Expression(expr, *other.args, **other.kwargs)
+
+        res = (other + self.data['op'])
+
+        if not create_new:
+            self.data['op'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['op'] = res
+
+        return Unknown(value=self.value, **copy)
 
     def floordiv(self, other):
         raise NotImplementedError()
@@ -95,19 +125,6 @@ class Unknown(object):
         
         raise AttributeError(f'{self.__class__.__qualname__} has no attribute {name}')
 
-    def __setattr__(self, name: str, value: typing.Any) -> None:
-        try:
-            attr = self.data[name]
-            attr_type = type(VALID_DATA_KEYS[name])
-        except KeyError as e:
-            raise AttributeError(f'Cannot set attribute "{name}"') from e
-
-        try:
-            attr = attr_type(attr)
-        except Exception as e:
-            raise AttributeError(f'Failed to set attribute "{name}", "{value}" is of incorrect typing') from e
-        self.data[name] = attr
-
     def __repr__(self, *, safe: bool = False) -> str:
         """
         For debugging and forming pretty-printed versions of an equation object
@@ -119,6 +136,18 @@ class Unknown(object):
         """
         value = self.value
         raised = self.data['raised']
+        factorial = self.data['factorial']
+        multip = self.data['multiplied']
+        op = self.data['op']
+
+        if multip and multip != 1:
+            value = str(multip) + value
+
+        if op:
+            if op < 0:
+                value = str(op)[1:] + ' - ' + value
+            else:
+                value = str(op) + ' + ' + value
 
         if self.sqrt:
             if not safe:
@@ -138,9 +167,26 @@ class Unknown(object):
             else:
                 value += f' ** {raised}'
 
-        if self.factorial:
+        if factorial:
             value += '!'
 
         if not safe:
             return f'Unknown({value})'
         return f'({value})'
+
+    # Other dunder methods
+
+    # Multiplication
+    def __mul__(self, other) -> "Unknown":
+        return self.multiply(other)
+
+    def __call__(self, other) -> "Unknown":
+        return self.multiply(other)
+
+    # Addition/Subtraction
+    def __add__(self, other) -> "Unknown":
+        return self.add(other)
+
+    def __sub__(self, other) -> "Unknown":
+        # Nifty shortcut
+        return self.add(-other)
