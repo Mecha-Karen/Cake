@@ -68,8 +68,8 @@ print(expr.substitute(a=10, b=-20, c=5))
 from cake import Expression
 from cake.simultaneous import Circle
 
-circle = Expression("x ** 2 + y ** 2 = 12")
-line = Expression("x + y = 4")
+circle = Expression("x ** 2 + y ** 2") == 16
+line = Expression("x + y") == 4
 
 eq = Circle(circle, line)
 eq.solve_by_sub()
