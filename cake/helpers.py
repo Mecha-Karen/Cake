@@ -1,9 +1,8 @@
 import typing
-from cake import (
-    Number, Complex, Float, Integer, Irrational
-)
 
-TYPES = [Complex, Float, Integer, Irrational]
+__all__ = (
+    "convert_type"
+)
 
 
 def convert_type(result: typing.Any, check_value_attr: bool = True, *args, **kwargs) -> object:
@@ -15,6 +14,8 @@ def convert_type(result: typing.Any, check_value_attr: bool = True, *args, **kwa
     result: :class:`~typing.Any`
         The result/object to convert the type to
     """
+    from .core import (Complex, Float, Irrational)
+
     if len(str(result).split('.')) > 1:
         return Float(result, check_value_attr, *args, **kwargs)
     
