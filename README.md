@@ -65,7 +65,7 @@ print(expr.substitute(a=10, b=-20, c=5))
 <h3>Solving Simultaneous Equations</h3>
 
 ```py
-from cake inport Expression
+from cake import Expression
 from cake.simultaneous import Circle
 
 circle = Expression("x ** 2 + y ** 2 = 12")
