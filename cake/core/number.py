@@ -121,14 +121,6 @@ class Number(object):
 
         result = self._value * other
 
-        print(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            self.args, self.kwargs,
-
-            sep="\n"
-        )
-
         return self.return_class(
             result, self.check_value_attr,
             self._type, self.return_class,
