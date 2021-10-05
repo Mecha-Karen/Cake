@@ -26,7 +26,9 @@ def symbol(*symbols: str) -> tuple:
 
         unknowns.append(Unknown(symbol))
 
-    return tuple(unknowns)
+    if len(unknowns) > 1:
+        return tuple(unknowns)
+    return unknowns[0]
 
 # Some people may like the plural
 symbols = symbol
