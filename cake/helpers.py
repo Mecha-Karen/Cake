@@ -1,7 +1,7 @@
 import typing
 
 __all__ = (
-    "convert_type"
+    "convert_type",
 )
 
 
