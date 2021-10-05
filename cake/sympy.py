@@ -1,5 +1,5 @@
 # SymPy Integrations
-# - No code from sympy has been used, just copying the concept
+# - No code from sympy has been used, just using method names
 # Link: https://github.com/sympy/sympy
 
 from cake import (
@@ -21,6 +21,9 @@ def symbol(*symbols: str) -> tuple:
     unknowns = list()
 
     for symbol in symbols:
-        unknowns.append(Unknown.parse(symbol))
+        # unknowns.append(Unknown.parse(symbol))
+        # not implemented yet
+
+        unknowns.append(Unknown(symbol))
 
     return tuple(unknowns)
