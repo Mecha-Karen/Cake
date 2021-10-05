@@ -27,3 +27,6 @@ def symbol(*symbols: str) -> tuple:
         unknowns.append(Unknown(symbol))
 
     return tuple(unknowns)
+
+# Some people may like the plural
+symbols = symbol
