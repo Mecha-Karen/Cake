@@ -31,9 +31,12 @@ from .parsing.expression import Expression
 from .functions import *
 
 # Files
-from . import (
-    errors, abc, helpers
-)
+from .errors import *
+from .abc import *
+from .helpers import *
+from .sympy import *
+
+from . import (errors, abc, helpers, sympy)
 
 __file__ = __import__('os').path.abspath(__file__)
 __doc__ = 'An object orientated math library'
