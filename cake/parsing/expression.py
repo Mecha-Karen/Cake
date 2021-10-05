@@ -1,16 +1,18 @@
-from token import INDENT
-from cake.core.markers import ALLOWED
 import re
 import typing
 import string
 
 from cake import abc, errors
 
-from cake import (
-    Complex, Integer, Irrational, Prime, Float, Unknown,
 
-    Operator, Symbol, PlusOrMinus, Function, Equation
+from ..core.markers import (
+    Operator, Symbol, PlusOrMinus, Function
 )
+from ..core.types.complex import Complex
+from ..core.types.irrational import Irrational
+from ..core.unknown import Unknown
+
+from .equation import Equation
 from cake.helpers import convert_type
 
 # Imports for tokenizing

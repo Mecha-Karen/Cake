@@ -1,4 +1,4 @@
-from cake import Number
+from ..number import Number
 from cake.abc import IntegerType
 import typing
 

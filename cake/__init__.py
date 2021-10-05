@@ -1,12 +1,17 @@
+from cake.core.number import Number
 from math import *
 from typing import NamedTuple, Literal
 
 from .errors import *
 
 # Core Types
-from .core.number import Number
-from .core.surd import Surd
-from .core.unknown import Unknown
+from .core import (
+    # Markers
+    Marker, Operator, Symbol, PlusOrMinus, Function, ALLOWED,
+
+    # Cores
+    Number, Unknown, Surd
+)
 
 # Markers
 from .core.markers import (
@@ -23,9 +28,7 @@ from .parsing.equation import Equation
 from .parsing.expression import Expression
 
 # Functions
-from .functions.prime import (
-    is_prime, factor_tree
-)
+from .functions import *
 
 # Files
 from . import (
