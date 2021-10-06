@@ -1,4 +1,4 @@
-from math import factorial as fc
+import math
 import re
 from cake.abc import PRETTY_PRINT_SYMBOLS, UNKNOWN_PRETTIFIER_SYMBOL
 import typing
@@ -10,7 +10,10 @@ VALID_DATA_KEYS = {
     "op": 0,
     "sqrt": False,
     "factorial": False,
+    "functions": []
 }
+
+FRACTIONAL_POWER = re.compile(r'\([0-9]+\/[0-9]+\)')
 
 class Unknown(object):
 
@@ -25,8 +28,6 @@ class Unknown(object):
         Any additional data for the unknown, e.g. if its raised to a power
     """
     def __init__(self, value: str, **data):
-        self._init = False
-
         self.value = value
         self.data = {**VALID_DATA_KEYS, **data}
 
@@ -34,10 +35,56 @@ class Unknown(object):
             if key not in VALID_DATA_KEYS:
                 self.data.pop(key)
 
-        self._init = True
+        if value.startswith('-'):
+            self.negated = True
 
     def parse(self, dirty_string: str) -> "Unknown":
         raise NotImplementedError()
+
+    def substitute(self, value, *args, **kwargs) -> typing.Any:
+        from cake import Irrational, Integer, convert_type
+
+        DATA = self.data
+        NEW_VALUE = value
+
+        for function in DATA['functions']:
+            NEW_VALUE = function(NEW_VALUE, *args, **kwargs)
+        
+        POWER = DATA['raised']
+        DIVISION = DATA['divided']
+        MULTIPLICATION = DATA['multiplied']
+        OP = DATA['op']
+
+        if POWER:
+            fractional = FRACTIONAL_POWER.match(str(POWER))
+
+            if isinstance(POWER, list):
+                indice, root = POWER
+                FRACTIONAL = True
+            elif fractional:
+                group = fractional.group()[1:-1]
+                indice, root = map(Irrational, group.split('/'))
+                FRACTIONAL = True
+            else:
+                FRACTIONAL = False
+
+            if FRACTIONAL:
+                root = NEW_VALUE ** (Integer(1) / root)
+                NEW_VALUE = root ** indice
+
+            else:
+                NEW_VALUE = NEW_VALUE ** POWER
+
+        if DIVISION:
+            NEW_VALUE /= DIVISION
+
+        if MULTIPLICATION:
+            NEW_VALUE *= MULTIPLICATION
+
+        if OP:
+            NEW_VALUE += OP
+
+        return convert_type(NEW_VALUE)
 
     def multiply(self, other, *, create_new: bool = True):
         from ..parsing.expression import Expression
@@ -143,11 +190,18 @@ class Unknown(object):
         if multip and multip != 1:
             value = str(multip) + value
 
-        if op:
+        if op and not isinstance(op, Unknown):
             if op < 0:
                 value = str(op)[1:] + ' - ' + value
             else:
                 value = str(op) + ' + ' + value
+        elif op:                
+            if getattr(op, 'negated', False):
+                start = '-'
+            else:
+                start = ''
+
+            value = f'{start}({op.__repr__(safe=safe)}) + ' + value
 
         if self.sqrt:
             if not safe:
@@ -190,3 +244,24 @@ class Unknown(object):
     def __sub__(self, other) -> "Unknown":
         # Nifty shortcut
         return self.add(-other)
+
+    # Built in functions
+    def __ceil__(self):
+        data = self.data.copy()
+        data['functions'].append(math.ceil)
+
+        return Unknown(self.value, **data)
+
+    def __ceil__(self):
+        data = self.data.copy()
+        data['functions'].append(abs)
+
+        return Unknown(self.value, **data)
+
+    # Properties
+    
+    @property
+    def sub(self):
+        # For the lazy people
+
+        return self.substitute
