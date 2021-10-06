@@ -145,9 +145,9 @@ class Number(object):
         )
 
         if isinstance(other, Unknown):
-            other.add(self)
+            un = other.add(self)
 
-            return other
+            return un
 
         result = self._value + other
 
@@ -163,9 +163,9 @@ class Number(object):
         )
 
         if isinstance(other, Unknown):
-            other.add(self)
+            un = other.add(self)
 
-            return other
+            return un
 
         result = self._value - other
 
