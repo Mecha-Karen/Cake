@@ -252,14 +252,14 @@ class Unknown(object):
 
         return Unknown(self.value, **data)
 
-    def __ceil__(self):
+    def __abs__(self):
         data = self.data.copy()
         data['functions'].append(abs)
 
         return Unknown(self.value, **data)
 
     # Properties
-    
+
     @property
     def sub(self):
         # For the lazy people
