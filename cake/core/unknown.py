@@ -6,8 +6,13 @@ import typing
 VALID_DATA_KEYS = {
     "raised": 1,
     "multiplied": 1,
-    "divided": 1,
-    "op": 0,
+    "operators": {
+        "divided": None,
+        "multiplied": 1,
+        "floordiv": None,
+        "mod": None,
+        
+    },
     "sqrt": False,
     "factorial": False,
     "functions": []
@@ -87,6 +92,8 @@ class Unknown(object):
         return convert_type(NEW_VALUE)
 
     def multiply(self, other, *, create_new: bool = True):
+        # *
+
         from ..parsing.expression import Expression
 
         if isinstance(other, Expression):
@@ -109,6 +116,8 @@ class Unknown(object):
         return Unknown(value=self.value, **copy)
 
     def add(self, other, *, create_new: bool = True):
+        # *
+
         from ..parsing.expression import Expression
 
         if isinstance(other, Expression):
@@ -129,17 +138,36 @@ class Unknown(object):
 
         return Unknown(value=self.value, **copy)
 
-    def floordiv(self, other):
-        raise NotImplementedError()
+    def truediv(self, other, *, create_new: bool = True):
+        # /
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('division by zero')
 
-    def divmod(self, other):
+        from ..parsing.expression import Expression
+
+        if isinstance(other, Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} / ({expr})'
+
+            return Expression(expr, *other.args, **other.kwargs)
+
+        res = (self.data['divided'] if self.data['divided'] != ... else 0) + other
+
+        if not create_new:
+            self.data['divided'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['divided'] = res
+
+        return Unknown(value=self.value, **copy)
+
+    def floordiv(self, other):
         raise NotImplementedError()
 
     def mod(self, other):
         raise NotImplementedError
-
-    def truediv(self, other):
-        raise NotImplementedError()
 
     def pow(self, other):
         raise NotImplementedError()
@@ -185,7 +213,23 @@ class Unknown(object):
         raised = self.data['raised']
         factorial = self.data['factorial']
         multip = self.data['multiplied']
+        div = self.data['divided']
         op = self.data['op']
+
+        if raised and str(raised) != '1':
+            if not safe:
+                squares = ''
+                for sq in str(raised):
+                    sym = PRETTY_PRINT_SYMBOLS['powers'].get(sq, UNKNOWN_PRETTIFIER_SYMBOL)
+                    squares += sym
+
+                value += squares
+
+            else:
+                value += f' ** {raised}'
+
+        if div and div != 1:
+            value += f' / {div}'
 
         if multip and multip != 1:
             value = str(multip) + value
@@ -209,18 +253,6 @@ class Unknown(object):
             else:
                 value = f"sqrt({value})"
 
-        if raised and str(raised) != '1':
-            if not safe:
-                squares = ''
-                for sq in str(raised):
-                    sym = PRETTY_PRINT_SYMBOLS['powers'].get(sq, UNKNOWN_PRETTIFIER_SYMBOL)
-                    squares += sym
-
-                value += squares
-
-            else:
-                value += f' ** {raised}'
-
         if factorial:
             value += '!'
 
@@ -230,20 +262,23 @@ class Unknown(object):
 
     # Other dunder methods
 
-    # Multiplication
+    # Arithmetic
+
     def __mul__(self, other) -> "Unknown":
         return self.multiply(other)
 
     def __call__(self, other) -> "Unknown":
         return self.multiply(other)
 
-    # Addition/Subtraction
     def __add__(self, other) -> "Unknown":
         return self.add(other)
 
     def __sub__(self, other) -> "Unknown":
         # Nifty shortcut
         return self.add(-other)
+
+    def __truediv__(self, other):
+        return self.truediv(other)
 
     # Built in functions
     def __ceil__(self):

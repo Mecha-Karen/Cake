@@ -249,11 +249,6 @@ class Number(object):
             *self.args, **self.kwargs
         )
 
-        if isinstance(other, Unknown):
-            other.divmod(self)
-
-            return other
-
         result = divmod(self._value, other)
 
         return self.return_class(
