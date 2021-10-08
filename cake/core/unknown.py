@@ -147,6 +147,7 @@ class Unknown(object):
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         elif isinstance(other, Unknown) and other.value == self.value:
+
             cur_power = self.data['raised']
 
             otherPower = other.data['raised']
@@ -154,22 +155,30 @@ class Unknown(object):
             if isinstance(otherPower, list):
                 raise NotImplementedError(f'listed fractional powers is not supported yet')
 
-            fractional = FRACTIONAL_POWER.match(otherPower)
+            try:
+                fractional = FRACTIONAL_POWER.match(otherPower)
+            except TypeError:
+                fractional = None
 
             if fractional:
                 raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
 
             if otherPower != 1:
-                if not create_new:
-                    self.data['raised'] = (cur_power + otherPower)
-                    return self
+                res = (cur_power + otherPower)
 
-                data = self.data.copy()
-                data['raised'] = (cur_power + otherPower)
+            else:
+                res = (cur_power + 1)
 
-                return Unknown(data)
+            if not create_new:
+                self.data['raised'] = res
+                return self
 
-        res = (other * self.data['op']['multi'])
+            copy = self.data.copy()
+            copy['raised'] = res
+
+            return Unknown(value=self.value, **copy)
+
+        res = (other * self.data['operators']['multi'])
         # Allows `Number` classes to be used
 
         if not create_new:
@@ -219,7 +228,10 @@ class Unknown(object):
             if isinstance(otherPower, list):
                 raise NotImplementedError(f'listed fractional powers is not supported yet')
 
-            fractional = FRACTIONAL_POWER.match(otherPower)
+            try:
+                fractional = FRACTIONAL_POWER.match(otherPower)
+            except TypeError:
+                fractional = None
 
             if fractional:
                 raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
@@ -374,7 +386,10 @@ class Unknown(object):
             if isinstance(otherPower, list):
                 raise NotImplementedError(f'listed fractional powers is not supported yet')
 
-            fractional = FRACTIONAL_POWER.match(otherPower)
+            try:
+                fractional = FRACTIONAL_POWER.match(otherPower)
+            except TypeError:
+                fractional = None
 
             if fractional:
                 raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
@@ -432,7 +447,7 @@ class Unknown(object):
 
         return Unknown(value=self.value, **copy)
 
-    def subtraction(self, other, *, create_new):
+    def subtract(self, other, *, create_new = True):
         """
         Refer to the ``add`` method for more info
         """
@@ -471,65 +486,8 @@ class Unknown(object):
         
         raise AttributeError(f'{self.__class__.__qualname__} has no attribute {name}')
 
-    def __repr__(self, *, safe: bool = False) -> str:
-        """
-        For debugging and forming pretty-printed versions of an equation object
-
-        Parameters
-        ----------
-        safe: :class:`bool`
-            Removes any unknown characters and symbols and returns a parsable unknown
-        """
-        value = self.value
-        raised = self.data['raised']
-        factorial = self.data['factorial']
-        multip = self.data['operators']['multi']
-        div = self.data['operators']['div']
-        op = self.data['operators']['add']
-
-        if raised and str(raised) != '1':
-            if not safe:
-                squares = ''
-                for sq in str(raised):
-                    sym = PRETTY_PRINT_SYMBOLS['powers'].get(sq, UNKNOWN_PRETTIFIER_SYMBOL)
-                    squares += sym
-
-                value += squares
-
-            else:
-                value += f' ** {raised}'
-
-        if div and div != 1:
-            value += f' / {div}'
-
-        if multip and multip != 1:
-            value = str(multip) + value
-
-        if op and not isinstance(op, Unknown):
-            if op < 0:
-                value = str(op)[1:] + ' - ' + value
-            else:
-                value = str(op) + ' + ' + value
-        elif op:                
-            if getattr(op, 'negated', False):
-                start = '-'
-            else:
-                start = ''
-
-            value = f'{start}({super(op).__repr__()}) + ' + value
-
-        if self.sqrt:
-            if not safe:
-                value = '√' + value
-            else:
-                value = f"sqrt({value})"
-
-        if factorial:
-            value += '!'
-
-        if not safe:
-            return f'Unknown({value})'
-        return f'({value})'
+    def __repr__(self) -> str:
+        return _prettify_repr(self)
 
     # Arithmetic
 
@@ -589,3 +547,51 @@ class Unknown(object):
             raise TypeError(f'Invalid power set')
 
         self.data['raised'] = new_Power
+
+def _prettify_repr(unk: Unknown) -> str:
+    """
+    Returns a parsable repr of an unknown
+    """
+    value = unk.value
+    raised = unk.data['raised']
+    factorial = unk.data['factorial']
+    multip = unk.data['operators']['multi']
+    div = unk.data['operators']['div']
+    add = unk.data['operators']['add']
+    sqrt = unk.data['sqrt']
+    factorial = unk.data['factorial']
+
+    if factorial:
+        value += '!'
+
+    # BIDMAS pattern
+    STRING = ""
+
+    if raised and raised != 1:
+        if not isinstance(raised, str):
+            raised = repr(raised)
+
+        STRING += f'{value} ** {raised}'
+
+    if div:
+        STRING += f' / {div}'
+
+    if multip and multip != 1:
+        STRING += f' * {multip}'
+
+    if add:
+        if add < 0:
+            if isinstance(add, (cake.Number, float, int)):
+                add = str(add)[1:]
+
+            STRING += f' - {add}'
+        else:
+            STRING += f' + {add}'
+
+    if sqrt:
+        STRING = f'sqrt({STRING})'
+    
+    if factorial:
+        STRING += '!'
+
+    return STRING
