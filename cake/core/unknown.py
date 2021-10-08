@@ -109,6 +109,14 @@ class Unknown(object):
 
             otherPower = other.data['raised']
 
+            if isinstance(otherPower, list):
+                raise NotImplementedError(f'listed fractional powers is not supported yet')
+
+            fractional = FRACTIONAL_POWER.match(otherPower)
+
+            if fractional:
+                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
+
             if otherPower != 1:
                 if not create_new:
                     self.data['raised'] = (cur_power + otherPower)
@@ -148,6 +156,16 @@ class Unknown(object):
             cur_power = self.data['raised']
 
             otherPower = other.data['raised']
+
+            # Special powers
+
+            if isinstance(otherPower, list):
+                raise NotImplementedError(f'listed fractional powers is not supported yet')
+
+            fractional = FRACTIONAL_POWER.match(otherPower)
+
+            if fractional:
+                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
 
             if otherPower != 1:
                 if not create_new:
@@ -250,6 +268,15 @@ class Unknown(object):
 
         elif isinstance(other, Unknown) and other.value == self.value:
             otherPower = other.data['raised']
+
+            if isinstance(otherPower, list):
+                raise NotImplementedError(f'listed fractional powers is not supported yet')
+
+            fractional = FRACTIONAL_POWER.match(otherPower)
+
+            if fractional:
+                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
+
             cur_power = cur_power * otherPower
         else:
             cur_power = other * cur_power
