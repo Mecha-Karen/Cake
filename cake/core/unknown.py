@@ -7,11 +7,11 @@ VALID_DATA_KEYS = {
     "raised": 1,
     "multiplied": 1,
     "operators": {
-        "divided": None,
-        "multiplied": 1,
-        "floordiv": None,
+        "div": None,
+        "multi": 1,
+        "fdiv": None,
         "mod": None,
-        
+        "add": 0
     },
     "sqrt": False,
     "factorial": False,
@@ -56,9 +56,9 @@ class Unknown(object):
             NEW_VALUE = function(NEW_VALUE, *args, **kwargs)
         
         POWER = DATA['raised']
-        DIVISION = DATA['divided']
-        MULTIPLICATION = DATA['multiplied']
-        OP = DATA['op']
+        DIVISION = DATA['operators']['div']
+        MULTIPLICATION = DATA['operators']['multi']
+        OP = DATA['operators']['add']
 
         if POWER:
             fractional = FRACTIONAL_POWER.match(str(POWER))
@@ -107,16 +107,16 @@ class Unknown(object):
         # Allows `Number` classes to be used
 
         if not create_new:
-            self.data['multiplied'] = res
+            self.data['operators']['multi'] = res
             return self
 
         copy = self.data.copy()
-        copy['multiplied'] = res
+        copy['operators']['multi'] = res
 
         return Unknown(value=self.value, **copy)
 
     def add(self, other, *, create_new: bool = True):
-        # *
+        # +
 
         from ..parsing.expression import Expression
 
@@ -127,14 +127,14 @@ class Unknown(object):
 
             return Expression(expr, *other.args, **other.kwargs)
 
-        res = (other + self.data['op'])
+        res = (other + self.data['operators']['add'])
 
         if not create_new:
-            self.data['op'] = res
+            self.data['operators']['add'] = res
             return self
 
         copy = self.data.copy()
-        copy['op'] = res
+        copy['operators']['add'] = res
 
         return Unknown(value=self.value, **copy)
 
@@ -152,22 +152,83 @@ class Unknown(object):
 
             return Expression(expr, *other.args, **other.kwargs)
 
-        res = (self.data['divided'] if self.data['divided'] != ... else 0) + other
+        cur_res = self.data['operators']['div']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = cur_res + other
 
         if not create_new:
-            self.data['divided'] = res
+            self.data['operators']['div'] = res
             return self
 
         copy = self.data.copy()
-        copy['divided'] = res
+        copy['operators']['div'] = res
 
         return Unknown(value=self.value, **copy)
 
-    def floordiv(self, other):
-        raise NotImplementedError()
+    def floordiv(self, other, *, create_new: bool = False):
+        # //
 
-    def mod(self, other):
-        raise NotImplementedError
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('integer division or modulo by zero')
+
+        from ..parsing.expression import Expression
+
+        if isinstance(other, Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} // ({expr})'
+
+            return Expression(expr, *other.args, **other.kwargs)
+
+        cur_res = self.data['operators']['fdiv']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = cur_res + other
+
+        if not create_new:
+            self.data['operators']['fdiv'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['operators']['fdiv'] = res
+
+        return Unknown(value=self.value, **copy)
+
+    def mod(self, other, *, create_new: bool = False):
+        ## %
+
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('integer division or modulo by zero')
+
+        from ..parsing.expression import Expression
+
+        if isinstance(other, Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} % ({expr})'
+
+            return Expression(expr, *other.args, **other.kwargs)
+
+        cur_res = self.data['operators']['mod']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = cur_res + other
+
+        if not create_new:
+            self.data['operators']['mod'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['operators']['mod'] = res
+
+        return Unknown(value=self.value, **copy)
 
     def pow(self, other):
         raise NotImplementedError()
@@ -186,6 +247,11 @@ class Unknown(object):
 
     def _or(self, other):
         raise NotImplementedError()
+
+    # DUNDER METHODS
+
+    def __str__(self):
+        return self.value
 
     def __getattr__(self, name: str) -> typing.Any:
         is_valid_attr = self.__dict__.get(name)
@@ -212,9 +278,9 @@ class Unknown(object):
         value = self.value
         raised = self.data['raised']
         factorial = self.data['factorial']
-        multip = self.data['multiplied']
-        div = self.data['divided']
-        op = self.data['op']
+        multip = self.data['operators']['multi']
+        div = self.data['operators']['div']
+        op = self.data['operators']['add']
 
         if raised and str(raised) != '1':
             if not safe:
@@ -245,7 +311,7 @@ class Unknown(object):
             else:
                 start = ''
 
-            value = f'{start}({op.__repr__(safe=safe)}) + ' + value
+            value = f'{start}({super(op).__repr__()}) + ' + value
 
         if self.sqrt:
             if not safe:
@@ -259,8 +325,6 @@ class Unknown(object):
         if not safe:
             return f'Unknown({value})'
         return f'({value})'
-
-    # Other dunder methods
 
     # Arithmetic
 
@@ -279,6 +343,12 @@ class Unknown(object):
 
     def __truediv__(self, other):
         return self.truediv(other)
+
+    def __floordiv__(self, other):
+        return self.floordiv(other)
+
+    def __mod__(self, other):
+        return self.mod(other)
 
     # Built in functions
     def __ceil__(self):
