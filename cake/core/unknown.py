@@ -6,7 +6,6 @@ import cake
 
 VALID_DATA_KEYS = {
     "raised": 1,
-    "multiplied": 1,
     "operators": {
         "div": None,
         "multi": 1,
@@ -170,7 +169,7 @@ class Unknown(object):
 
                 return Unknown(data)
 
-        res = (other * self.data['multiplied'])
+        res = (other * self.data['op']['multi'])
         # Allows `Number` classes to be used
 
         if not create_new:
