@@ -45,9 +45,37 @@ class Unknown(object):
             self.negated = True
 
     def parse(self, dirty_string: str) -> "Unknown":
+        """
+        Converts a stringed value into a proper object
+
+        .. code-block:: py
+
+            >>> from cake import Unknown
+            >>> x = Unknown.parse("x ** 2")
+            >>> x
+            Unknown(x²)
+
+        Parameters
+        ----------
+        dirty_string: :class:`str`
+            The string to evaluate
+        """
         raise NotImplementedError()
 
     def substitute(self, value, *args, **kwargs) -> typing.Any:
+        """
+        Replaces your unknown value with the provided value, and evaluates it
+
+        Parameters
+        ----------
+        value: :class:`~typing.Any`
+            A value to replace your unknown with
+
+        .. note::
+
+            Args and kwargs may be supplied, they will used for any functions used on the unknown
+            The same set of args and kwargs will be used for every function
+        """
         from cake import Irrational, Integer, convert_type
 
         DATA = self.data
@@ -95,6 +123,21 @@ class Unknown(object):
     # MULTIPLICATION / DIVISION
 
     def multiply(self, other, *, create_new: bool = True):
+        """
+        Multiply your unknown value
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to multiply the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``*=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         # *
 
         if isinstance(other, cake.parsing.Expression):
@@ -140,6 +183,21 @@ class Unknown(object):
         return Unknown(value=self.value, **copy)
 
     def truediv(self, other, *, create_new: bool = True):
+        """
+        Divide your unknown value
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to divide the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``/=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         # /
 
         if getattr(other, 'value', other) == 0:
@@ -197,6 +255,21 @@ class Unknown(object):
     # FLOOR DIVISION / MODULUS
 
     def floordiv(self, other, *, create_new: bool = True):
+        """
+        Divide your unknown value with no remainders
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to divide the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``//=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         # //
 
         if getattr(other, 'value', other) == 0:
@@ -226,6 +299,21 @@ class Unknown(object):
         return Unknown(value=self.value, **copy)
 
     def mod(self, other, *, create_new: bool = True):
+        """
+        Modulo your unknown value
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to mod the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``*=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         ## %
 
         if getattr(other, 'value', other) == 0:
@@ -257,6 +345,21 @@ class Unknown(object):
     # POWER
 
     def pow(self, other, *, create_new: bool = True):
+        """
+        raise your unknown value to a value
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to raise the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``**=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         cur_power = self.data['raised']
 
         if isinstance(other, cake.parsing.Expression):
@@ -291,9 +394,25 @@ class Unknown(object):
         return Unknown(self.value, **data)
 
 
-    # ADDITION
+    # ADDITION / SUBTRACTION
 
     def add(self, other, *, create_new: bool = True):
+        """
+        Add your unknown value, The subtraction method piggy banks this method and simply negates your value before sending it through here.
+        So ``Unknown.add(-10)`` is equal to ``Unknown.subtract(10)``
+
+        Parameters
+        ----------
+        other: :class:`~typing.Any`
+            The value to add the unknown by
+        create_new: :class:`bool`
+            Whether to create a new object or return the same object
+            arithmetic operators like ``+=`` will always return the same object
+
+            .. note::
+
+                This is a keyword-only argument!
+        """
         # +
 
         if isinstance(other, cake.parsing.Expression):
@@ -313,6 +432,12 @@ class Unknown(object):
         copy['operators']['add'] = res
 
         return Unknown(value=self.value, **copy)
+
+    def subtraction(self, other, *, create_new):
+        """
+        Refer to the ``add`` method for more info
+        """
+        return self.add(-other, create_new=create_new)
 
     def lshift(self, other):
         raise NotImplementedError()
@@ -454,3 +579,14 @@ class Unknown(object):
         # For the lazy people
 
         return self.substitute
+
+    @property
+    def power(self):
+        return self.data['raised']
+
+    @power.setter()
+    def set_power(self, new_Power: typing.Union[str, int, "Unknown", list]) -> None:
+        if not isinstance(new_Power, (str, int, Unknown, list)):
+            raise TypeError(f'Invalid power set')
+
+        self.data['raised'] = new_Power
