@@ -2,6 +2,7 @@ import math
 import re
 from cake.abc import PRETTY_PRINT_SYMBOLS, UNKNOWN_PRETTIFIER_SYMBOL
 import typing
+import cake
 
 VALID_DATA_KEYS = {
     "raised": 1,
@@ -91,17 +92,32 @@ class Unknown(object):
 
         return convert_type(NEW_VALUE)
 
+    # MULTIPLICATION / DIVISION
+
     def multiply(self, other, *, create_new: bool = True):
         # *
 
-        from ..parsing.expression import Expression
-
-        if isinstance(other, Expression):
+        if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
             expr = f'{self.__repr__(safe=True)} * ({expr})'
 
-            return Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+
+        elif isinstance(other, Unknown) and other.value == self.value:
+            cur_power = self.data['raised']
+
+            otherPower = other.data['raised']
+
+            if otherPower != 1:
+                if not create_new:
+                    self.data['raised'] = (cur_power + otherPower)
+                    return self
+
+                data = self.data.copy()
+                data['raised'] = (cur_power + otherPower)
+
+                return Unknown(data)
 
         res = (other * self.data['multiplied'])
         # Allows `Number` classes to be used
@@ -115,17 +131,150 @@ class Unknown(object):
 
         return Unknown(value=self.value, **copy)
 
+    def truediv(self, other, *, create_new: bool = True):
+        # /
+
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('division by zero')
+
+        if isinstance(other, cake.parsing.Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} / ({expr})'
+
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+
+        elif isinstance(other, Unknown) and other.value == self.value:
+            cur_power = self.data['raised']
+
+            otherPower = other.data['raised']
+
+            if otherPower != 1:
+                if not create_new:
+                    self.data['raised'] = (cur_power - otherPower)
+                    return self
+
+                data = self.data.copy()
+                data['raised'] = (cur_power - otherPower)
+
+                return Unknown(data)
+
+        cur_res = self.data['operators']['div']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = other + cur_res
+
+        if not create_new:
+            self.data['operators']['div'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['operators']['div'] = res
+
+        return Unknown(value=self.value, **copy)
+
+
+    # FLOOR DIVISION / MODULUS
+
+    def floordiv(self, other, *, create_new: bool = True):
+        # //
+
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('integer division or modulo by zero')
+
+        if isinstance(other, cake.parsing.Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} // ({expr})'
+
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+
+        cur_res = self.data['operators']['fdiv']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = other + cur_res
+
+        if not create_new:
+            self.data['operators']['fdiv'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['operators']['fdiv'] = res
+
+        return Unknown(value=self.value, **copy)
+
+    def mod(self, other, *, create_new: bool = True):
+        ## %
+
+        if getattr(other, 'value', other) == 0:
+            raise ZeroDivisionError('integer division or modulo by zero')
+
+        if isinstance(other, cake.parsing.Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} % ({expr})'
+
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+
+        cur_res = self.data['operators']['mod']
+
+        if cur_res is None:
+            cur_res = 0
+
+        res = other + cur_res
+
+        if not create_new:
+            self.data['operators']['mod'] = res
+            return self
+
+        copy = self.data.copy()
+        copy['operators']['mod'] = res
+
+        return Unknown(value=self.value, **copy)
+
+    # POWER
+
+    def pow(self, other, *, create_new: bool = True):
+        cur_power = self.data['raised']
+
+        if isinstance(other, cake.parsing.Expression):
+            expr = other.expression
+
+            expr = f'{self.__repr__(safe=True)} ** ({expr})'
+
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+
+        elif isinstance(other, Unknown) and other.value == self.value:
+            otherPower = other.data['raised']
+            cur_power = cur_power * otherPower
+        else:
+            cur_power = other * cur_power
+
+        if not create_new:
+            self.data['raised'] = cur_power
+            return self
+
+        data = self.data.copy()
+        data['raised'] = cur_power
+
+        return Unknown(self.value, **data)
+
+
+    # ADDITION
+
     def add(self, other, *, create_new: bool = True):
         # +
 
-        from ..parsing.expression import Expression
-
-        if isinstance(other, Expression):
+        if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
             expr = f'{self.__repr__(safe=True)} + ({expr})'
 
-            return Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         res = (other + self.data['operators']['add'])
 
@@ -137,101 +286,6 @@ class Unknown(object):
         copy['operators']['add'] = res
 
         return Unknown(value=self.value, **copy)
-
-    def truediv(self, other, *, create_new: bool = True):
-        # /
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('division by zero')
-
-        from ..parsing.expression import Expression
-
-        if isinstance(other, Expression):
-            expr = other.expression
-
-            expr = f'{self.__repr__(safe=True)} / ({expr})'
-
-            return Expression(expr, *other.args, **other.kwargs)
-
-        cur_res = self.data['operators']['div']
-
-        if cur_res is None:
-            cur_res = 0
-
-        res = cur_res + other
-
-        if not create_new:
-            self.data['operators']['div'] = res
-            return self
-
-        copy = self.data.copy()
-        copy['operators']['div'] = res
-
-        return Unknown(value=self.value, **copy)
-
-    def floordiv(self, other, *, create_new: bool = False):
-        # //
-
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('integer division or modulo by zero')
-
-        from ..parsing.expression import Expression
-
-        if isinstance(other, Expression):
-            expr = other.expression
-
-            expr = f'{self.__repr__(safe=True)} // ({expr})'
-
-            return Expression(expr, *other.args, **other.kwargs)
-
-        cur_res = self.data['operators']['fdiv']
-
-        if cur_res is None:
-            cur_res = 0
-
-        res = cur_res + other
-
-        if not create_new:
-            self.data['operators']['fdiv'] = res
-            return self
-
-        copy = self.data.copy()
-        copy['operators']['fdiv'] = res
-
-        return Unknown(value=self.value, **copy)
-
-    def mod(self, other, *, create_new: bool = False):
-        ## %
-
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('integer division or modulo by zero')
-
-        from ..parsing.expression import Expression
-
-        if isinstance(other, Expression):
-            expr = other.expression
-
-            expr = f'{self.__repr__(safe=True)} % ({expr})'
-
-            return Expression(expr, *other.args, **other.kwargs)
-
-        cur_res = self.data['operators']['mod']
-
-        if cur_res is None:
-            cur_res = 0
-
-        res = cur_res + other
-
-        if not create_new:
-            self.data['operators']['mod'] = res
-            return self
-
-        copy = self.data.copy()
-        copy['operators']['mod'] = res
-
-        return Unknown(value=self.value, **copy)
-
-    def pow(self, other):
-        raise NotImplementedError()
 
     def lshift(self, other):
         raise NotImplementedError()
@@ -349,6 +403,9 @@ class Unknown(object):
 
     def __mod__(self, other):
         return self.mod(other)
+
+    def __pow__(self, other):
+        return self.pow(other)
 
     # Built in functions
     def __ceil__(self):
