@@ -584,7 +584,7 @@ class Unknown(object):
     def power(self):
         return self.data['raised']
 
-    @power.setter()
+    @power.setter
     def set_power(self, new_Power: typing.Union[str, int, "Unknown", list]) -> None:
         if not isinstance(new_Power, (str, int, Unknown, list)):
             raise TypeError(f'Invalid power set')
