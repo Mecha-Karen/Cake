@@ -23,9 +23,7 @@ from .core.types import (
     Complex, Integer, Irrational, Prime, Real, Float
 )
 
-
-from .parsing.equation import Equation
-from .parsing.expression import Expression
+from .parsing import Expression, Equation
 
 # Functions
 from .functions import *
