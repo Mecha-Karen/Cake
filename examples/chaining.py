@@ -1,9 +1,13 @@
 # Chaining methods and techniques using cake
 
 # CONTENT:
-# LITERAL: L5
-# UNKNOWNS: L19
-# BRACKETS: L36
+# LITERAL: L8
+# UNKNOWNS: L26
+# BRACKETS: L44
+
+########################
+#       LITERAL        #
+########################
 
 from cake import Integer
 
@@ -17,7 +21,11 @@ print( LITERAL(LITERAL) )
 # Getting x cubed can be done using `x * x * x` or
 print( LITERAL(LITERAL)(LITERAL) )
 
-# Result: 1000 
+# Result: 1000
+
+########################
+#       UNKNOWN        #
+########################
 
 from cake import Unknown
 
@@ -32,6 +40,10 @@ print( x(x) )
 print( x(x)(x) )
 
 # Result: Unknown(x³)
+
+########################
+#       BRACKETS       #
+########################
 
 # So now we know how to chain with knowns and unknowns
 # How about brackets?
