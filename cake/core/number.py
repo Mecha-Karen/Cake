@@ -280,11 +280,6 @@ class Number(object):
             *self.args, **self.kwargs
         )
 
-        if isinstance(other, Unknown):
-            other.lshift(self)
-
-            return other
-
         result = self._value << other
 
         return self.return_class(
@@ -297,11 +292,6 @@ class Number(object):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
             *self.args, **self.kwargs
         )
-
-        if isinstance(other, Unknown):
-            other.rshift(self)
-
-            return other
 
         result = self._value >> other
 
@@ -316,11 +306,6 @@ class Number(object):
             *self.args, **self.kwargs
         )
 
-        if isinstance(other, Unknown):
-            other._and(self)
-
-            return other
-
         result = self._value & other
 
         return self.return_class(
@@ -334,11 +319,6 @@ class Number(object):
             *self.args, **self.kwargs
         )
 
-        if isinstance(other, Unknown):
-            other.xor(self)
-
-            return other
-
         result = self._value ^ other
 
         return self.return_class(
@@ -351,11 +331,6 @@ class Number(object):
         other = self._get_value(value, getattr(self, 'check_value_attr', True),
             *self.args, **self.kwargs
         )
-
-        if isinstance(other, Unknown):
-            other._or(self)
-
-            return other
 
         result = self._value | other
 

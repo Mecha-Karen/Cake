@@ -453,21 +453,6 @@ class Unknown(object):
         """
         return self.add(-other, create_new=create_new)
 
-    def lshift(self, other):
-        raise NotImplementedError()
-
-    def rshift(self, other):
-        raise NotImplementedError()
-
-    def _and(self, other):
-        raise NotImplementedError() 
-
-    def xor(self, other):
-        raise NotImplementedError()
-
-    def _or(self, other):
-        raise NotImplementedError()
-
     # DUNDER METHODS
 
     def __str__(self):
