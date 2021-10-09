@@ -1,26 +1,26 @@
 import math
 import re
-from cake.abc import PRETTY_PRINT_SYMBOLS, UNKNOWN_PRETTIFIER_SYMBOL
 import typing
 import cake
-
-VALID_DATA_KEYS = {
-    "raised": 1,
-    "operators": {
-        "div": None,
-        "multi": 1,
-        "fdiv": None,
-        "mod": None,
-        "add": 0
-    },
-    "sqrt": False,
-    "factorial": False,
-    "functions": []
-}
+import copy as cp
 
 FRACTIONAL_POWER = re.compile(r'\([0-9]+\/[0-9]+\)')
 
 class Unknown(object):
+
+    VALID_DATA_KEYS = {
+        "raised": 1,
+        "operators": {
+            "div": None,
+            "multi": 1,
+            "fdiv": None,
+            "mod": None,
+            "add": 0
+        },
+        "sqrt": False,
+        "factorial": False,
+        "functions": []
+    }
 
     """
     An object representing an unknown value
@@ -29,16 +29,17 @@ class Unknown(object):
     ----------
     value: :class:`str`
         A letter which represents the unknown value
-    **data: :class:`~typing.Optional[cake.core.unknown.VALID_DATA_KEYS]`
+    **data: :class:`~typing.Optional[cake.core.unknown.Unknown.VALID_DATA_KEYS]`
         Any additional data for the unknown, e.g. if its raised to a power
     """
+    def __new__(cls, value, *args, **kwargs) -> "Unknown":
+        return super(Unknown, cls).__new__(Unknown)
+
     def __init__(self, value: str, **data):
         self.value = value
-        self.data = {**VALID_DATA_KEYS, **data}
 
-        for key in data.keys():
-            if key not in VALID_DATA_KEYS:
-                self.data.pop(key)
+        self.data = cp.deepcopy(Unknown.VALID_DATA_KEYS)
+        self.data.update(data)
 
         if value.startswith('-'):
             self.negated = True
@@ -173,19 +174,23 @@ class Unknown(object):
                 self.data['raised'] = res
                 return self
 
-            copy = self.data.copy()
+            copy = cp.deepcopy(self.data)
             copy['raised'] = res
 
             return Unknown(value=self.value, **copy)
+        
+        try:
+            res = (other * self.data['operators']['multi'])
+        except Exception:
+            res = (self.data['operators']['multi'] * other)
 
-        res = (other * self.data['operators']['multi'])
         # Allows `Number` classes to be used
 
         if not create_new:
             self.data['operators']['multi'] = res
             return self
 
-        copy = self.data.copy()
+        copy = cp.deepcopy(self.data)
         copy['operators']['multi'] = res
 
         return Unknown(value=self.value, **copy)
@@ -241,7 +246,7 @@ class Unknown(object):
                     self.data['raised'] = (cur_power - otherPower)
                     return self
 
-                data = self.data.copy()
+                data = cp.deepcopy(self.data)
                 data['raised'] = (cur_power - otherPower)
 
                 return Unknown(data)
@@ -251,13 +256,16 @@ class Unknown(object):
         if cur_res is None:
             cur_res = 0
 
-        res = other + cur_res
+        try:
+            res = cur_res + other
+        except Exception:
+            res = other + cur_res
 
         if not create_new:
             self.data['operators']['div'] = res
             return self
 
-        copy = self.data.copy()
+        copy = cp.deepcopy(self.data)
         copy['operators']['div'] = res
 
         return Unknown(value=self.value, **copy)
@@ -298,13 +306,16 @@ class Unknown(object):
         if cur_res is None:
             cur_res = 0
 
-        res = other + cur_res
+        try:
+            res = other + cur_res
+        except Exception:
+            res = cur_res + other
 
         if not create_new:
             self.data['operators']['fdiv'] = res
             return self
 
-        copy = self.data.copy()
+        copy = cp.deepcopy(self.data)
         copy['operators']['fdiv'] = res
 
         return Unknown(value=self.value, **copy)
@@ -342,13 +353,16 @@ class Unknown(object):
         if cur_res is None:
             cur_res = 0
 
-        res = other + cur_res
+        try:
+            res = other + cur_res
+        except Exception:
+            res = cur_res + other
 
         if not create_new:
             self.data['operators']['mod'] = res
             return self
 
-        copy = self.data.copy()
+        copy = cp.deepcopy(self.data)
         copy['operators']['mod'] = res
 
         return Unknown(value=self.value, **copy)
@@ -396,13 +410,16 @@ class Unknown(object):
 
             cur_power = cur_power * otherPower
         else:
-            cur_power = other * cur_power
+            try:
+                cur_power = other + cur_power
+            except Exception:
+                cur_power = cur_power + other
 
         if not create_new:
             self.data['raised'] = cur_power
             return self
 
-        data = self.data.copy()
+        data = cp.deepcopy(self.data)
         data['raised'] = cur_power
 
         return Unknown(self.value, **data)
@@ -436,13 +453,16 @@ class Unknown(object):
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
-        res = (other + self.data['operators']['add'])
+        try:
+            res = (other + self.data['operators']['add'])
+        except Exception:
+            res = (self.data['operators']['add'] + other)
 
         if not create_new:
             self.data['operators']['add'] = res
             return self
 
-        copy = self.data.copy()
+        copy = cp.deepcopy(self.data)
         copy['operators']['add'] = res
 
         return Unknown(value=self.value, **copy)
@@ -456,7 +476,7 @@ class Unknown(object):
     # DUNDER METHODS
 
     def __str__(self):
-        return self.value
+        return repr(self)
 
     def __getattr__(self, name: str) -> typing.Any:
         is_valid_attr = self.__dict__.get(name)
@@ -503,13 +523,13 @@ class Unknown(object):
 
     # Built in functions
     def __ceil__(self):
-        data = self.data.copy()
+        data = cp.deepcopy(self.data)
         data['functions'].append(math.ceil)
 
         return Unknown(self.value, **data)
 
     def __abs__(self):
-        data = self.data.copy()
+        data = cp.deepcopy(self.data)
         data['functions'].append(abs)
 
         return Unknown(self.value, **data)
@@ -535,7 +555,7 @@ class Unknown(object):
 
 def _prettify_repr(unk: Unknown) -> str:
     """
-    Returns a parsable repr of an unknown
+    Returns a parsable version of an unknown
     """
     value = unk.value
     raised = unk.data['raised']
@@ -546,37 +566,58 @@ def _prettify_repr(unk: Unknown) -> str:
     sqrt = unk.data['sqrt']
     factorial = unk.data['factorial']
 
+    STRING = value
+
     if factorial:
         value += '!'
 
-    # BIDMAS pattern
-    STRING = ""
-
     if raised and raised != 1:
-        if not isinstance(raised, str):
-            raised = repr(raised)
-
-        STRING += f'{value} ** {raised}'
+        if isinstance(raised, Unknown):
+            raised = f'({str(raised)})'
+        else:
+            raised = str(raised)
+        STRING += f' ** {raised}'
 
     if div:
+        if isinstance(div, Unknown):
+            div = f'({str(div)})'
+        else:
+            div = str(div)
         STRING += f' / {div}'
 
     if multip and multip != 1:
-        STRING += f' * {multip}'
+        if isinstance(multip, Unknown):
+            div = f'({str(div)})'
+        else:
+            div = str(div)
+        STRING += div
 
     if add:
-        if add < 0:
-            if isinstance(add, (cake.Number, float, int)):
-                add = str(add)[1:]
+        passed = False
 
-            STRING += f' - {add}'
+        try:
+            negated = add < 0
+            passed = True
+        except Exception:
+            pass
+
+        if not passed:
+            try:
+                negated = getattr(add, 'value', 0) < 0
+            except TypeError:
+                negated = getattr(add, 'negated', False)
+
+        if isinstance(add, Unknown):
+            val = f'({str(add)})'
         else:
-            STRING += f' + {add}'
+            val = str(add)
+
+        if negated:
+            STRING += f' - {val}'
+        else:
+            STRING += f' + {val}'
 
     if sqrt:
         STRING = f'sqrt({STRING})'
-    
-    if factorial:
-        STRING += '!'
 
     return STRING
