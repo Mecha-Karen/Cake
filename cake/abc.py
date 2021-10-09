@@ -22,7 +22,7 @@ MAP_OPERATORS = {
     "subtract": "-", "minus": "-",
     "divide": "/",
     "multiply": "*", "times by": "*",
-    "to the power of": "**",
+    "to the power of": "**", "raised to": "**",
     "floor division": "//",
     "modulus": "%"
 }
@@ -31,7 +31,10 @@ KEYWORDS: typing.Mapping[str, typing.Callable] = {
     "sqrt": math.sqrt,
     "sin": lambda degrees: math.sin(math.radians(degrees)),
     "cos": lambda degrees: math.cos(math.radians(degrees)),
-    "tan": lambda degrees: math.tan(math.radians(degrees))
+    "tan": lambda degrees: math.tan(math.radians(degrees)),
+    "cot": lambda degrees: 1/(math.tan(math.radians(degrees))),
+    "sec": lambda degrees: 1/(math.cos(math.radians(degrees))),
+    "cosec": lambda degrees: 1/(math.sin(math.radians(degrees)))
 }
 
 SYMBOL_KW: typing.Mapping[str, typing.Callable] = {
