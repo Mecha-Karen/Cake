@@ -70,7 +70,7 @@ bracket2 = (Unknown(x) + Integer(10))
 # Will be the same as: (Unknown(x) + Integer(10))(Unknown(x) + Integer(10))
 # Correct!
 
-# Just like in normal mathmatics it will do
+# Just like in normal mathematics it will do
 # x * x -> x ** 2
 # x * 10 -> 10x
 # 10 * x -> 10x
@@ -78,6 +78,27 @@ bracket2 = (Unknown(x) + Integer(10))
 
 # -> x**2 + 20x + 100
 
+# So how does it do this?
+# Well it splits the `left` and `right` operand up
+# then for every op on the left, it multiplies it with the right
+# after doing this, it adds them all up, like terms are automatically sorted
+# Thats it!
+
 print(bracket1 * bracket2)
-# Result: Unknown(x² + 20x + 100)
+# Result: Unknown(x ** 2 + 20x + 100)
 # You can directly filter this object through a `Quadratic` object and preform some nice calcs
+
+# The alternative of doing this is imple
+from cake import Unknown, Integer, Zero
+
+x = Unknown(x)
+num = Integer(10)
+
+res = Zero()
+
+res += (x * x)
+res += (x * 10)
+res += (10 * x)
+res += (10 * 10)
+
+# Res = x ** 2 + 10x + 10x + 
