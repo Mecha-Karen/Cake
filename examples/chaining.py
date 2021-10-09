@@ -88,7 +88,7 @@ print(bracket1 * bracket2)
 # Result: Unknown(x ** 2 + 20x + 100)
 # You can directly filter this object through a `Quadratic` object and preform some nice calcs
 
-# The alternative of doing this is imple
+# The alternative of doing this is simple
 from cake import Unknown, Integer, Zero
 
 x = Unknown(x)
@@ -101,4 +101,5 @@ res += (x * 10)
 res += (10 * x)
 res += (10 * 10)
 
-# Res = x ** 2 + 10x + 10x + 
+# Res = x ** 2 + 10x + 10x + 100
+# This simplifies to `x ** 2 + 20x + 100`
