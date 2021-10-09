@@ -54,7 +54,9 @@ class Surd(Number):
         if isinstance(self.n, tuple):
             x, y = self.n
 
-            return (self.integer ** (1 / y)) ** x
+            return convert_type((self.integer ** (1 / y)) ** x)
+        
+        return convert_type((self.integer ** (1 / self.n)) ** self.i)
 
     @property
     def simplify(self):
