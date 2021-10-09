@@ -32,8 +32,6 @@ class Unknown(object):
     **data: :class:`~typing.Optional[cake.core.unknown.Unknown.VALID_DATA_KEYS]`
         Any additional data for the unknown, e.g. if its raised to a power
     """
-    def __new__(cls, value, *args, **kwargs) -> "Unknown":
-        return super(Unknown, cls).__new__(Unknown)
 
     def __init__(self, value: str, **data):
         self.value = value
@@ -547,11 +545,27 @@ class Unknown(object):
         return self.data['raised']
 
     @power.setter
-    def set_power(self, new_Power: typing.Union[str, int, "Unknown", list]) -> None:
+    def _set_power(self, new_Power: typing.Union[str, int, "Unknown", list]) -> None:
         if not isinstance(new_Power, (str, int, Unknown, list)):
             raise TypeError(f'Invalid power set')
 
         self.data['raised'] = new_Power
+
+    @property
+    def sqrt(self) -> bool:
+        return self.data['sqrt']
+
+    @sqrt.setter
+    def _set_sqrt(self, new_val: bool) -> None:
+        self.data['sqrt'] = bool(new_val)
+
+    @property
+    def factorial(self) -> bool:
+        return self.data['factorial']
+
+    @factorial.setter
+    def _set_factorial(self, new_val: bool) -> None:
+        self.data['factorial'] = bool(new_val)
 
 def _prettify_repr(unk: Unknown) -> str:
     """
