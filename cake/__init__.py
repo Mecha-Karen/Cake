@@ -10,7 +10,10 @@ from .core import (
     Marker, Operator, Symbol, PlusOrMinus, Function, ALLOWED,
 
     # Cores
-    Number, Unknown, Surd
+    Number, Unknown, Surd, 
+    
+    # Other Functions
+    get_perfect_square, _rationalise, _prettify_repr
 )
 
 # Markers
