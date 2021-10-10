@@ -10,10 +10,21 @@ class Zero(cake.Integer):
     Parameters
     ----------
     check_value_attr: :class:`~typing.Optional[bool]`
+        When a user preforms an arithmetic action it will check the `other` argument for the `value` attribute
+        If found, it replaces the argument with that value, else returns the original argument
     """
 
     def __init__(self, check_value_attr: typing.Optional[bool] = False, *args, **kwargs):
         super().__init__(check_value_attr=check_value_attr, *args, **kwargs)
 
     def __repr__(self) -> str:
-        return 'Zero()'
+        return 'Zero'
+
+class Imaginary(cake.Number):
+    """
+    An object representing an Imaginary number, You will find this object appearing when your trying to sqrt a negative and so on.
+
+    Parameters
+    ----------
+
+    """
