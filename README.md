@@ -83,7 +83,7 @@ eq.solve_by_sub()
 # Result: ((4, 0), (0, 4))
 ```
 
-<h3>Matrix Addition</h3>
+<h3>Matrix Operations</h3>
 
 ```py
 from cake import Matrix
@@ -95,6 +95,10 @@ x = Matrix([[1,2,3],[4,5,6]])
 # we can simply add the two matrices together
 print(x + y)
 # Result = [[11, 12, 13], [14, 15, 16]]
+
+# The same logic applies to subtraction operations
+print(y - x)
+# Result = [[9, 8, 7], [6, 5, 4]] 
 ```
 
 <h2>Links</h2>

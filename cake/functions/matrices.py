@@ -17,4 +17,16 @@ class Matrix:
         for k in range(lengthMatrixData):
             passedMatrixData[j].append(self.passedMatrixData[j][k] + other.passedMatrixData[j][k])
 
+  def __sub__(self, other):
+    # Modify the addition method to natively add matrices.
+    passedMatrixData = []
+
+    # Nested for loop to split and calculate each matrix item
+    for j in range(len(self.passedMatrixData)):
+        passedMatrixData.append([])
+        lengthMatrixData = len(self.passedMatrixData[0])
+        for k in range(lengthMatrixData):
+            passedMatrixData[j].append(self.passedMatrixData[j][k] - other.passedMatrixData[j][k])
+
+
     return Matrix(passedMatrixData)
