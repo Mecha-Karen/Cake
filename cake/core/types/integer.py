@@ -13,9 +13,8 @@ class Integer(Number):
         Any object which matches the `IntegerType` protocol.
         Defaults to 0
     check_value_attr: :class:`bool`
-        See `me </cake/api/index.html#cake.Number.value>`
-    *args: :class:`~typing.Any`
-        See `me </cake/api/index.html#cake.Number.value>`
+        When a user preforms an arithmetic action it will check the `other` argument for the `value` attribute
+        If found, it replaces the argument with that value, else returns the original argument
     """
 
     def __init__(
