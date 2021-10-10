@@ -83,6 +83,20 @@ eq.solve_by_sub()
 # Result: ((4, 0), (0, 4))
 ```
 
+<h3>Solving Simultaneous Equations</h3>
+
+```py
+from cake import Matrix
+# We define the matrix structure using standard 2D array syntax
+y = Matrix([[10,10,10],[10,10,10]])
+x = Matrix([[1,2,3],[4,5,6]])
+
+# As we have modified the addition method for the Matrix object
+# we can simply add the two matrices together
+print(x + y)
+# Result = [[11, 12, 13], [14, 15, 16]]
+```
+
 <h2>Links</h2>
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
