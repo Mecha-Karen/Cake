@@ -1,4 +1,5 @@
 from math import sqrt
+import math
 import typing
 
 from .number import Number
@@ -27,7 +28,7 @@ def _rationalise(n: int, **kwargs) -> typing.Union[tuple, int]:
     from cake import Imaginary
 
     if n < 0:
-        return Imaginary(n)
+        return Imaginary(n, math.sqrt)
 
     if sqrt(n).is_integer():
         return sqrt(n) 
@@ -61,7 +62,6 @@ class Surd(Number):
             integer: IntegerType,
             n: IntegerType = 1,
             i: IntegerType = 1,
-            co: IntegerType = 1,
         ) -> typing.Union["Surd", Float]:
 
         is_rational = sqrt(integer)
@@ -85,7 +85,6 @@ class Surd(Number):
         super().__init__(self.integer, True, float, Surd, Surd)
 
     # Some utilities
-    @cache
     def rationalise(self, **kwargs):
         from cake import Imaginary
 
@@ -99,7 +98,7 @@ class Surd(Number):
         co, ac = res
 
         return Surd(
-            ac, self.n, self.i, co
+            ac, self.n, co
         )
 
     @property
@@ -130,7 +129,7 @@ class Surd(Number):
         else:
             co = ''
 
-        if self.n:
+        if self.n and self.n != 1:
             n = f'** {self.n}'
         else:
             n = ''
