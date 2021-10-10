@@ -476,19 +476,6 @@ class Unknown(object):
     def __str__(self):
         return repr(self)
 
-    def __getattr__(self, name: str) -> typing.Any:
-        is_valid_attr = self.__dict__.get(name)
-
-        if not is_valid_attr:
-            try:
-                return self.data[name]
-            except KeyError:
-                pass
-        else:
-            return is_valid_attr
-        
-        raise AttributeError(f'{self.__class__.__qualname__} has no attribute {name}')
-
     def __repr__(self) -> str:
         return _prettify_repr(self)
 
@@ -604,7 +591,7 @@ def _prettify_repr(unk: Unknown) -> str:
             div = f'({str(div)})'
         else:
             div = str(div)
-        STRING += div
+        STRING += f' * {div}'
 
     if add:
         passed = False
