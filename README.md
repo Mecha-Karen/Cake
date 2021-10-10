@@ -68,6 +68,13 @@ print(expr.substitute(a=10, b=-20, c=5))
 from cake import Expression
 from cake.simultaneous import Circle
 
+# Since `=` will raise a syntax error and will mess with the python syntax
+# We settled on using the `==` operator
+# What this is saying `Expression == something`, which returns an Eqaution instead of bool
+# This is unpythonic but it still makes sense with what it does
+# You should never do `if Expr == ...`. This will always be True
+# Instead try `if (Expr == ...).solve(*args, **kwargs) == ...`
+
 circle = Expression("x ** 2 + y ** 2") == 16
 line = Expression("x + y") == 4
 
