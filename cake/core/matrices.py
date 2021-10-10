@@ -59,32 +59,44 @@ class Matrix:
 
         return data
 
-    def __add__(self, other: "Matrix") -> "Matrix":
+    def __add__(self, other: typing.Union[int, "Matrix"]) -> "Matrix":
         rows = list()
 
-        if (other.rows != self.rows) or (other.cols != self.cols):
+        if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
             raise ValueError('Provided matrix has not got the same dimensions')
 
         for i in range(self.rows):
             rows.append([])
+
+            if isinstance(other, Matrix):
+                value = other.matrix[i][j]
+            else:
+                value = other
+
             for j in range(self.cols):
                 rows[i].append(
-                    self.matrix[i][j] + other.matrix[i][j]
+                    self.matrix[i][j] + value
                 )
         
         return Matrix(*rows)
 
-    def __sub__(self, other: "Matrix") -> "Matrix":
+    def __sub__(self, other: typing.Union[int, "Matrix"]) -> "Matrix":
         rows = list()
 
-        if (other.rows != self.rows) or (other.cols != self.cols):
+        if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
             raise ValueError('Provided matrix has not got the same dimensions')
 
         for i in range(self.rows):
             rows.append([])
+
+            if isinstance(other, Matrix):
+                value = other.matrix[i][j]
+            else:
+                value = other
+
             for j in range(self.cols):
                 rows[i].append(
-                    self.matrix[i][j] - other.matrix[i][j]
+                    self.matrix[i][j] - value
                 )
         
         return Matrix(*rows)
