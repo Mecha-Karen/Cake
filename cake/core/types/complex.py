@@ -14,7 +14,7 @@ class Complex(Number):
     Parameters
     ----------
     a: :class:`~cake.abc.IntegerType`
-        Any object which matches the `IntegerType` protocol. Fills the 
+        Any object which matches the `IntegerType` protocol. Fills the
         Defaults to 0
     check_value_attr: :class:`bool`
         See `me </cake/api/index.html#cake.Number.value>`
@@ -23,23 +23,28 @@ class Complex(Number):
     """
 
     def __init__(
-        self, a: typing.Optional[IntegerType] = 0, b: typing.Optional[IntegerType] = 0,
+        self,
+        a: typing.Optional[IntegerType] = 0,
+        b: typing.Optional[IntegerType] = 0,
         raw: typing.Optional[str] = None,
         check_value_attr: typing.Optional[bool] = True,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ):
         if raw:
             raw = str(raw)
 
-            if raw[0] == '(' and raw[-1] == ')':
+            if raw[0] == "(" and raw[-1] == ")":
                 raw = raw[1:-1]
 
-            a, b = raw.split('+')
-            if b.endswith(('i', 'j')):
+            a, b = raw.split("+")
+            if b.endswith(("i", "j")):
                 b = b[:-1]
             else:
-                raise ValueError('Incorrect formatting for complex number, should be in the format of "a + bi"')
-        
+                raise ValueError(
+                    'Incorrect formatting for complex number, should be in the format of "a + bi"'
+                )
+
         if isinstance(a, complex) and not b:
             integer = a
         elif isinstance(a, complex) and isinstance(b, complex):
@@ -48,18 +53,12 @@ class Complex(Number):
         else:
             integer = complex(float(a), float(b))
 
-        super().__init__(
-            integer, check_value_attr,
-            complex, Complex, *args, **kwargs
-        )
+        super().__init__(integer, check_value_attr, complex, Complex, *args, **kwargs)
 
     @staticmethod
     def handler(res: complex, chk_value: bool, _, __, *args, **kwargs):
         return Complex(
-            a = res.real,
-            b = res.imag,
-            check_value_attr=chk_value,
-            *args, **kwargs
+            a=res.real, b=res.imag, check_value_attr=chk_value, *args, **kwargs
         )
 
     def __repr__(self) -> str:

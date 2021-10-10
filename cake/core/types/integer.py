@@ -18,22 +18,17 @@ class Integer(Number):
     """
 
     def __init__(
-        self, integer: typing.Optional[bool] = 0,
+        self,
+        integer: typing.Optional[bool] = 0,
         check_value_attr: typing.Optional[bool] = True,
-        *args, **kwargs
+        *args,
+        **kwargs,
     ):
-        super().__init__(
-            int(integer), check_value_attr,
-            int, Integer, *args, **kwargs
-        )
+        super().__init__(int(integer), check_value_attr, int, Integer, *args, **kwargs)
 
     @staticmethod
     def handler(res: IntegerType, chk_value: bool, _, __, *args, **kwargs):
-        return Integer(
-            integer=int(res),
-            check_value_attr=chk_value,
-            *args, **kwargs
-        )
+        return Integer(integer=int(res), check_value_attr=chk_value, *args, **kwargs)
 
     def __repr__(self) -> str:
         """

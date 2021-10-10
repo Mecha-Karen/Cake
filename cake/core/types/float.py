@@ -19,22 +19,15 @@ class Float(Number):
     """
 
     def __init__(
-        self, real: FloatType = 0,
-        check_value_attr: bool = True,
-        *args, **kwargs
+        self, real: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
     ):
         super().__init__(
-            float(real), check_value_attr,
-            float, FloatType, *args, **kwargs
+            float(real), check_value_attr, float, FloatType, *args, **kwargs
         )
 
     @staticmethod
     def handler(res: FloatType, chk_value: bool, _, __, *args, **kwargs):
-        return Float(
-            real=float(res),
-            check_value_attr=chk_value,
-            *args, **kwargs
-        )
+        return Float(real=float(res), check_value_attr=chk_value, *args, **kwargs)
 
     def __repr__(self) -> str:
         """
@@ -42,5 +35,6 @@ class Float(Number):
         """
 
         return f"Real({super().value})"
+
 
 Real = Float

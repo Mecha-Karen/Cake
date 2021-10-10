@@ -14,12 +14,12 @@ from cake import Integer
 LITERAL = Integer(10)
 
 # This is the same as doing `x * x`
-print( LITERAL(LITERAL) )
+print(LITERAL(LITERAL))
 
 # Result: 100
 
 # Getting x cubed can be done using `x * x * x` or
-print( LITERAL(LITERAL)(LITERAL) )
+print(LITERAL(LITERAL)(LITERAL))
 
 # Result: 1000
 
@@ -32,12 +32,12 @@ from cake import Unknown
 x = Unknown("x")
 
 # This is the same as doing `x * x`
-print( x(x) )
+print(x(x))
 
 # Result: Unknown(x²)
 
 # Based off that theory getting `x * x * x` can be done doing
-print( x(x)(x) )
+print(x(x)(x))
 
 # Result: Unknown(x³)
 
@@ -60,10 +60,10 @@ print(z)
 # Now with unknowns it gets abit weird
 from cake import Unknown, Integer
 
-bracket1 = (Unknown(x) + Integer(10))
+bracket1 = Unknown(x) + Integer(10)
 # This simplifies to `x + 10`
 
-bracket2 = (Unknown(x) + Integer(10))
+bracket2 = Unknown(x) + Integer(10)
 # This also simplified to `x + 10`
 
 # So now in essence doing `bracket1 * bracket2`
@@ -96,10 +96,10 @@ num = Integer(10)
 
 res = Zero()
 
-res += (x * x)
-res += (x * 10)
-res += (10 * x)
-res += (10 * 10)
+res += x * x
+res += x * 10
+res += 10 * x
+res += 10 * 10
 
 # Res = x ** 2 + 10x + 10x + 100
 # This simplifies to `x ** 2 + 20x + 100`

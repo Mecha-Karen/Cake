@@ -7,24 +7,28 @@ from .errors import *
 # Core Types
 from .core import (
     # Markers
-    Marker, Operator, Symbol, PlusOrMinus, Function, ALLOWED,
-
+    Marker,
+    Operator,
+    Symbol,
+    PlusOrMinus,
+    Function,
+    ALLOWED,
     # Cores
-    Number, Unknown, Surd, Matrix,
-    
+    Number,
+    Unknown,
+    Surd,
+    Matrix,
     # Other Functions
-    get_perfect_square, _rationalise, _prettify_repr
+    get_perfect_square,
+    _rationalise,
+    _prettify_repr,
 )
 
 # Markers
-from .core.markers import (
-    Marker, Symbol, Operator, PlusOrMinus, Function
-)
+from .core.markers import Marker, Symbol, Operator, PlusOrMinus, Function
 
 # Built in types
-from .core.types import (
-    Complex, Integer, Irrational, Prime, Real, Float
-)
+from .core.types import Complex, Integer, Irrational, Prime, Real, Float
 
 from .parsing import Expression, Equation
 
@@ -38,10 +42,10 @@ from .helpers import *
 from .sympy import *
 from .digits import *
 
-from . import (errors, abc, helpers, sympy, digits)
+from . import errors, abc, helpers, sympy, digits
 
-__file__ = __import__('os').path.abspath(__file__)
-__doc__ = 'An object orientated math library'
+__file__ = __import__("os").path.abspath(__file__)
+__doc__ = "An object orientated math library"
 __version__ = "0.0.1a2"
 __author__ = "Mecha Karen"
 
@@ -50,9 +54,7 @@ class VersionInfo(NamedTuple):
     major: int
     minor: int
     micro: int
-    level: Literal['Alpha', 'Beta', 'Stable', 'Final']
+    level: Literal["Alpha", "Beta", "Stable", "Final"]
 
-version_info: VersionInfo = VersionInfo(
-    major=0, minor=0, micro=1,
-    level='Pre-Alpha'
-) 
+
+version_info: VersionInfo = VersionInfo(major=0, minor=0, micro=1, level="Pre-Alpha")

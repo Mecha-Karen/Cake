@@ -4,22 +4,19 @@ import typing
 import cake
 import copy as cp
 
-FRACTIONAL_POWER = re.compile(r'\([0-9]+\/[0-9]+\)')
+__all__ = ("Unknown", "_prettify_repr")
+
+FRACTIONAL_POWER = re.compile(r"\([0-9]+\/[0-9]+\)")
+
 
 class Unknown(object):
 
     VALID_DATA_KEYS = {
         "raised": 1,
-        "operators": {
-            "div": None,
-            "multi": 1,
-            "fdiv": None,
-            "mod": None,
-            "add": 0
-        },
+        "operators": {"div": None, "multi": 1, "fdiv": None, "mod": None, "add": 0},
         "sqrt": False,
         "factorial": False,
-        "functions": []
+        "functions": [],
     }
 
     """
@@ -39,7 +36,7 @@ class Unknown(object):
         self.data = cp.deepcopy(Unknown.VALID_DATA_KEYS)
         self.data.update(data)
 
-        if value.startswith('-'):
+        if value.startswith("-"):
             self.negated = True
 
     def parse(self, dirty_string: str) -> "Unknown":
@@ -79,13 +76,13 @@ class Unknown(object):
         DATA = self.data
         NEW_VALUE = value
 
-        for function in DATA['functions']:
+        for function in DATA["functions"]:
             NEW_VALUE = function(NEW_VALUE, *args, **kwargs)
-        
-        POWER = DATA['raised']
-        DIVISION = DATA['operators']['div']
-        MULTIPLICATION = DATA['operators']['multi']
-        OP = DATA['operators']['add']
+
+        POWER = DATA["raised"]
+        DIVISION = DATA["operators"]["div"]
+        MULTIPLICATION = DATA["operators"]["multi"]
+        OP = DATA["operators"]["add"]
 
         if POWER:
             fractional = FRACTIONAL_POWER.match(str(POWER))
@@ -95,7 +92,7 @@ class Unknown(object):
                 FRACTIONAL = True
             elif fractional:
                 group = fractional.group()[1:-1]
-                indice, root = map(Irrational, group.split('/'))
+                indice, root = map(Irrational, group.split("/"))
                 FRACTIONAL = True
             else:
                 FRACTIONAL = False
@@ -141,18 +138,20 @@ class Unknown(object):
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} * ({expr})'
+            expr = f"{self.__repr__(safe=True)} * ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         elif isinstance(other, Unknown) and other.value == self.value:
 
-            cur_power = self.data['raised']
+            cur_power = self.data["raised"]
 
-            otherPower = other.data['raised']
+            otherPower = other.data["raised"]
 
             if isinstance(otherPower, list):
-                raise NotImplementedError(f'listed fractional powers is not supported yet')
+                raise NotImplementedError(
+                    f"listed fractional powers is not supported yet"
+                )
 
             try:
                 fractional = FRACTIONAL_POWER.match(otherPower)
@@ -160,36 +159,38 @@ class Unknown(object):
                 fractional = None
 
             if fractional:
-                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
+                raise NotImplementedError(
+                    f"Fraction + Fraction actions are not yet supported"
+                )
 
             if otherPower != 1:
-                res = (cur_power + otherPower)
+                res = cur_power + otherPower
 
             else:
-                res = (cur_power + 1)
+                res = cur_power + 1
 
             if not create_new:
-                self.data['raised'] = res
+                self.data["raised"] = res
                 return self
 
             copy = cp.deepcopy(self.data)
-            copy['raised'] = res
+            copy["raised"] = res
 
             return Unknown(value=self.value, **copy)
-        
+
         try:
-            res = (other * self.data['operators']['multi'])
+            res = other * self.data["operators"]["multi"]
         except Exception:
-            res = (self.data['operators']['multi'] * other)
+            res = self.data["operators"]["multi"] * other
 
         # Allows `Number` classes to be used
 
         if not create_new:
-            self.data['operators']['multi'] = res
+            self.data["operators"]["multi"] = res
             return self
 
         copy = cp.deepcopy(self.data)
-        copy['operators']['multi'] = res
+        copy["operators"]["multi"] = res
 
         return Unknown(value=self.value, **copy)
 
@@ -211,25 +212,27 @@ class Unknown(object):
         """
         # /
 
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('division by zero')
+        if getattr(other, "value", other) == 0:
+            raise ZeroDivisionError("division by zero")
 
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} / ({expr})'
+            expr = f"{self.__repr__(safe=True)} / ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         elif isinstance(other, Unknown) and other.value == self.value:
-            cur_power = self.data['raised']
+            cur_power = self.data["raised"]
 
-            otherPower = other.data['raised']
+            otherPower = other.data["raised"]
 
             # Special powers
 
             if isinstance(otherPower, list):
-                raise NotImplementedError(f'listed fractional powers is not supported yet')
+                raise NotImplementedError(
+                    f"listed fractional powers is not supported yet"
+                )
 
             try:
                 fractional = FRACTIONAL_POWER.match(otherPower)
@@ -237,19 +240,21 @@ class Unknown(object):
                 fractional = None
 
             if fractional:
-                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
+                raise NotImplementedError(
+                    f"Fraction + Fraction actions are not yet supported"
+                )
 
             if otherPower != 1:
                 if not create_new:
-                    self.data['raised'] = (cur_power - otherPower)
+                    self.data["raised"] = cur_power - otherPower
                     return self
 
                 data = cp.deepcopy(self.data)
-                data['raised'] = (cur_power - otherPower)
+                data["raised"] = cur_power - otherPower
 
                 return Unknown(data)
 
-        cur_res = self.data['operators']['div']
+        cur_res = self.data["operators"]["div"]
 
         if cur_res is None:
             cur_res = 0
@@ -260,14 +265,13 @@ class Unknown(object):
             res = other + cur_res
 
         if not create_new:
-            self.data['operators']['div'] = res
+            self.data["operators"]["div"] = res
             return self
 
         copy = cp.deepcopy(self.data)
-        copy['operators']['div'] = res
+        copy["operators"]["div"] = res
 
         return Unknown(value=self.value, **copy)
-
 
     # FLOOR DIVISION / MODULUS
 
@@ -289,17 +293,17 @@ class Unknown(object):
         """
         # //
 
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('integer division or modulo by zero')
+        if getattr(other, "value", other) == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
 
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} // ({expr})'
+            expr = f"{self.__repr__(safe=True)} // ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
-        cur_res = self.data['operators']['fdiv']
+        cur_res = self.data["operators"]["fdiv"]
 
         if cur_res is None:
             cur_res = 0
@@ -310,11 +314,11 @@ class Unknown(object):
             res = cur_res + other
 
         if not create_new:
-            self.data['operators']['fdiv'] = res
+            self.data["operators"]["fdiv"] = res
             return self
 
         copy = cp.deepcopy(self.data)
-        copy['operators']['fdiv'] = res
+        copy["operators"]["fdiv"] = res
 
         return Unknown(value=self.value, **copy)
 
@@ -336,17 +340,17 @@ class Unknown(object):
         """
         ## %
 
-        if getattr(other, 'value', other) == 0:
-            raise ZeroDivisionError('integer division or modulo by zero')
+        if getattr(other, "value", other) == 0:
+            raise ZeroDivisionError("integer division or modulo by zero")
 
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} % ({expr})'
+            expr = f"{self.__repr__(safe=True)} % ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
-        cur_res = self.data['operators']['mod']
+        cur_res = self.data["operators"]["mod"]
 
         if cur_res is None:
             cur_res = 0
@@ -357,11 +361,11 @@ class Unknown(object):
             res = cur_res + other
 
         if not create_new:
-            self.data['operators']['mod'] = res
+            self.data["operators"]["mod"] = res
             return self
 
         copy = cp.deepcopy(self.data)
-        copy['operators']['mod'] = res
+        copy["operators"]["mod"] = res
 
         return Unknown(value=self.value, **copy)
 
@@ -383,20 +387,22 @@ class Unknown(object):
 
                 This is a keyword-only argument!
         """
-        cur_power = self.data['raised']
+        cur_power = self.data["raised"]
 
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} ** ({expr})'
+            expr = f"{self.__repr__(safe=True)} ** ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         elif isinstance(other, Unknown) and other.value == self.value:
-            otherPower = other.data['raised']
+            otherPower = other.data["raised"]
 
             if isinstance(otherPower, list):
-                raise NotImplementedError(f'listed fractional powers is not supported yet')
+                raise NotImplementedError(
+                    f"listed fractional powers is not supported yet"
+                )
 
             try:
                 fractional = FRACTIONAL_POWER.match(otherPower)
@@ -404,7 +410,9 @@ class Unknown(object):
                 fractional = None
 
             if fractional:
-                raise NotImplementedError(f'Fraction + Fraction actions are not yet supported')
+                raise NotImplementedError(
+                    f"Fraction + Fraction actions are not yet supported"
+                )
 
             cur_power = cur_power * otherPower
         else:
@@ -414,14 +422,13 @@ class Unknown(object):
                 cur_power = cur_power + other
 
         if not create_new:
-            self.data['raised'] = cur_power
+            self.data["raised"] = cur_power
             return self
 
         data = cp.deepcopy(self.data)
-        data['raised'] = cur_power
+        data["raised"] = cur_power
 
         return Unknown(self.value, **data)
-
 
     # ADDITION / SUBTRACTION
 
@@ -447,25 +454,25 @@ class Unknown(object):
         if isinstance(other, cake.parsing.Expression):
             expr = other.expression
 
-            expr = f'{self.__repr__(safe=True)} + ({expr})'
+            expr = f"{self.__repr__(safe=True)} + ({expr})"
 
             return cake.parsing.Expression(expr, *other.args, **other.kwargs)
 
         try:
-            res = (other + self.data['operators']['add'])
+            res = other + self.data["operators"]["add"]
         except Exception:
-            res = (self.data['operators']['add'] + other)
+            res = self.data["operators"]["add"] + other
 
         if not create_new:
-            self.data['operators']['add'] = res
+            self.data["operators"]["add"] = res
             return self
 
         copy = cp.deepcopy(self.data)
-        copy['operators']['add'] = res
+        copy["operators"]["add"] = res
 
         return Unknown(value=self.value, **copy)
 
-    def subtract(self, other, *, create_new = True):
+    def subtract(self, other, *, create_new=True):
         """
         Refer to the ``add`` method for more info
         """
@@ -509,13 +516,13 @@ class Unknown(object):
     # Built in functions
     def __ceil__(self):
         data = cp.deepcopy(self.data)
-        data['functions'].append(math.ceil)
+        data["functions"].append(math.ceil)
 
         return Unknown(self.value, **data)
 
     def __abs__(self):
         data = cp.deepcopy(self.data)
-        data['functions'].append(abs)
+        data["functions"].append(abs)
 
         return Unknown(self.value, **data)
 
@@ -529,69 +536,70 @@ class Unknown(object):
 
     @property
     def power(self):
-        return self.data['raised']
+        return self.data["raised"]
 
     @power.setter
     def _set_power(self, new_Power: typing.Union[str, int, "Unknown", list]) -> None:
         if not isinstance(new_Power, (str, int, Unknown, list)):
-            raise TypeError(f'Invalid power set')
+            raise TypeError(f"Invalid power set")
 
-        self.data['raised'] = new_Power
+        self.data["raised"] = new_Power
 
     @property
     def sqrt(self) -> bool:
-        return self.data['sqrt']
+        return self.data["sqrt"]
 
     @sqrt.setter
     def _set_sqrt(self, new_val: bool) -> None:
-        self.data['sqrt'] = bool(new_val)
+        self.data["sqrt"] = bool(new_val)
 
     @property
     def factorial(self) -> bool:
-        return self.data['factorial']
+        return self.data["factorial"]
 
     @factorial.setter
     def _set_factorial(self, new_val: bool) -> None:
-        self.data['factorial'] = bool(new_val)
+        self.data["factorial"] = bool(new_val)
+
 
 def _prettify_repr(unk: Unknown) -> str:
     """
     Returns a parsable version of an unknown
     """
     value = unk.value
-    raised = unk.data['raised']
-    factorial = unk.data['factorial']
-    multip = unk.data['operators']['multi']
-    div = unk.data['operators']['div']
-    add = unk.data['operators']['add']
-    sqrt = unk.data['sqrt']
-    factorial = unk.data['factorial']
+    raised = unk.data["raised"]
+    factorial = unk.data["factorial"]
+    multip = unk.data["operators"]["multi"]
+    div = unk.data["operators"]["div"]
+    add = unk.data["operators"]["add"]
+    sqrt = unk.data["sqrt"]
+    factorial = unk.data["factorial"]
 
     STRING = value
 
     if factorial:
-        value += '!'
+        value += "!"
 
     if raised and raised != 1:
         if isinstance(raised, Unknown):
-            raised = f'({str(raised)})'
+            raised = f"({str(raised)})"
         else:
             raised = str(raised)
-        STRING += f' ** {raised}'
+        STRING += f" ** {raised}"
 
     if div:
         if isinstance(div, Unknown):
-            div = f'({str(div)})'
+            div = f"({str(div)})"
         else:
             div = str(div)
-        STRING += f' / {div}'
+        STRING += f" / {div}"
 
     if multip and multip != 1:
         if isinstance(multip, Unknown):
-            div = f'({str(div)})'
+            div = f"({str(div)})"
         else:
             div = str(div)
-        STRING += f' * {div}'
+        STRING += f" * {div}"
 
     if add:
         passed = False
@@ -604,21 +612,21 @@ def _prettify_repr(unk: Unknown) -> str:
 
         if not passed:
             try:
-                negated = getattr(add, 'value', 0) < 0
+                negated = getattr(add, "value", 0) < 0
             except TypeError:
-                negated = getattr(add, 'negated', False)
+                negated = getattr(add, "negated", False)
 
         if isinstance(add, Unknown):
-            val = f'({str(add)})'
+            val = f"({str(add)})"
         else:
             val = str(add)
 
         if negated:
-            STRING += f' - {val}'
+            STRING += f" - {val}"
         else:
-            STRING += f' + {val}'
+            STRING += f" + {val}"
 
     if sqrt:
-        STRING = f'sqrt({STRING})'
+        STRING = f"sqrt({STRING})"
 
     return STRING

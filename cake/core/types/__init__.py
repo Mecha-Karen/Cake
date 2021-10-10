@@ -4,11 +4,18 @@ from .irrational import Irrational
 from .prime import Prime
 from .float import Real, Float
 
-from . import (
-    complex, integer, irrational, prime, float
-)
+from . import complex, integer, irrational, prime, float
 
 __all__ = (
-    "Complex", "Integer", "Irrational", "Prime", "Real", "Float",
-    "complex", "integer", "irrational", "prime", "float"
+    "Complex",
+    "Integer",
+    "Irrational",
+    "Prime",
+    "Real",
+    "Float",
+    "complex",
+    "integer",
+    "irrational",
+    "prime",
+    "float",
 )

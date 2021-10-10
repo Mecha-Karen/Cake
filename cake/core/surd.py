@@ -8,18 +8,20 @@ from .types.float import Float
 from cake.abc import IntegerType
 from cake.helpers import convert_type
 
-from functools import cache
+__all__ = ("get_perfect_square", "_rationalise", "Surd")
+
 
 def get_perfect_square(
-    limit: int, *, 
+    limit: int,
+    *,
     increment: typing.Optional[int] = 3,
     index: typing.Optional[int] = 0,
-    accumulated_list: typing.Optional[typing.List[int]] = [1]
-    ) -> typing.Union[tuple]:
+    accumulated_list: typing.Optional[typing.List[int]] = [1],
+) -> typing.Union[tuple]:
 
     while (accumulated_list[-1] + increment) <= limit:
         accumulated_list.append(accumulated_list[index] + increment)
-        index += 1 
+        index += 1
         increment = (2 * index) + 3
     return accumulated_list
 
@@ -31,7 +33,7 @@ def _rationalise(n: int, **kwargs) -> typing.Union[tuple, int]:
         return Imaginary(n, math.sqrt)
 
     if sqrt(n).is_integer():
-        return sqrt(n) 
+        return sqrt(n)
 
     ac_list = get_perfect_square(n / 2, **kwargs)
 
@@ -51,18 +53,20 @@ class Surd(Number):
 
     Parameters
     ----------
-    integer: `~cake.abc.IntegerType` 
+    integer: `~cake.abc.IntegerType`
         The irrational integer
     n: `~cake.abc.IntegerType`
         the nth term of the root, e.g ``3`` is cube-root. Doing ``'(2/3)'`` will cube root it an then raise it to the power of 2
     i: :`~cake.abc.IntegerType`:
         Coefficient of the unsolved root
     """
-    def __new__(cls, 
-            integer: IntegerType,
-            n: IntegerType = 1,
-            i: IntegerType = 1,
-        ) -> typing.Union["Surd", Float]:
+
+    def __new__(
+        cls,
+        integer: IntegerType,
+        n: IntegerType = 1,
+        i: IntegerType = 1,
+    ) -> typing.Union["Surd", Float]:
 
         is_rational = sqrt(integer)
 
@@ -71,18 +75,20 @@ class Surd(Number):
 
         return super(Surd, cls).__new__(Surd)
 
-    def __init__(self, integer, n = 1, i = 1) -> None:
+    def __init__(self, integer, n=1, i=1) -> None:
         if isinstance(n, str):
-            if not n.startswith('(') and not n.endswith(')'):
-                raise ValueError(f'Formatting of fraction powers must be in the form of `(x/y)`')
+            if not n.startswith("(") and not n.endswith(")"):
+                raise ValueError(
+                    f"Formatting of fraction powers must be in the form of `(x/y)`"
+                )
             n = n[1:-1]
-            n = map(convert_type, n.split('/'))
+            n = map(convert_type, n.split("/"))
 
         self.integer = integer
         self.n = n
         self.i = i
 
-        super().__init__(self.integer, True, float, Surd, Surd)
+        super().__init__(self.decimal, True, float, Surd, Surd)
 
     # Some utilities
     def rationalise(self, **kwargs):
@@ -92,19 +98,17 @@ class Surd(Number):
 
         if isinstance(res, Imaginary):
             return res
-        
+
         if isinstance(res, int):
             return Float(int)
         co, ac = res
 
-        return Surd(
-            ac, self.n, co
-        )
+        return Surd(ac, self.n, co)
 
     @property
     def decimal(self):
-        if self.co != 1:
-            integer = self.integer * (self.co ** 2)
+        if self.i != 1:
+            integer = self.integer * (self.i ** 2)
         else:
             integer = self.integer
 
@@ -112,7 +116,7 @@ class Surd(Number):
             x, y = self.n
 
             return convert_type(((integer ** (1 / y)) ** x) ** self.i)
-        
+
         return convert_type((integer ** (1 / self.n)) ** self.i)
 
     @property
@@ -127,11 +131,20 @@ class Surd(Number):
         if self.i and self.i != 1:
             co = str(self.i)
         else:
-            co = ''
+            co = ""
 
         if self.n and self.n != 1:
-            n = f'** {self.n}'
+            n = f"** {self.n}"
         else:
-            n = ''
+            n = ""
 
-        return f'{co}√{self.integer} {n}'
+        return f"{co}√{self.integer} {n}"
+
+    def __add__(self, other: "Surd") -> "Surd":
+        if not isinstance(other, Surd):
+            return super().__add__(other)
+
+        if other.integer != self.integer:
+            raise ValueError(
+                f'Cannot add "{repr(other)}" as the integer is not the same!'
+            )

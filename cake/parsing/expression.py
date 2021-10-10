@@ -5,9 +5,7 @@ import string
 from cake import abc, errors
 
 
-from ..core.markers import (
-    Operator, Symbol, PlusOrMinus, Function
-)
+from ..core.markers import Operator, Symbol, PlusOrMinus, Function
 from ..core.types.complex import Complex
 from ..core.types.irrational import Irrational
 from ..core.unknown import Unknown
@@ -17,13 +15,16 @@ from cake.helpers import convert_type
 
 # Imports for tokenizing
 from tokenize import (
-    tokenize, 
-    
+    tokenize,
     # IGNORE MARKERS
-    ENDMARKER, NEWLINE, ENCODING,
-    
+    ENDMARKER,
+    NEWLINE,
+    ENCODING,
     # MARKERS TO SEARCH
-    OP, NAME, NUMBER, ERRORTOKEN,
+    OP,
+    NAME,
+    NUMBER,
+    ERRORTOKEN,
 )
 from io import BytesIO
 
@@ -31,9 +32,7 @@ ASCII_CHARS = string.ascii_lowercase
 # Use lowercases so `X` is equal to `x`
 BLACKLISTED = list(abc.KEYWORDS.keys()) + list(abc.CONSTANTS.keys())
 # Keywords that cant be assigned to an unknown
-VALID_SYMBOLS = {
-    "!", "(", ")"
-}
+VALID_SYMBOLS = {"!", "(", ")"}
 # Used for parsing functions
 IGNORE = (ENDMARKER, NEWLINE, ENCODING)
 # Ignore any tokens from the tokeniser
@@ -44,18 +43,14 @@ IGNORE = (ENDMARKER, NEWLINE, ENCODING)
 #
 ################
 
-FIND_UNKNOWNS = re.compile(
-    "[a-zA-Z]+",
-    re.IGNORECASE
-)
+FIND_UNKNOWNS = re.compile("[a-zA-Z]+", re.IGNORECASE)
 # Looks for any letters, this is useful when mapping values to a specific unknown
 
-INVALID_OPS = re.compile(
-    "[a-zA-Z]+[0-9]+", re.IGNORECASE
-)
+INVALID_OPS = re.compile("[a-zA-Z]+[0-9]+", re.IGNORECASE)
 # Looks for any incorrect patterns such as `sqrt4`
 
 # Main Object
+
 
 class Expression(object):
     """
@@ -64,7 +59,7 @@ class Expression(object):
 
     Example
     -------
-    
+
     .. code-block:: py
 
         >>> from cake import expression
@@ -80,7 +75,7 @@ class Expression(object):
 
         Example
         -------
-        
+
         .. code-block:: py
 
             >>> from cake import expression
@@ -101,10 +96,13 @@ class Expression(object):
             >>> eq._sub(y=10)
             [Unknown(x), ..., Operator(+), Integer(10), ...]
 
-    
+
     """
-    def __new__(cls, expression: typing.Union[str, list], *default_args, **default_kwargs):
-        multiple = expression.split('\n') if type(expression) == str else expression
+
+    def __new__(
+        cls, expression: typing.Union[str, list], *default_args, **default_kwargs
+    ):
+        multiple = expression.split("\n") if type(expression) == str else expression
         if len(multiple) > 1:
             eqs = list()
 
@@ -112,13 +110,22 @@ class Expression(object):
                 eqs.append(Expression(eq, *default_args, **default_kwargs))
             return eqs
 
-        return super(Expression, cls).__new__(Expression, *default_args, **default_kwargs)
+        return super(Expression, cls).__new__(
+            Expression, *default_args, **default_kwargs
+        )
 
-    def __init__(self, expression: typing.Union[str, typing.BinaryIO], *default_args, **default_kwargs) -> None:
+    def __init__(
+        self,
+        expression: typing.Union[str, typing.BinaryIO],
+        *default_args,
+        **default_kwargs,
+    ) -> None:
         default_args = list(default_args)
 
-        if hasattr(expression, 'seek'):
-            self.__expression = expression.read().decode(encoding='ASCII', errors='ignore')
+        if hasattr(expression, "seek"):
+            self.__expression = expression.read().decode(
+                encoding="ASCII", errors="ignore"
+            )
         else:
             self.__expression = expression.lower()
 
@@ -134,7 +141,6 @@ class Expression(object):
 
             if value in BLACKLISTED:
                 unknowns.remove(value)
-
 
         as_dict = {i: None for i in unknowns}
         keys = list(as_dict.keys())
@@ -160,11 +166,13 @@ class Expression(object):
 
         return as_dict
 
-    def _sub(self, 
-            update_mappings: bool = False,
-            return_tokens: bool = False,
-            *args, **kwargs
-        ):
+    def _sub(
+        self,
+        update_mappings: bool = False,
+        return_tokens: bool = False,
+        *args,
+        **kwargs,
+    ):
         """
         Simple tokenization, returns a list of tokens. This is usually only important for parsing.
         An example of this can be found in the ``substitution`` method.
@@ -199,12 +207,14 @@ class Expression(object):
                 index += 1
 
             possible_correct = found_first[:index]
-            possible_correct += ' '
+            possible_correct += " "
             possible_correct += found_first[index:]
 
-            raise errors.expressionParseError(f'String `{found_first}`, followed by integer. Perhaps you ment "{possible_correct}"')
+            raise errors.expressionParseError(
+                f'String `{found_first}`, followed by integer. Perhaps you ment "{possible_correct}"'
+            )
 
-        as_file = BytesIO(self.expression.encode(encoding='ASCII', errors='ignore'))
+        as_file = BytesIO(self.expression.encode(encoding="ASCII", errors="ignore"))
 
         as_file.seek(0)
 
@@ -242,13 +252,13 @@ class Expression(object):
                 pass
 
             elif type_ == OP:
-                if string == '(':
+                if string == "(":
                     POS_TOKENS = tokens[TOKEN_INDEX:]
 
                     is_plus = POS_TOKENS[0:5]
-                    to_mapping = ''.join([i.string for i in is_plus])
+                    to_mapping = "".join([i.string for i in is_plus])
 
-                    if to_mapping in ['(+|-)', '(-|+)']:
+                    if to_mapping in ["(+|-)", "(-|+)"]:
                         SKIP += 4
                         presence.append(PlusOrMinus())
                     else:
@@ -258,16 +268,18 @@ class Expression(object):
 
                             SKIP += 4
                         except ValueError:
-                            presence.append(Symbol('('))
+                            presence.append(Symbol("("))
                             OPEN_BRACKETS += 1
 
-                elif string == ')':
+                elif string == ")":
                     if OPEN_BRACKETS < 1:
                         INCORRECT_BRACK_INDEX = token.start[1]
 
-                        raise errors.expressionParseError(f'Unexpected `)` at position {INCORRECT_BRACK_INDEX}')
+                        raise errors.expressionParseError(
+                            f"Unexpected `)` at position {INCORRECT_BRACK_INDEX}"
+                        )
 
-                    presence.append(Symbol(')'))
+                    presence.append(Symbol(")"))
                     OPEN_BRACKETS -= 1
 
                 else:
@@ -279,7 +291,7 @@ class Expression(object):
                         presence.append(op)
                     except ValueError as e:
                         raise errors.expressionParseError(
-                            f'Unknown Operator: {string}'
+                            f"Unknown Operator: {string}"
                         ) from e
 
             elif type_ in [NAME, ERRORTOKEN]:
@@ -288,19 +300,23 @@ class Expression(object):
                 symbol_func = abc.SYMBOL_KW.get(string)
 
                 if constant and function:
-                    raise errors.expressionParseError(f'{string} is defined both as a function and constant')
+                    raise errors.expressionParseError(
+                        f"{string} is defined both as a function and constant"
+                    )
 
                 elif constant:
                     presence.append(Irrational(constant))
-                
+
                 elif function:
-                    POS_TOKENS = tokens[(TOKEN_INDEX + 1):]
+                    POS_TOKENS = tokens[(TOKEN_INDEX + 1) :]
                     # Start from next posfix, else the `function` NAME gets caught
 
                     if not POS_TOKENS:
-                        raise errors.expressionParseError(f'{string} Called with no parameters')
+                        raise errors.expressionParseError(
+                            f"{string} Called with no parameters"
+                        )
 
-                    if POS_TOKENS[0].string == '(':
+                    if POS_TOKENS[0].string == "(":
                         WRAPPED_IN_BRACKETS = True
                     else:
                         WRAPPED_IN_BRACKETS = False
@@ -309,43 +325,45 @@ class Expression(object):
                         _, COL = POS_TOKENS[0].start
 
                         EQ = self.expression[COL:]
-                        EVALUATE = EQ.split(' ')[0]
+                        EVALUATE = EQ.split(" ")[0]
 
                         TREE, TOKENS = Expression(EVALUATE)._sub(
-                            return_tokens=True,
-                            **self._sort_values(*args, **kwargs)
-                            )
-                        
+                            return_tokens=True, **self._sort_values(*args, **kwargs)
+                        )
+
                     else:
                         FUNQ_EQ = ""
                         BRACKS = 0
 
                         for POSFIX in POS_TOKENS:
 
-                            if POSFIX.string == '(':
+                            if POSFIX.string == "(":
                                 BRACKS += 1
-                                FUNQ_EQ += ' ( '
-                            elif POSFIX.string == ')':
+                                FUNQ_EQ += " ( "
+                            elif POSFIX.string == ")":
                                 if BRACKS < 1:
                                     OPEN_BRACKETS -= 1
-                                    presence.append(Symbol(')'))
+                                    presence.append(Symbol(")"))
                                     break
                                 BRACKS -= 1
-                                FUNQ_EQ += ' ) '
+                                FUNQ_EQ += " ) "
 
                             else:
-                                FUNQ_EQ += f' {POSFIX.string} '
+                                FUNQ_EQ += f" {POSFIX.string} "
 
                         if BRACKS > 1:
-                            raise errors.expressionParseError(f'{BRACKS} Unclosed brackets whilst evaluating {function.__qualname__}')
-                        
-                        TREE, TOKENS = Expression(FUNQ_EQ)._sub(
-                            return_tokens=True, 
-                            **self._sort_values(*args, **kwargs)
+                            raise errors.expressionParseError(
+                                f"{BRACKS} Unclosed brackets whilst evaluating {function.__qualname__}"
                             )
 
+                        TREE, TOKENS = Expression(FUNQ_EQ)._sub(
+                            return_tokens=True, **self._sort_values(*args, **kwargs)
+                        )
+
                     if not TREE:
-                        raise errors.expressionParseError(f'{string} Called with no parameters')
+                        raise errors.expressionParseError(
+                            f"{string} Called with no parameters"
+                        )
 
                     func = Function(function, TREE)
                     SKIP += len(TOKENS)
@@ -356,12 +374,16 @@ class Expression(object):
                     func_name = symbol_func.__qualname__.title()
 
                     if isinstance(LAST_POSFIX, Operator):
-                        raise errors.expressionParseError(f'{func_name} called on an operator ({LAST_POSFIX.value}), at index {token.start[1]}.')                    
+                        raise errors.expressionParseError(
+                            f"{func_name} called on an operator ({LAST_POSFIX.value}), at index {token.start[1]}."
+                        )
 
                     if isinstance(LAST_POSFIX, Symbol):
-                        if LAST_POSFIX.value != ')':
-                            raise errors.expressionParseError(f'{func_name} called on an open bracket, at index {token.start[1]}')
-                        
+                        if LAST_POSFIX.value != ")":
+                            raise errors.expressionParseError(
+                                f"{func_name} called on an open bracket, at index {token.start[1]}"
+                            )
+
                         OPEN_BRACKS = 0
                         POS_INDEX = 0
                         POS_TOKENS = tokens[:TOKEN_INDEX][::-1]
@@ -369,12 +391,12 @@ class Expression(object):
                         # Factorial will be at the beginning
 
                         for POS_TOKEN in POS_TOKENS:
-                            
+
                             string = POS_TOKEN.string
 
-                            if string == ')':
+                            if string == ")":
                                 OPEN_BRACKS += 1
-                            elif string == '(':
+                            elif string == "(":
                                 OPEN_BRACKS -= 1
 
                                 if OPEN_BRACKS < 1:
@@ -383,7 +405,9 @@ class Expression(object):
                             POS_INDEX += 1
 
                         if OPEN_BRACKS:
-                            raise errors.expressionParseError(f'{OPEN_BRACKS} Unclosed brackets whilst evalutating "{symbol_func.__qualname__}"')
+                            raise errors.expressionParseError(
+                                f'{OPEN_BRACKS} Unclosed brackets whilst evalutating "{symbol_func.__qualname__}"'
+                            )
 
                         POS_TOKENS = POS_TOKENS[::-1]
                         PS_IND = (len(POS_TOKENS) - 1) - POS_INDEX
@@ -392,32 +416,29 @@ class Expression(object):
 
                         as_eq = [i.string for i in POS_TOKENS[PS_IND:]]
 
-                        del presence[((TOKEN_INDEX - POS_INDEX) - 1):(TOKEN_INDEX + 1)]
+                        del presence[
+                            ((TOKEN_INDEX - POS_INDEX) - 1) : (TOKEN_INDEX + 1)
+                        ]
 
-
-                        TREE = Expression(' '.join(as_eq))._sub(
+                        TREE = Expression(" ".join(as_eq))._sub(
                             **self._sort_values(*args, **kwargs)
-                            )
+                        )
 
                         func = Function(symbol_func, TREE)
                         presence.append(func)
 
                     else:
-                        new_pre = [
-                            Symbol('('),
-                            LAST_POSFIX,
-                            Symbol(')')
-                        ]
+                        new_pre = [Symbol("("), LAST_POSFIX, Symbol(")")]
 
-                        func = Function(
-                            symbol_func, new_pre
-                        )
+                        func = Function(symbol_func, new_pre)
 
                         presence[-1] = func
 
                 else:
                     if not string in ASCII_CHARS:
-                        raise errors.expressionParseError(f'Unknown Token ({string}) at index {token.start[1]}')
+                        raise errors.expressionParseError(
+                            f"Unknown Token ({string}) at index {token.start[1]}"
+                        )
 
                     unk = Unknown(string)
                     value = unknown_mapping.get(string)
@@ -455,16 +476,18 @@ class Expression(object):
                         elif not function:
                             SKIP += 1
 
-                            presence.extend([
-                                Symbol('('),
-                                CURRENT_NUMBER,
-                                Operator('*'),
-                                value,
-                                Symbol(')')
-                            ])
+                            presence.extend(
+                                [
+                                    Symbol("("),
+                                    CURRENT_NUMBER,
+                                    Operator("*"),
+                                    value,
+                                    Symbol(")"),
+                                ]
+                            )
 
                         else:
-                            possible_correct = f'{string} * {NEXT.string}'
+                            possible_correct = f"{string} * {NEXT.string}"
 
                             raise errors.expressionParseError(
                                 f'Invalid use of function "{function.__qualname__}" at index {NEXT.start[1]}. Perhaps you ment "{possible_correct}"'
@@ -476,14 +499,16 @@ class Expression(object):
             else:
 
                 # Stops `' '` from raising an error
-                if string.strip(): 
-                    raise errors.expressionParseError(f'Unknown Token ({string}) at index {token.start[1]}')
+                if string.strip():
+                    raise errors.expressionParseError(
+                        f"Unknown Token ({string}) at index {token.start[1]}"
+                    )
 
             ACTUAL_INDEX += len(string)
             TOKEN_INDEX += 1
 
         if OPEN_BRACKETS > 1:
-            raise errors.expressionParseError(f'{OPEN_BRACKETS} Unclosed brackets')
+            raise errors.expressionParseError(f"{OPEN_BRACKETS} Unclosed brackets")
 
         if return_tokens:
             return presence, tokens
@@ -504,11 +529,9 @@ class Expression(object):
         presence = self._sub(update_mapping, *args, **kwargs)
         result = list()
 
-        plusMinusCount = len(
-            list(
-                filter(lambda x: isinstance(x, PlusOrMinus), presence)
-            )
-        ) * 2
+        plusMinusCount = (
+            len(list(filter(lambda x: isinstance(x, PlusOrMinus), presence))) * 2
+        )
         # How many solutions there can be in total
 
         plusMinusIndexes = []
@@ -529,20 +552,25 @@ class Expression(object):
 
             elif isinstance(POSFIX, Operator):
                 if (PRESENCE_INDEX + 1) >= (len(presence) - 1):
-                    raise errors.SubstitutionError(f'{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}')
+                    raise errors.SubstitutionError(
+                        f"{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}"
+                    )
                 NEXT_POSFIX = presence[(PRESENCE_INDEX + 1)]
 
-                if POSFIX.value == '-':
+                if POSFIX.value == "-":
                     # Negate the entire right side
                     if isinstance(NEXT_POSFIX, Symbol):
-                        if NEXT_POSFIX.value == ')':
-                            raise errors.SubstitutionError(f'{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}')
-
+                        if NEXT_POSFIX.value == ")":
+                            raise errors.SubstitutionError(
+                                f"{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}"
+                            )
 
             PRESENCE_INDEX += 1
 
         if len(result) < plusMinusCount:
-            raise errors.SubstitutionError(f'Evaluted expression returned {len(result)} results instead of {plusMinusCount}')
+            raise errors.SubstitutionError(
+                f"Evaluted expression returned {len(result)} results instead of {plusMinusCount}"
+            )
 
         return tuple(result)
 
@@ -586,14 +614,16 @@ class Expression(object):
         """
         op = Operator(operator)
 
-        eq = f'({self.__expression})'
-        eq += f' {op.value} {ending}'
+        eq = f"({self.__expression})"
+        eq += f" {op.value} {ending}"
 
         self.__expression = eq
 
         self.update_variables(*eq_args, **eq_kwargs)
 
-    def update_variables(self, overwrite: bool = True, *args, **kwargs) -> typing.Union[dict, None]:
+    def update_variables(
+        self, overwrite: bool = True, *args, **kwargs
+    ) -> typing.Union[dict, None]:
         """
         Update the built in mapping for unknown values
 
@@ -612,7 +642,7 @@ class Expression(object):
         """
 
         current_args = self.args
-        default_args = list(args) + current_args[len(args):]
+        default_args = list(args) + current_args[len(args) :]
 
         default_kwargs = {**self.kwargs, **kwargs}
 
@@ -628,12 +658,12 @@ class Expression(object):
 
     @property
     def mapping(self):
-        """ Returns a copy of the variable mappings for unknowns """
+        """Returns a copy of the variable mappings for unknowns"""
         return self.__mappings.copy()
 
     @property
     def expression(self):
-        """ Returns a copy of the expression used when initialsing the class """
+        """Returns a copy of the expression used when initialsing the class"""
         return self.__expression
 
     def __repr__(self) -> str:

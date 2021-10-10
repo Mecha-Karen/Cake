@@ -9,7 +9,7 @@ x = Unknown("x")
 # Unknown(x)
 
 # If your lazy with methods you can use the `.parse` method
-x = Unknown.parse('x ** 2')
+x = Unknown.parse("x ** 2")
 # Unknown(x²)
 
 # Symbols function

@@ -20,7 +20,7 @@ class Number(object):
 
     An unknown should only be used when the value is not known, meaning it can be anything.
     Else implement the `Range` class.
-    
+
     For Quaternion's, the :class:`~cake.Number.value` can be a :class:`tuple`, or the class itself.
 
     .. _Parameters:
@@ -54,18 +54,36 @@ class Number(object):
         Additional arguments which you may supply when using arithmetic operators such as ``+``
     **kwargs: :class:`~typing.Any`
         Additional keyword arguments which you may supply when using arithmetic operators such as ``+``
-    
+
     Returns
     -------
     A number class which can handle all python operators
     """
 
-    def __init__(self, value: typing.Any,
-        check_value_attr: bool = True, 
-        base_type: typing.Callable[[..., ], typing.Any] = float,
-        return_me: typing.Callable[[..., ], typing.Any] = ...,
-        return_handler: typing.Callable[[..., ], typing.Any] = None,
-        *args, **kwargs,
+    def __init__(
+        self,
+        value: typing.Any,
+        check_value_attr: bool = True,
+        base_type: typing.Callable[
+            [
+                ...,
+            ],
+            typing.Any,
+        ] = float,
+        return_me: typing.Callable[
+            [
+                ...,
+            ],
+            typing.Any,
+        ] = ...,
+        return_handler: typing.Callable[
+            [
+                ...,
+            ],
+            typing.Any,
+        ] = None,
+        *args,
+        **kwargs,
     ):
         self._value = base_type(value)
         self._type = base_type
@@ -78,11 +96,11 @@ class Number(object):
         if return_me == ...:
             self.return_class = Number
         else:
-            if hasattr(return_me, 'handler'):
+            if hasattr(return_me, "handler"):
                 if callable(return_me.handler):
                     self.return_class = return_me.handler
                 else:
-                    raise TypeError('handler must be a callable object')
+                    raise TypeError("handler must be a callable object")
             else:
                 self.return_class = return_me
 
@@ -122,9 +140,12 @@ class Number(object):
         result = self._value * other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __abs__(self):
@@ -134,14 +155,17 @@ class Number(object):
             new_val = self._value
 
         return self.return_class(
-            new_val, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            new_val,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __add__(self, other):
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -152,14 +176,17 @@ class Number(object):
         result = self._value + other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __sub__(self, other):
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -170,29 +197,32 @@ class Number(object):
         result = self._value - other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __mul__(self, other):
-        return self.__call__(other, 
-            self.check_value_attr, *self.args,
-            **self.kwargs
-        )
+        return self.__call__(other, self.check_value_attr, *self.args, **self.kwargs)
 
     def __ceil__(self):
         result = ceil(self._value)
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __truediv__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -203,14 +233,17 @@ class Number(object):
         result = self._value / other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __floordiv__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -221,14 +254,17 @@ class Number(object):
         result = self._value // other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __mod__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -239,27 +275,33 @@ class Number(object):
         result = self._value % other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __divmod__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = divmod(self._value, other)
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __pow__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
@@ -270,74 +312,92 @@ class Number(object):
         result = self._value ** other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __lshift__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = self._value << other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __rshift__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = self._value >> other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __and__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = self._value & other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __xor__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = self._value ^ other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     def __or__(self, value):
-        other = self._get_value(value, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         result = self._value | other
 
         return self.return_class(
-            result, self.check_value_attr,
-            self._type, self.return_class,
-            *self.args, **self.kwargs
+            result,
+            self.check_value_attr,
+            self._type,
+            self.return_class,
+            *self.args,
+            **self.kwargs,
         )
 
     # #########
@@ -347,67 +407,67 @@ class Number(object):
     # #########
 
     def __lt__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value < float(other)
 
     def __le__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value <= float(other)
 
     def __gt__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value > float(other)
 
     def __ge__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value >= float(other)
 
     def __eq__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value == float(other)
 
     def __ne__(self, other) -> bool:
-        other = self._get_value(other, getattr(self, 'check_value_attr', True),
-            *self.args, **self.kwargs
+        other = self._get_value(
+            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
         )
 
         if isinstance(other, Unknown):
-            raise TypeError('Cannot compare known with unknown')
+            raise TypeError("Cannot compare known with unknown")
 
         return self._value != float(other)
 
     # ################
-    #  
+    #
     # Type Conversion
     #
     # #################
@@ -434,13 +494,13 @@ class Number(object):
     # ################
 
     def __repr__(self) -> str:
-        return f'Number({self._value})'
+        return f"Number({self._value})"
 
     @property
     def value(self) -> typing.Any:
         """
         Returns the value supplied when initialising the class, if it has been converted to the provided type, then that value is returned instead.
-        
+
         This is overridable and deletable, if deleted value is set to 0.
         """
         return self._value
@@ -455,9 +515,10 @@ class Number(object):
     def remove_value(self) -> None:
         self._value = 0
 
-
     @property
-    def type(self) -> typing.Callable[[..., ], typing.Any]:
+    def type(
+        self,
+    ) -> typing.Callable[[...,], typing.Any]:
         """
         Returns the value type which was set when intialising the class, this will always return the actual class which you was set.
 
@@ -467,15 +528,24 @@ class Number(object):
         return self._type
 
     @type.setter
-    def set_type(self, newType: typing.Callable[[..., ], typing.Any]) -> None:
+    def set_type(
+        self,
+        newType: typing.Callable[
+            [
+                ...,
+            ],
+            typing.Any,
+        ],
+    ) -> None:
         try:
             self._value = newType(self._value)
         except Exception as e:
             if isinstance(e, TypeError) and not callable(newType):
-                raise TypeError(f'{newType.__qualname__} is not callable') from e
-            raise TypeError(f'"{self._value}" could not be converted to the new type ({newType.__qualname__})') from e
+                raise TypeError(f"{newType.__qualname__} is not callable") from e
+            raise TypeError(
+                f'"{self._value}" could not be converted to the new type ({newType.__qualname__})'
+            ) from e
         self._type = newType
-
 
     # @property
     # def sqrt(self):
@@ -488,7 +558,11 @@ class Number(object):
     #    return super(Number, self).__new__(Number, is_rational)
 
     def _get_value(self, other, check_value_attr, *args, **kwargs):
-        if hasattr(other, 'value') and check_value_attr is True and not isinstance(other, Unknown):
+        if (
+            hasattr(other, "value")
+            and check_value_attr is True
+            and not isinstance(other, Unknown)
+        ):
             if callable(other.value):
                 other = int(other.value(*args, **kwargs))
             else:

@@ -23,13 +23,13 @@ class Irrational(Number):
     *args: :class:`~typing.Any`
         See :class:`~cake.Number`
     """
-    def __new__(cls, value: FloatType = 0,
-        check_value_attr: bool = True,
-        *args, **kwargs
+
+    def __new__(
+        cls, value: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
     ):
         from cake import Integer, Real
 
-        is_float = str(value).split('.')
+        is_float = str(value).split(".")
         if len(is_float) == 1:
             return Integer(value)
 
@@ -40,22 +40,15 @@ class Irrational(Number):
         return super(Irrational, cls).__new__(Irrational)
 
     def __init__(
-        self, value: FloatType = 0,
-        check_value_attr: bool = True,
-        *args, **kwargs
+        self, value: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
     ):
         super().__init__(
-            float(value), check_value_attr,
-            float, Irrational, *args, **kwargs
+            float(value), check_value_attr, float, Irrational, *args, **kwargs
         )
 
     @staticmethod
     def handler(res: FloatType, chk_value: bool, _, __, *args, **kwargs):
-        return Irrational(
-            real=float(res),
-            check_value_attr=chk_value,
-            *args, **kwargs
-        )
+        return Irrational(real=float(res), check_value_attr=chk_value, *args, **kwargs)
 
     def __repr__(self) -> str:
         """

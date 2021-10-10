@@ -2,7 +2,12 @@ import typing
 from cake.abc import OPERATORS, MAP_OPERATORS
 
 ALLOWED = {
-    "(", ")", "{", "}", "[", "]",
+    "(",
+    ")",
+    "{",
+    "}",
+    "[",
+    "]",
 }
 
 
@@ -16,7 +21,8 @@ class Marker(object):
     value: :class:`str`
         The value of the marker
     """
-    __slots__ = ('value')
+
+    __slots__ = "value"
 
     def __init__(self, value: str) -> None:
         self.value = value
@@ -28,14 +34,16 @@ class Marker(object):
 class Symbol(Marker):
     def __init__(self, value: str) -> None:
         if value not in ALLOWED:
-            raise ValueError('Invalid symbol provided! Choose from:\n{}'.format(', '.join(ALLOWED)))
+            raise ValueError(
+                "Invalid symbol provided! Choose from:\n{}".format(", ".join(ALLOWED))
+            )
 
         super().__init__(value)
 
     @property
     def validate(self) -> typing.Optional[bool]:
         if super().value not in ALLOWED:
-            raise ValueError('%s is not a valid symbol' % super().value)
+            raise ValueError("%s is not a valid symbol" % super().value)
         return True
 
     def __repr__(self) -> str:
@@ -48,7 +56,7 @@ class Operator(Marker):
         op = MAP_OPERATORS.get(op.lower()) or op
 
         if not op in OPERATORS:
-            raise ValueError('%s is not a valid operator' % op)
+            raise ValueError("%s is not a valid operator" % op)
 
         super().__init__(op)
 
@@ -61,10 +69,10 @@ class Operator(Marker):
         """
 
         if not self.value in OPERATORS:
-            raise TypeError('%s is not a valid operator' % self.value)
+            raise TypeError("%s is not a valid operator" % self.value)
 
         exec(f"""locals()['temp'] = {left} {self.value} {right}""")
-        return locals()['temp']
+        return locals()["temp"]
 
     @property
     def validate(self) -> typing.Optional[bool]:
@@ -73,29 +81,29 @@ class Operator(Marker):
         op = MAP_OPERATORS.get(op.lower()) or op
 
         if not op in OPERATORS:
-            raise TypeError('%s is not a valid operator' % op)
+            raise TypeError("%s is not a valid operator" % op)
         return True
 
     @property
     def eval(self):
         return self.evaluate
 
+
 class PlusOrMinus(Marker):
     def __init__(self) -> None:
-        super().__init__('+-')
+        super().__init__("+-")
 
     def __repr__(self) -> str:
         return f"Operator(+/-)"
 
+
 class Function(Marker):
     def __init__(self, function: str, inter: typing.Any) -> None:
-        super().__init__(
-            (function, inter)
-        )
+        super().__init__((function, inter))
 
     def __repr__(self) -> str:
         function, inter = super().value
 
-        function = getattr(function, '__qualname__', function)
+        function = getattr(function, "__qualname__", function)
 
         return f"Function(name={function}, value={inter})"

@@ -30,7 +30,7 @@ def is_coprime(x: IntegerType, y: IntegerType) -> bool:
 
 
 def factor_tree(x: IntegerType) -> list:
-    if hasattr(x, 'value'):
+    if hasattr(x, "value"):
         x = int(x.value)
 
     if is_prime(x):
