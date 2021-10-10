@@ -64,24 +64,9 @@ class Number(object):
         self,
         value: typing.Any,
         check_value_attr: bool = True,
-        base_type: typing.Callable[
-            [
-                ...,
-            ],
-            typing.Any,
-        ] = float,
-        return_me: typing.Callable[
-            [
-                ...,
-            ],
-            typing.Any,
-        ] = ...,
-        return_handler: typing.Callable[
-            [
-                ...,
-            ],
-            typing.Any,
-        ] = None,
+        base_type: typing.Callable  = float,
+        return_me: typing.Callable = ...,
+        return_handler: typing.Callable = None,
         *args,
         **kwargs,
     ):
@@ -518,7 +503,7 @@ class Number(object):
     @property
     def type(
         self,
-    ) -> typing.Callable[[...,], typing.Any]:
+    ) -> typing.Callable:
         """
         Returns the value type which was set when intialising the class, this will always return the actual class which you was set.
 
@@ -530,12 +515,7 @@ class Number(object):
     @type.setter
     def set_type(
         self,
-        newType: typing.Callable[
-            [
-                ...,
-            ],
-            typing.Any,
-        ],
+        newType: typing.Callable,
     ) -> None:
         try:
             self._value = newType(self._value)
