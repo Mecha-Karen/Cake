@@ -93,12 +93,8 @@ class Matrix:
 
     def transpose(self) -> Matrix:
         """Returns the tranpose of this matrix."""
-        
         data = self.matrix[0]
-        ret = [[0]*len(data) for _ in range(len(data[0]))]
-        for y in range(len(data)):
-            for x in range(len(data[y])):
-                ret[x][y] = data[y][x]
+        ret = [[data[x][y] for x in range(len(data))] for y in range(len(data[0]))]
         return Matrix(ret)
 
     def __repr__(self) -> str:
