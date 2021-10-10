@@ -1,16 +1,16 @@
-from cake.abc import ODD_NUMBERS
+from cake.abc import ODD_NUMBERS, IntegerType
 from math import sqrt
 
 
-def _is_even(num):
+def _is_even(num: IntegerType) -> bool:
     return bool(num % 2 == 0)
 
 
-def _is_odd(num):
+def _is_odd(num: IntegerType) -> bool:
     return _is_even(num) != True
 
 
-def is_prime(n: int) -> bool:
+def is_prime(n: IntegerType) -> bool:
     if n <= 3:
         return n > 1
     if n % 2 == 0 or n % 3 == 0:
@@ -22,12 +22,14 @@ def is_prime(n: int) -> bool:
         i += 6
     return True
 
-def is_coprime(x: int, y: int) -> bool:
+
+def is_coprime(x: IntegerType, y: IntegerType) -> bool:
     while y != 0:
-        x, y = y, x%y
+        x, y = y, x % y
     return x == 1
 
-def factor_tree(x: int) -> list:
+
+def factor_tree(x: IntegerType) -> list:
     if hasattr(x, 'value'):
         x = int(x.value)
 
