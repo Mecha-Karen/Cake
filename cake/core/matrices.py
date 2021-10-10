@@ -11,10 +11,10 @@ class Matrix:
         ^^^^^^^
         .. code-block:: py
 
-            from cake import Matrix
-            m1 = Matrix([1, 2, 3], [1, 2, 3])
-            m2 = m1.copy()
-            print(m1 + m2)
+            >>> from cake import Matrix
+            >>> x = Matrix([1, 2, 3], [1, 2, 3])
+            >>> x + Matrix([1, 2, 3], [1, 2, 3])
+            ([2, 4, 6], [2, 4, 6])
 
         Parameters
         ----------
