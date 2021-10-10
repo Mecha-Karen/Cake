@@ -1,39 +1,93 @@
+import pprint
+import typing
+
+
 class Matrix:
-    def __init__(self, passedMatrixData):
-        self.passedMatrixData = passedMatrixData
+    def __init__(self, *rows):
+        """
+        Matrixes are an array of numbers.
 
-    def __repr__(self):
-        # Adjust representation of object to string
-        return repr(self.passedMatrixData)
+        Example
+        ^^^^^^^
+        .. code-block:: py
 
-    def __add__(self, other):
-        # Modify the addition method to natively add matrices.
-        passedMatrixData = []
+            from cake import Matrix
+            m1 = Matrix([1, 2, 3], [1, 2, 3])
+            m2 = m1.copy()
+            print(m1 + m2)
 
-        # Nested for loop to split and calculate each matrix item
-        for j in range(len(self.passedMatrixData)):
-            passedMatrixData.append([])
-            lengthMatrixData = len(self.passedMatrixData[0])
-            for k in range(lengthMatrixData):
-                # Addition operation
-                passedMatrixData[j].append(
-                    self.passedMatrixData[j][k] + other.passedMatrixData[j][k]
+        Parameters
+        ----------
+        *rows: :class:`~typing.List[int]`
+            A list of rows, the length of each row MUST be the same.
+            The length of the row becomes the column length and then amount of rows you give becomes the 
+        """
+        if not rows:
+            self.matrix = []
+        else:
+            if any(i for i in rows if len(i) < len(rows[0])):
+                raise ValueError('Row lengths in matrix not equal')
+            self.matrix = rows
+
+        self.cols = len(rows[0])
+        self.rows = len(rows)
+
+    def get_row(self, row_number: int) -> list:
+        """
+        Get a specific row from the matrix
+
+        Parameters
+        ----------
+        row_number: :class:`int`
+            The specific row to fetch
+        """
+        return self.matrix[row_number]
+
+    def get_column(self, col_number: int) -> int:
+        """
+        Get a specific column from the matrix
+
+        Parameters
+        ----------
+        row_number: :class:`int`
+            The specific column to fetch
+        """
+        data = list()
+
+        for row in self.matrix:
+            data.append(row[col_number])
+
+        return data
+
+    def __add__(self, other: "Matrix") -> "Matrix":
+        rows = list()
+
+        if (other.rows != self.rows) or (other.cols != self.cols):
+            raise ValueError('Provided matrix has not got the same dimensions')
+
+        for i in range(self.rows):
+            rows.append([])
+            for j in range(self.cols):
+                rows[i].append(
+                    self.matrix[i][j] + other.matrix[i][j]
                 )
+        
+        return Matrix(*rows)
 
-        return Matrix(passedMatrixData)
+    def __sub__(self, other: "Matrix") -> "Matrix":
+        rows = list()
 
-    def __sub__(self, other):
-        # Modify the addition method to natively add matrices.
-        passedMatrixData = []
+        if (other.rows != self.rows) or (other.cols != self.cols):
+            raise ValueError('Provided matrix has not got the same dimensions')
 
-        # Nested for loop to split and calculate each matrix item
-        for j in range(len(self.passedMatrixData)):
-            passedMatrixData.append([])
-            lengthMatrixData = len(self.passedMatrixData[0])
-            for k in range(lengthMatrixData):
-                # Subtraction operation
-                passedMatrixData[j].append(
-                    self.passedMatrixData[j][k] - other.passedMatrixData[j][k]
+        for i in range(self.rows):
+            rows.append([])
+            for j in range(self.cols):
+                rows[i].append(
+                    self.matrix[i][j] - other.matrix[i][j]
                 )
+        
+        return Matrix(*rows)
 
-        return Matrix(passedMatrixData)
+    def __repr__(self) -> str:
+        return pprint.saferepr(self.matrix)
