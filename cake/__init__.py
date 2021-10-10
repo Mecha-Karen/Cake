@@ -33,8 +33,9 @@ from .errors import *
 from .abc import *
 from .helpers import *
 from .sympy import *
+from .digits import *
 
-from . import (errors, abc, helpers, sympy)
+from . import (errors, abc, helpers, sympy, digits)
 
 __file__ = __import__('os').path.abspath(__file__)
 __doc__ = 'An object orientated math library'
