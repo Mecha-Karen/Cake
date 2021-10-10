@@ -83,7 +83,7 @@ eq.solve_by_sub()
 # Result: ((4, 0), (0, 4))
 ```
 
-<h3>Solving Simultaneous Equations</h3>
+<h3>Matrix Addition</h3>
 
 ```py
 from cake import Matrix
