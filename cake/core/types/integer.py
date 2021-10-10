@@ -18,8 +18,8 @@ class Integer(Number):
     """
 
     def __init__(
-        self, integer: IntegerType = 0,
-        check_value_attr: bool = True,
+        self, integer: typing.Optional[bool] = 0,
+        check_value_attr: typing.Optional[bool] = True,
         *args, **kwargs
     ):
         super().__init__(
