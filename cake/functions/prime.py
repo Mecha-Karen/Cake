@@ -22,6 +22,10 @@ def is_prime(n: int) -> bool:
         i += 6
     return True
 
+def co_prime(x: int, y: int) -> bool:
+    while y != 0:
+        x, y = y, x%y
+    return x == 1
 
 def factor_tree(x: int) -> list:
     if hasattr(x, 'value'):
