@@ -25,6 +25,9 @@ class Matrix:
         if not rows:
             self.matrix = []
         else:
+            if len(rows) == 1 and isinstance(rows[0][0], (list, tuple)):
+                rows = rows[0]
+
             if any(i for i in rows if len(i) < len(rows[0])):
                 raise ValueError('Row lengths in matrix not equal')
             self.matrix = rows
