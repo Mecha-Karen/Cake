@@ -64,7 +64,13 @@ class Matrix:
 
         return data
 
-    def __add__(self, other: typing.Union[int, "Matrix"]) -> "Matrix":
+    def transpose(self) -> Matrix:
+        data = self.matrix
+        ret = [[data[x][y] for x in range(len(data))] for y in range(len(data[0]))]
+
+        return Matrix(*ret)
+
+    def __add__(self, other: typing.Union[int, Matrix]) -> Matrix:
         rows = list()
 
         if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
@@ -85,7 +91,7 @@ class Matrix:
         
         return Matrix(*rows)
 
-    def __sub__(self, other: typing.Union[int, "Matrix"]) -> "Matrix":
+    def __sub__(self, other: typing.Union[int, Matrix]) -> Matrix:
         rows = list()
 
         if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
@@ -105,12 +111,6 @@ class Matrix:
                 )
         
         return Matrix(*rows)
-
-    def transpose(self) -> Matrix:
-        """Returns the tranpose of this matrix."""
-        data = self.matrix[0]
-        ret = [[data[x][y] for x in range(len(data))] for y in range(len(data[0]))]
-        return Matrix(ret)
 
     def __repr__(self) -> str:
         return pprint.saferepr(self.matrix)
