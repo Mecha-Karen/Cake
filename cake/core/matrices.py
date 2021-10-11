@@ -1,5 +1,7 @@
+from __future__ import annotations
 import pprint
 import typing
+
 
 
 class Matrix:
@@ -103,6 +105,12 @@ class Matrix:
                 )
         
         return Matrix(*rows)
+
+    def transpose(self) -> Matrix:
+        """Returns the tranpose of this matrix."""
+        data = self.matrix[0]
+        ret = [[data[x][y] for x in range(len(data))] for y in range(len(data[0]))]
+        return Matrix(ret)
 
     def __repr__(self) -> str:
         return pprint.saferepr(self.matrix)
