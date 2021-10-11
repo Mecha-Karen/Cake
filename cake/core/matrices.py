@@ -1,29 +1,30 @@
 from __future__ import annotations
+from cake.abc import IntegerType
 import pprint
 import typing
 
 
-
 class Matrix:
+    """
+    Matrixes are an array of numbers.
+
+    Example
+    ^^^^^^^
+    .. code-block:: py
+
+        >>> from cake import Matrix
+        >>> x = Matrix([1, 2, 3], [1, 2, 3])
+        >>> x + Matrix([1, 2, 3], [1, 2, 3])
+        ([2, 4, 6], [2, 4, 6])
+
+    Parameters
+    ----------
+    *rows: :class:`~typing.List[int]`
+        A list of rows, the length of each row MUST be the same.
+        The length of the row becomes the column length and then amount of rows you give becomes the 
+    """
+
     def __init__(self, *rows):
-        """
-        Matrixes are an array of numbers.
-
-        Example
-        ^^^^^^^
-        .. code-block:: py
-
-            >>> from cake import Matrix
-            >>> x = Matrix([1, 2, 3], [1, 2, 3])
-            >>> x + Matrix([1, 2, 3], [1, 2, 3])
-            ([2, 4, 6], [2, 4, 6])
-
-        Parameters
-        ----------
-        *rows: :class:`~typing.List[int]`
-            A list of rows, the length of each row MUST be the same.
-            The length of the row becomes the column length and then amount of rows you give becomes the 
-        """
         if not rows:
             self.matrix = []
         else:
@@ -70,7 +71,7 @@ class Matrix:
 
         return Matrix(*ret)
 
-    def __add__(self, other: typing.Union[int, Matrix]) -> Matrix:
+    def __add__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         rows = list()
 
         if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
@@ -91,7 +92,7 @@ class Matrix:
         
         return Matrix(*rows)
 
-    def __sub__(self, other: typing.Union[int, Matrix]) -> Matrix:
+    def __sub__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         rows = list()
 
         if isinstance(other, Matrix) and ((other.rows != self.rows) or (other.cols != self.cols)):
@@ -112,5 +113,46 @@ class Matrix:
         
         return Matrix(*rows)
 
+    def __mul__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
+        rows = list()
+
+        if not isinstance(other, Matrix):
+            for i in range(self.rows):
+                rows.append([])
+
+                for j in range(self.cols):
+                    rows[i].append(
+                        self.matrix[i][j] * other
+                    )
+            return Matrix(*rows)
+
+        if self.dimensions[::-1] != other.dimensions:
+            raise ValueError(f'Matrix provided does not have the dimensions: {self.dimensions[::-1]}')
+
+        DIMENSIONS = (self.rows, other.cols)
+
+        for i in range(self.rows):
+            rowElements = self.get_row(i)
+            rows.append([])
+
+            for j in range(other.cols):
+                colElements = other.get_column(j)
+
+                prod = 0
+                for index, el in enumerate(rowElements):
+                    prod += el * colElements[index]
+                rows[i].append(prod)
+
+        mt = Matrix(*rows)
+
+        if mt.dimensions != DIMENSIONS:
+            raise ValueError(f'Product matrix did not have the correct dimensions. Expected {DIMENSIONS} got {mt.dimensions}') 
+
+        return mt
+
     def __repr__(self) -> str:
         return pprint.saferepr(self.matrix)
+
+    @property
+    def dimensions(self) -> tuple:
+        return (self.cols, self.rows)
