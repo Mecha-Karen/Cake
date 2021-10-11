@@ -150,8 +150,11 @@ class Matrix:
 
         return mt
 
+    def __matmul__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
+        return self.__mul__(other)
+
     def __repr__(self) -> str:
-        
+
         if not self.matrix:
             return "Matrix([])"
 
