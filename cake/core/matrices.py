@@ -66,10 +66,70 @@ class Matrix:
         return data
 
     def transpose(self) -> Matrix:
+        """
+        Transpose the matrix
+        """
         data = self.matrix
         ret = [[data[x][y] for x in range(len(data))] for y in range(len(data[0]))]
 
         return Matrix(*ret)
+
+    def inverse(self) -> Matrix:
+        """
+        Get the inverse of the matrix. Uses the Gauss–Jordan elimination method.
+        """
+        if self.cols != self.rows:
+            raise ValueError('Cannot inverse this matrix, rows and cols are not the same length')
+        if self.determinant() == 0:
+            raise ValueError('Determinant is zero, therefore inverse matrix doesn\'t exist')
+
+        # Swap row 1 with row -1
+        rowOne = self.get_row(0)
+        lastRow = self.get_row(-1)
+
+        matrixData = list(self.matrix)
+
+        matrixData[0] = lastRow
+        matrixData[-1] = rowOne
+
+        # Multiply middle row by the length of cols
+        rowIndex = round(self.rows / 2)
+        asMtrx = Matrix(self.get_row(rowIndex))
+        asMtrx *= self.cols
+
+        matrixData[rowIndex] = asMtrx.matrix[0]
+
+        # Add the middle row to the first row twice
+        row = self.get_row(rowIndex)
+        asMtrx = Matrix(self.get_row(rowIndex))
+        asMtrx += Matrix(row)
+        asMtrx += Matrix(row)
+
+        matrixData[rowIndex] = asMtrx.matrix[0]
+
+        return Matrix(*matrixData)
+
+    def determinant(self) -> int:
+        if self.dimensions[0] != self.dimensions[1]:
+            raise ValueError(f'Non-square matrixes cannot have a determinant')
+
+        if self.dimensions == (2, 2):
+            return (self.matrix[0][0] * self.matrix[1][1]) - (self.matrix[0][1] * self.matrix[1][0])
+        if self.dimensions == (3, 3):
+            a = self.matrix[0][0]
+            b = self.matrix[0][1]
+            c = self.matrix[0][2]
+            d = self.matrix[1][0]
+            e = self.matrix[1][1]
+            f = self.matrix[1][2]
+            g = self.matrix[2][0]
+            h = self.matrix[2][1]
+            i = self.matrix[2][2]
+
+            return (a * ((e * i) - (f * h))) - (b * ((d * i) - (f * g))) + (c * ((d * h) - (e * g)))
+
+        # For matrixes 4x4 and higher, coming soon
+        raise NotImplementedError()
 
     def __add__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         rows = list()
@@ -80,12 +140,12 @@ class Matrix:
         for i in range(self.rows):
             rows.append([])
 
-            if isinstance(other, Matrix):
-                value = other.matrix[i][j]
-            else:
-                value = other
-
             for j in range(self.cols):
+                if isinstance(other, Matrix):
+                    value = other.matrix[i][j]
+                else:
+                    value = other
+
                 rows[i].append(
                     self.matrix[i][j] + value
                 )
@@ -101,12 +161,12 @@ class Matrix:
         for i in range(self.rows):
             rows.append([])
 
-            if isinstance(other, Matrix):
-                value = other.matrix[i][j]
-            else:
-                value = other
-
             for j in range(self.cols):
+                if isinstance(other, Matrix):
+                    value = other.matrix[i][j]
+                else:
+                    value = other
+
                 rows[i].append(
                     self.matrix[i][j] - value
                 )
