@@ -151,7 +151,20 @@ class Matrix:
         return mt
 
     def __repr__(self) -> str:
-        return pprint.saferepr(self.matrix)
+        # CSV formatting kinda
+        if not self.matrix:
+            return "Matrix([])"
+
+        reprString = ""
+
+        for row in self.matrix:
+            reprString += '\t'
+            reprString += ' '.join(map(str, row))
+            reprString += '\n'
+
+        reprString = f'Matrix(\n{reprString})'
+
+        return reprString
 
     @property
     def dimensions(self) -> tuple:
