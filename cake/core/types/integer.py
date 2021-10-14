@@ -27,8 +27,8 @@ class Integer(Number):
         super().__init__(int(integer), check_value_attr, int, Integer, *args, **kwargs)
 
     @staticmethod
-    def handler(res: IntegerType, chk_value: bool, _, __, *args, **kwargs):
-        return Integer(integer=int(res), check_value_attr=chk_value, *args, **kwargs)
+    def handler(res: IntegerType):
+        return Integer(integer=int(res))
 
     def __repr__(self) -> str:
         """

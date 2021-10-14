@@ -56,9 +56,9 @@ class Complex(Number):
         super().__init__(integer, check_value_attr, complex, Complex, *args, **kwargs)
 
     @staticmethod
-    def handler(res: complex, chk_value: bool, _, __, *args, **kwargs):
+    def handler(res: complex):
         return Complex(
-            a=res.real, b=res.imag, check_value_attr=chk_value, *args, **kwargs
+            a=res.real, b=res.imag,
         )
 
     def __repr__(self) -> str:

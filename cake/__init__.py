@@ -13,11 +13,12 @@ from .core import (
     PlusOrMinus,
     Function,
     ALLOWED,
+    
     # Cores
     Number,
     Unknown,
     Surd,
-    Matrix,
+
     # Other Functions
     get_perfect_square,
     _rationalise,
@@ -31,6 +32,8 @@ from .core.markers import Marker, Symbol, Operator, PlusOrMinus, Function
 from .core.types import Complex, Integer, Irrational, Prime, Real, Float
 
 from .parsing import Expression, Equation
+
+from .matrices import *
 
 # Functions
 from .functions import *

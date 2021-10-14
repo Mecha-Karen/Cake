@@ -5,10 +5,12 @@ cake.core.number.Number
 The root class for pretty much any number, digit in this library.
 """
 
+from functools import wraps
 from math import ceil
-from .unknown import Unknown
+from ..unknown import Unknown
 import typing
-import inspect
+
+from .add import _add
 
 
 class Number(object):
@@ -101,7 +103,7 @@ class Number(object):
 
     def __call__(self, other, check_value_attr: bool = True, *args, **kwargs):
         """
-        Implementation of chaining
+        Implementation of chaining, Action formed is multiplication
 
         Parameters
         ---------
@@ -148,47 +150,14 @@ class Number(object):
             **self.kwargs,
         )
 
-    def __add__(self, other):
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
+    def __add__(self, O):
+        return _add(self.value, O, return_class=self.return_class)
 
-        if isinstance(other, Unknown):
-            un = other.add(self)
+    def __sub__(self, O):
+        return _add(self.value, -O, return_class=self.return_class)
 
-            return un
-
-        result = self._value + other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __sub__(self, other):
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
-            un = other.add(self)
-
-            return un
-
-        result = self._value - other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+    def __neg__(self):
+        return self.return_class(self.value * -1)
 
     def __mul__(self, other):
         return self.__call__(other, self.check_value_attr, *self.args, **self.kwargs)

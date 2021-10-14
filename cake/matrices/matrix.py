@@ -1,6 +1,5 @@
 from __future__ import annotations
 from cake.abc import IntegerType
-import pprint
 import typing
 
 
@@ -25,6 +24,8 @@ class Matrix:
     """
 
     def __init__(self, *rows):
+        from cake import convert_type
+
         if not rows:
             self.matrix = []
         else:
@@ -33,6 +34,9 @@ class Matrix:
 
             if any(i for i in rows if len(i) < len(rows[0])):
                 raise ValueError('Row lengths in matrix not equal')
+
+            rows = [list(map(convert_type, row)) for row in rows]
+
             self.matrix = rows
 
         self.cols = len(rows[0])
@@ -74,61 +78,68 @@ class Matrix:
 
         return Matrix(*ret)
 
+    def identity(self, *, join: bool = False) -> Matrix:
+        """
+        Returns the identity of the matrix, useful for inverting matrixes
+
+        Parameters
+        ----------
+        join: :class:`bool`
+            Whether to return the matrix with the identity on the left, joined with the original matrix
+        """
+        CUR_COL = 1
+        MATRIX = [list() for i in range(self.rows)]
+
+        for i in range(self.rows):
+            
+            # Why do we not do `self.cols` instead of `self.rows` here
+            # Well simply, indentiy matrixes will always be a square
+            for j in range(self.rows):
+                if (j + 1) == CUR_COL:
+                    MATRIX[i].append(1)
+                else:
+                    MATRIX[i].append(0)
+            CUR_COL += 1
+        
+        if join:
+            return Matrix(
+                *[self.matrix[i] + MATRIX[i] for i in range(self.rows)]
+            )
+        return Matrix(*MATRIX)
+
     def inverse(self) -> Matrix:
         """
         Get the inverse of the matrix. Uses the Gauss–Jordan elimination method.
         """
-        if self.cols != self.rows:
-            raise ValueError('Cannot inverse this matrix, rows and cols are not the same length')
         if self.determinant() == 0:
             raise ValueError('Determinant is zero, therefore inverse matrix doesn\'t exist')
 
-        # Swap row 1 with row -1
-        rowOne = self.get_row(0)
-        lastRow = self.get_row(-1)
-
-        matrixData = list(self.matrix)
-
-        matrixData[0] = lastRow
-        matrixData[-1] = rowOne
-
-        # Multiply middle row by the length of cols
-        rowIndex = round(self.rows / 2)
-        asMtrx = Matrix(self.get_row(rowIndex))
-        asMtrx *= self.cols
-
-        matrixData[rowIndex] = asMtrx.matrix[0]
-
-        # Add the middle row to the first row twice
-        row = self.get_row(rowIndex)
-        asMtrx = Matrix(self.get_row(rowIndex))
-        asMtrx += Matrix(row)
-        asMtrx += Matrix(row)
-
-        matrixData[rowIndex] = asMtrx.matrix[0]
-
-        return Matrix(*matrixData)
+        raise NotImplementedError()
 
     def determinant(self) -> int:
-        if self.dimensions[0] != self.dimensions[1]:
+        if (self.dimensions[0] != self.dimensions[1]) or self.dimensions == (1, 1) or not self.matrix:
             raise ValueError(f'Non-square matrixes cannot have a determinant')
 
         if self.dimensions == (2, 2):
+            # ad - bc
             return (self.matrix[0][0] * self.matrix[1][1]) - (self.matrix[0][1] * self.matrix[1][0])
+
         if self.dimensions == (3, 3):
+            # a(ei - fh) - b(di - fg) + c(dh - eg)
             a = self.matrix[0][0]
             b = self.matrix[0][1]
             c = self.matrix[0][2]
+
             d = self.matrix[1][0]
             e = self.matrix[1][1]
             f = self.matrix[1][2]
+                
             g = self.matrix[2][0]
             h = self.matrix[2][1]
             i = self.matrix[2][2]
-
             return (a * ((e * i) - (f * h))) - (b * ((d * i) - (f * g))) + (c * ((d * h) - (e * g)))
 
-        # For matrixes 4x4 and higher, coming soon
+        # For huge matrixes, it is inefficient to assign all the vars and so on
         raise NotImplementedError()
 
     def __add__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
@@ -213,6 +224,9 @@ class Matrix:
     def __matmul__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         return self.__mul__(other)
 
+    def __div__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
+        return self * other.inverse()
+
     def __repr__(self) -> str:
 
         if not self.matrix:
@@ -228,6 +242,10 @@ class Matrix:
         reprString = f'Matrix(\n{reprString})'
 
         return reprString
+
+    def __call__(self, row: int, col: int):
+        """ Get a specific element from the matrix, ``Matrix(...)(0, 0)`` yields the first result """
+        return self.matrix[row][col]
 
     @property
     def dimensions(self) -> tuple:

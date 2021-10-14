@@ -47,8 +47,8 @@ class Irrational(Number):
         )
 
     @staticmethod
-    def handler(res: FloatType, chk_value: bool, _, __, *args, **kwargs):
-        return Irrational(real=float(res), check_value_attr=chk_value, *args, **kwargs)
+    def handler(res: FloatType):
+        return Irrational(real=float(res))
 
     def __repr__(self) -> str:
         """

@@ -26,8 +26,8 @@ class Float(Number):
         )
 
     @staticmethod
-    def handler(res: FloatType, chk_value: bool, _, __, *args, **kwargs):
-        return Float(real=float(res), check_value_attr=chk_value, *args, **kwargs)
+    def handler(res: FloatType):
+        return Float(real=float(res))
 
     def __repr__(self) -> str:
         """
