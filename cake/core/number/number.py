@@ -287,14 +287,14 @@ class Number(object):
             ) from e
         self._type = newType
 
-    def _get_value(self, other, check_value_attr, *args, **kwargs):
+    def get_value(self, other, check_value_attr, *args, **kwargs):
         if (
             hasattr(other, "value")
             and check_value_attr is True
             and not isinstance(other, Unknown)
         ):
             if callable(other.value):
-                other = int(other.value(*args, **kwargs))
+                other = other.value(*args, **kwargs)
             else:
-                other = int(other.value)
+                other = other.value
         return other
