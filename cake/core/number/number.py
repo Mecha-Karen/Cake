@@ -10,7 +10,7 @@ from math import ceil
 from ..unknown import Unknown
 import typing
 
-from .add import _add
+from .ops import evaluate
 
 
 class Number(object):
@@ -101,39 +101,17 @@ class Number(object):
     #
     # ##############
 
-    def __call__(self, other, check_value_attr: bool = True, *args, **kwargs):
+    def __call__(self, O):
         """
         Implementation of chaining, Action formed is multiplication
 
         Parameters
         ---------
-        other: :class:`~cake.abc.IntegerType`
-            A class which follows the `cake.abc.IntegerType` and has the `__mul__` dunder method.
-        check_value_attr: :class:`bool`
-            See :ref:`Parameters`
-        *args: :class:`~typing.Any`
-            See :ref:`Parameters`
-        **kwargs: :class:`~typing.Any`
-            See :ref:`Parameters`
+        O: :class:`~cake.abc.IntegerType`
+            A class which follows the ``cake.abc.IntegerType`` and has the ``__mul__`` dunder method.
         """
 
-        other = self._get_value(other, check_value_attr, *args, **kwargs)
-
-        if isinstance(other, Unknown):
-            other.multiply(self)
-
-            return other
-
-        result = self._value * other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+        return evaluate(self.value, O, return_class=self.return_class, func='mul')
 
     def __abs__(self):
         if self._value < 0:
@@ -141,218 +119,54 @@ class Number(object):
         else:
             new_val = self._value
 
-        return self.return_class(
-            new_val,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+        return self.return_class(new_val)
 
     def __add__(self, O):
-        return _add(self.value, O, return_class=self.return_class)
+        return evaluate(self.value, O, return_class=self.return_class, func='add')
 
     def __sub__(self, O):
-        return _add(self.value, -O, return_class=self.return_class)
+        return evaluate(self.value, -O, return_class=self.return_class, func='add')
 
     def __neg__(self):
         return self.return_class(self.value * -1)
 
     def __mul__(self, other):
-        return self.__call__(other, self.check_value_attr, *self.args, **self.kwargs)
+        return self.__call__(other)
 
     def __ceil__(self):
         result = ceil(self._value)
 
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+        return self.return_class(result)
 
-    def __truediv__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
+    def __truediv__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='truediv')
 
-        if isinstance(other, Unknown):
-            other.truediv(self)
+    def __floordiv__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='floordiv')
 
-            return other
+    def __mod__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='mod')
 
-        result = self._value / other
+    def __divmod__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='divmod')
 
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+    def __pow__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='pow')
 
-    def __floordiv__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
+    def __lshift__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='lshift')
 
-        if isinstance(other, Unknown):
-            other.floordiv(self)
+    def __rshift__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='rshift')
 
-            return other
+    def __and__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='and_')
 
-        result = self._value // other
+    def __xor__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='xor')
 
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __mod__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
-            other.mod(self)
-
-            return other
-
-        result = self._value % other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __divmod__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = divmod(self._value, other)
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __pow__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
-            other.pow(self)
-
-            return other
-
-        result = self._value ** other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __lshift__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = self._value << other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __rshift__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = self._value >> other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __and__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = self._value & other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __xor__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = self._value ^ other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
-
-    def __or__(self, value):
-        other = self._get_value(
-            value, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        result = self._value | other
-
-        return self.return_class(
-            result,
-            self.check_value_attr,
-            self._type,
-            self.return_class,
-            *self.args,
-            **self.kwargs,
-        )
+    def __or__(self, O):
+        return evaluate(self.value, O, return_class=self.return_class, func='or_')
 
     # #########
     #
@@ -360,65 +174,42 @@ class Number(object):
     #
     # #########
 
-    def __lt__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
+    def __lt__(self, O) -> bool:
 
-        if isinstance(other, Unknown):
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value < float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='lt')
 
-    def __le__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
+    def __le__(self, O) -> bool:
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value <= float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='le')
 
-    def __gt__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
+    def __gt__(self, O) -> bool:
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value > float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='gt')
 
-    def __ge__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
+    def __ge__(self, O) -> bool:
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value >= float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='ge')
 
-    def __eq__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
+    def __eq__(self, O) -> bool:
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value == float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='eq')
 
-    def __ne__(self, other) -> bool:
-        other = self._get_value(
-            other, getattr(self, "check_value_attr", True), *self.args, **self.kwargs
-        )
-
-        if isinstance(other, Unknown):
+    def __ne__(self, O) -> bool:
+        if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return self._value != float(other)
+        return evaluate(self.value, O, return_class=self.return_class, func='ne')
 
     # ################
     #
@@ -495,16 +286,6 @@ class Number(object):
                 f'"{self._value}" could not be converted to the new type ({newType.__qualname__})'
             ) from e
         self._type = newType
-
-    # @property
-    # def sqrt(self):
-    #    from .surd import Surd
-    #
-    #    is_rational = sqrt(self)
-    #    if int(is_rational) - is_rational != 0:
-    #        return Surd(is_rational)
-    #
-    #    return super(Number, self).__new__(Number, is_rational)
 
     def _get_value(self, other, check_value_attr, *args, **kwargs):
         if (
