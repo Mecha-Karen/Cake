@@ -1,8 +1,13 @@
 class Graph(object):
 
     """
-    Graphs are represented as a dictionary structure, here is an example:
-
+    Graphs are represented as a dictionary structure, but are instantiated
+    through **kwargs here is an example:
+    
+    The assignment:
+    graph = Graph(node1={"node2"}, node2={"node3"}, node3={"node1", "node2", "node4"}, node4={"node1", "node3"})
+    
+    Corresponds to:
     graph = { 
       "node1" : { "node2" }, "node2" : { "node3" },
       "node3" : { "node2", "node1", "node4" }, "node4" : {"node1", "node3"},
@@ -13,28 +18,23 @@ class Graph(object):
     .. code-block:: py
 
         >>> from cake import Graph
-        >>> graph = {
-        ...       "node1" : { "node2" }, "node2" : { "node3" },
-        ...       "node3" : { "node2", "node1", "node4" }, "node4" : {"node1", "node3"},
-        ...     }
+        >>> graph = Graph(node1={"node2"}, node2={"node3"}, node3={"node1", "node2", "node4"}, node4={"node1", "node3"})
+        >>> graph.list_all_vertices()
+        {'node3', 'node1', 'node4', 'node2'}
 
-        >>> graphObject = Graph(graph)
+        >>> graph.list_edges("node3")
+        {'node1', 'node4', 'node2'}
+
+        >>> graph.add_vertex("node5")
         >>> graphObject.list_all_vertices()
-        {'node3', 'node4', 'node1', 'node2'}
-
-        >>> graphObject.list_edges("node4")
-        {'node3', 'node1'}
-
-        >>> graphObject.add_vertex("node5")
-        >>> graphObject.list_all_vertices()
-        {'node4', 'node5', 'node2', 'node3', 'node1'}
+        {'node2', 'node1', 'node5', 'node3', 'node4'}
     """
 
-    def __init__(self, graph_structure_dict=None):
+    def __init__(self, **graph_structure):
         # instantiates a graph object, if no dict is supplied, use an empty one
-        if graph_structure_dict == None:
-            graph_structure_dict = {}
-        self.graph_structure_dict = graph_structure_dict
+        if graph_structure == None:
+            graph_structure = {}
+        self.graph_structure_dict = graph_structure
 
     def list_edges(self, vertice):
         # returns a list containing the vertice's edges
