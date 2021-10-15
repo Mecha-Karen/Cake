@@ -22,3 +22,19 @@ def randomMatrix(col: int = 3, row: int = 3, _range: typing.Tuple[int] = (0, 100
         Defaults to ``(0, 100)``
     """
     return cake.Matrix(*[[rd.randint(*_range) for j in range(row)] for i in range(col)])
+
+
+def indentiyMatrix(col: int = 3, row: int = 3) -> "cake.Matrix":
+    """
+    Returns an indentity/eye matrix
+
+    Parameters
+    ----------
+    col: :class:`int`
+        How many columns the matrix should have
+        Defaults to ``3``
+    row: :class:`int`
+        How many rows the matrix should have
+        Defaults to ``3``
+    """
+    return randomMatrix(col, row).identity()
