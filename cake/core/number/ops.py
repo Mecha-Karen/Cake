@@ -8,9 +8,28 @@ operator.divmod = divmod
 # Add divmod function to operator interface
 
 
-def evaluate(N, O, *, return_class = None, func: str = 'add'):
+def evaluate(N, O, *, return_class = None, func: str = 'add', *args, **kwargs):
+    """
+    Evaluate 2 tokens, if implementing in custom class, N will be self/current value
+
+    Parameters
+    ----------
+    N: :class:`~typing.Any`
+        First token
+    O: :class:`~typing.Any`
+        Second token
+    return_class: :class:`~typing.Callable`
+        A function or class to be returned after evaluating the tokens, else returns the evaluated tokens
+    func: :class:`str`
+        The name of the operation, check out the ``operator`` module
+    *args, **kwargs: :class:`~typing.Any`
+        Any additional arguments for value checking, only works on ``get_value`` not ``value``
+    """
     if hasattr(O, 'value'):
         O = O.value
+    if hasattr(O, 'get_value'):
+        O = O.get_value(*args, **kwargs)
+    
     if isinstance(func, str):
         func = getattr(operator, func)
 
