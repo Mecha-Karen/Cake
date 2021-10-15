@@ -34,6 +34,7 @@ from .core.types import Complex, Integer, Irrational, Prime, Real, Float
 from .parsing import Expression, Equation
 
 from .matrices import *
+from .fractions import *
 
 # Functions
 from .functions import *
