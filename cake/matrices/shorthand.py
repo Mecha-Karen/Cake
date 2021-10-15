@@ -24,7 +24,7 @@ def randomMatrix(col: int = 3, row: int = 3, _range: typing.Tuple[int] = (0, 100
     return cake.Matrix(*[[rd.randint(*_range) for j in range(row)] for i in range(col)])
 
 
-def indentiyMatrix(col: int = 3, row: int = 3) -> "cake.Matrix":
+def identiyMatrix(col: int = 3, row: int = 3) -> "cake.Matrix":
     """
     Returns an indentity/eye matrix
 
