@@ -270,6 +270,13 @@ class Matrix:
         return self.matrix[key]
 
     def __setitem__(self, key, value) -> None:
+        try:
+            from cake import convert_type
+
+            value = convert_type(value)
+        except (ValueError, TypeError):
+            pass
+
         if isinstance(key, slice):
             start = key.start
             end = key.stop
