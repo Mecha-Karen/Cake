@@ -39,6 +39,9 @@ from .fractions import *
 # Functions
 from .functions import *
 
+# Graphs
+from .graphs import *
+
 # Files
 from .errors import *
 from .abc import *
