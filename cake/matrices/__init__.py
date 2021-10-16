@@ -1,2 +1,2 @@
-from .shorthand import (randomMatrix, identiyMatrix)
+from .shorthand import (randomMatrix, identityMatrix)
 from .matrix import Matrix
