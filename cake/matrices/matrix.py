@@ -42,6 +42,10 @@ class Matrix:
         self.cols = len(rows[0])
         self.rows = len(rows)
 
+    def copy(self) -> Matrix:
+        """ Return a copy of the current matrix """
+        return Matrix(*self.matrix)
+
     def get_row(self, row_number: int) -> list:
         """
         Get a specific row from the matrix
@@ -284,7 +288,7 @@ class Matrix:
                 raise TypeError('Provided key was not a list object')
             self.matrix[key] = value
 
-        raise IndexError('This item cannot be set on this matrix')            
+        raise IndexError('This item cannot be set on this matrix')         
 
     @property
     def dimensions(self) -> tuple:
