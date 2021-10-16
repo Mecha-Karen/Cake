@@ -243,9 +243,48 @@ class Matrix:
 
         return reprString
 
-    def __call__(self, row: int, col: int):
+    def __call__(self, col: int, row: int):
         """ Get a specific element from the matrix, ``Matrix(...)(0, 0)`` yields the first result """
-        return self.matrix[row][col]
+        return self.matrix[col][row]
+
+    def __getitem__(self, key):
+        """ Allows you to fetch the matrix elements by index """
+        if isinstance(key, slice):
+            start = key.start
+            end = key.stop
+            # step = key.step
+
+            # start -> col
+            # end -> row
+            if not start and end:
+                return self.get_row(end)
+            if start and not end:
+                return self.get_column(start)
+
+            return self.matrix[start][end]
+        
+        return self.matrix[key]
+
+    def __setitem__(self, key, value) -> None:
+        if isinstance(key, slice):
+            start = key.start
+            end = key.stop
+
+            if start and end:
+                self.matrix[start][end] = value
+            if not start and end:
+                self.matrix[0][end] = value
+            if start and not end:
+                self.matrix[start][0] = value
+            if not start and not end:
+                self.matrix[0][0] = value
+        
+        if isinstance(key, int):
+            if not type(value) == list:
+                raise TypeError('Provided key was not a list object')
+            self.matrix[key] = value
+
+        raise IndexError('This item cannot be set on this matrix')            
 
     @property
     def dimensions(self) -> tuple:
