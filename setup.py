@@ -39,7 +39,7 @@ setup(
     author="Mecha Karen",
     license="MIT License",
     classifiers=classifiers,
-    keywords="Math,Python,OOP",
+    keywords="Math,Python3,OOP",
     packages=find_packages(),
-    install_requires=["mpmath"],
+    install_requires=[],
 )
