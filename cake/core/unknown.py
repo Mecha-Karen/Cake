@@ -39,6 +39,9 @@ class Unknown(object):
         if value.startswith("-"):
             self.negated = True
 
+    def copy(self) -> "Unknown":
+        return Unknown(self.value, **cp.deepcopy(self.data))
+
     def parse(self, dirty_string: str) -> "Unknown":
         """
         Converts a stringed value into a proper object
@@ -78,6 +81,8 @@ class Unknown(object):
 
         for function in DATA["functions"]:
             NEW_VALUE = function(NEW_VALUE, *args, **kwargs)
+            if isinstance(NEW_VALUE, cake.Function):
+                NEW_VALUE = NEW_VALUE()
 
         POWER = DATA["raised"]
         DIVISION = DATA["operators"]["div"]
