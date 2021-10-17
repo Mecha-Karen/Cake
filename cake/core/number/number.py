@@ -129,6 +129,9 @@ class Number(object):
     def __neg__(self):
         return self.return_class(self.value * -1)
 
+    def __pos__(self):
+        return self.return_class(self.value)
+
     def __mul__(self, other):
         return self.__call__(other)
 
