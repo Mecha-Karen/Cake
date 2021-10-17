@@ -1,5 +1,6 @@
 import typing
 import cake
+import copy as cd
 
 __all__ = ("convert_type", "compare_multiple", "compare_any")
 
@@ -74,3 +75,7 @@ def compare_any(*args, type: typing.Type) -> bool:
         A type object to compare the args to
     """
     return any(isinstance(i, type) for i in args)
+
+
+def copy(object):
+    return cd.deepcopy(object)

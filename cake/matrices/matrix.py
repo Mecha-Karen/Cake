@@ -5,19 +5,9 @@ import cake
 
 from copy import deepcopy
 import typing
-from mpmath import (
-    absmin, eps, fsum, inf
-)
 
-# Implemenation of `mpmath.mnorm`
-def mnorm(M, p: int = 1):
-    n, m = M.dimensions
-    if p == 1:
-        return max(fsum((M.matrix[i][j] for i in range(m)), absolute=1) for j in range(n))
-    elif p == inf:
-        return max(fsum((M.matrix[i][j] for j in range(n)), absolute=1) for i in range(m))
-    else:
-        raise NotImplementedError("matrix p-norm for arbitrary p")
+from .helpers import *
+
 
 class Matrix:
     """
@@ -132,7 +122,7 @@ class Matrix:
         if self.determinant() == 0:
             raise ValueError('Determinant is zero, therefore inverse matrix doesn\'t exist')
 
-        raise NotImplementedError()
+        M = ...
 
     def determinant(self, *, cache: bool = False) -> int:
         if any(i for i in self.matrix if cake.Unknown in [type(i) for j in i]):
@@ -330,44 +320,3 @@ class Matrix:
     @property
     def dimensions(self) -> tuple:
         return (self.cols, self.rows)
-
-
-def _BC_DET(M: Matrix, *, cache: bool = False) -> typing.Tuple[Matrix, list]:
-    if (M.dimensions[0] != M.dimensions[1]) or M.dimensions == (1, 1) or not M.matrix:
-        raise ValueError(f'Non-square matrixes cannot have a determinant')
-
-    if cache and getattr(M, 'c_dt', None):
-        return M.c_dt
-    orig = M
-    M = M.copy()
-
-    tol = absmin(mnorm(M, 1) * eps)
-    rows = M.rows
-    p = [None] * (rows - 1)
-    for i in range(rows - 1):
-        biggest = 0
-
-        for j in range(i, rows):
-            s = fsum([absmin(M.matrix[j][l]) for l in range(i, rows)])
-            if absmin(s) <= tol:
-                raise ZeroDivisionError(f'Matrix is numerically singular')
-            current = 1 / s * absmin(M.matrix[j][i])
-            if current > biggest:
-                biggest = current
-                p[i] = j
-
-        M.swaprow(i, p[i])
-
-        if absmin(M.matrix[i][i]) <= tol:
-            raise ZeroDivisionError(f'Matrix is numerically singular')
-        for k in range(i + 1, rows):
-            M.matrix[k][i] /= M.matrix[i][i]
-            for j in range(i + 1, rows):
-                M.matrix[k][j] -= M.matrix[k][i] * M.matrix[i][k]
-    
-    if absmin(M.matrix[rows - 1][rows - 1]) <= tol:
-        raise ZeroDivisionError(f'Matrix is numerically singular')
-
-    if cache:
-        orig.c_dt = (orig, M, p)
-    return orig, M, p
