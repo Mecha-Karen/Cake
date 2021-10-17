@@ -1,4 +1,4 @@
-# Trigonmetry functions
+# Trigonometric functions
 from ..base import Function
 import cake
 import typing
@@ -8,8 +8,10 @@ __all__ = ("Sin", "Cos", "Tan")
 
 
 class Sin(Function):
-    def __init__(self, value) -> None:
+    def __init__(self, value, *, type: str = "radians") -> None:
         super().__init__(value, name="sin")
+
+        self.type = type
 
     def _raw_exec(self, other) -> typing.Any:
         if isinstance(other, cake.Unknown):
@@ -22,15 +24,21 @@ class Sin(Function):
         if hasattr(other, 'get_value'):
             other = other.get_value()
 
-        radians = math.radians(other)
+        otherConverter = getattr(math, self.type, None)
+        if not otherConverter:
+            val = other
+        else:
+            val = otherConverter(other)
 
-        return cake.convert_type(math.sin(radians))
+        return cake.convert_type(math.sin(val))
 
 
 
 class Cos(Function):
-    def __init__(self, value) -> None:
+    def __init__(self, value, *, type: str = "radians") -> None:
         super().__init__(value, name="cos")
+
+        self.type = type
 
     def _raw_exec(self, other) -> typing.Any:
         if isinstance(other, cake.Unknown):
@@ -43,14 +51,20 @@ class Cos(Function):
         if hasattr(other, 'get_value'):
             other = other.get_value()
 
-        radians = math.radians(other)
+        otherConverter = getattr(math, self.type, None)
+        if not otherConverter:
+            val = other
+        else:
+            val = otherConverter(other)
 
-        return cake.convert_type(math.cos(radians))
+        return cake.convert_type(math.cos(val))
 
 
 class Tan(Function):
-    def __init__(self, value) -> None:
+    def __init__(self, value, *, type: str = "radians") -> None:
         super().__init__(value, name="tan")
+
+        self.type = type
 
     def _raw_exec(self, other) -> typing.Any:
         if isinstance(other, cake.Unknown):
@@ -63,6 +77,10 @@ class Tan(Function):
         if hasattr(other, 'get_value'):
             other = other.get_value()
 
-        radians = math.radians(other)
+        otherConverter = getattr(math, self.type, None)
+        if not otherConverter:
+            val = other
+        else:
+            val = otherConverter(other)
 
-        return cake.convert_type(math.tan(radians))
+        return cake.convert_type(math.tan(val))
