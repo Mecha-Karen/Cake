@@ -1,7 +1,23 @@
 from __future__ import annotations
-from cake.abc import IntegerType
-import typing
 
+from cake.abc import IntegerType
+import cake
+
+from copy import deepcopy
+import typing
+from mpmath import (
+    absmin, eps, fsum, inf
+)
+
+# Implemenation of `mpmath.mnorm`
+def mnorm(M, p: int = 1):
+    n, m = M.dimensions
+    if p == 1:
+        return max(fsum((M.matrix[i][j] for i in range(m)), absolute=1) for j in range(n))
+    elif p == inf:
+        return max(fsum((M.matrix[i][j] for j in range(n)), absolute=1) for i in range(m))
+    else:
+        raise NotImplementedError("matrix p-norm for arbitrary p")
 
 class Matrix:
     """
@@ -35,16 +51,14 @@ class Matrix:
             if any(i for i in rows if len(i) < len(rows[0])):
                 raise ValueError('Row lengths in matrix not equal')
 
-            rows = [list(map(convert_type, row)) for row in rows]
-
-            self.matrix = rows
+            self.matrix = list(rows)
 
         self.cols = len(rows[0])
         self.rows = len(rows)
 
     def copy(self) -> Matrix:
         """ Return a copy of the current matrix """
-        return Matrix(*self.matrix)
+        return deepcopy(self)
 
     def get_row(self, row_number: int) -> list:
         """
@@ -120,31 +134,44 @@ class Matrix:
 
         raise NotImplementedError()
 
-    def determinant(self) -> int:
-        if (self.dimensions[0] != self.dimensions[1]) or self.dimensions == (1, 1) or not self.matrix:
-            raise ValueError(f'Non-square matrixes cannot have a determinant')
+    def determinant(self, *, cache: bool = False) -> int:
+        if any(i for i in self.matrix if cake.Unknown in [type(i) for j in i]):
+            raise ValueError('Cannot work out determinant of matrix as unknown value is present')
 
-        if self.dimensions == (2, 2):
-            # ad - bc
-            return (self.matrix[0][0] * self.matrix[1][1]) - (self.matrix[0][1] * self.matrix[1][0])
+        try:
+            R, p, orig = _BC_DET(self.copy(), cache=cache)
+        except ZeroDivisionError:
+            return 0
+        z = 1
+        for i, e in enumerate(p):
+            if i != e:
+                z *= -1
+        for i in range(self.rows):
+            z *= R.matrix[i][i]
+        return z
 
-        if self.dimensions == (3, 3):
-            # a(ei - fh) - b(di - fg) + c(dh - eg)
-            a = self.matrix[0][0]
-            b = self.matrix[0][1]
-            c = self.matrix[0][2]
+    def swaprow(self, i, j):
+        """
+        Swap 2 rows
 
-            d = self.matrix[1][0]
-            e = self.matrix[1][1]
-            f = self.matrix[1][2]
-                
-            g = self.matrix[2][0]
-            h = self.matrix[2][1]
-            i = self.matrix[2][2]
-            return (a * ((e * i) - (f * h))) - (b * ((d * i) - (f * g))) + (c * ((d * h) - (e * g)))
+        Parameters
+        ----------
+        i: :class:`int`
+            The row to be swapped with j
+        j: :class:`int`
+            The row to be swapped with i
+        """
+        r1 = self.get_row(i)
+        r2 = self.get_row(j)
 
-        # For huge matrixes, it is inefficient to assign all the vars and so on
-        raise NotImplementedError()
+        self.matrix[i] = r2
+        self.matrix[j] = r1
+
+    def convert_types(self) -> Matrix:
+        """
+        Converts the elements in the matrix to cake objects if possible
+        """
+        return Matrix(*[list(map(cake.convert_type, i)) for i in self.matrix])
 
     def __add__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         rows = list()
@@ -161,9 +188,12 @@ class Matrix:
                 else:
                     value = other
 
-                rows[i].append(
-                    self.matrix[i][j] + value
-                )
+                try:
+                    v = self.matrix[i][j] + value
+                except (ValueError, TypeError):
+                    v = value + self.matrix[i][j]
+
+                rows[i].append(v)
         
         return Matrix(*rows)
 
@@ -302,5 +332,42 @@ class Matrix:
         return (self.cols, self.rows)
 
 
-def _back_deter(M: Matrix) -> typing.Tuple[Matrix, list]:
-    ...
+def _BC_DET(M: Matrix, *, cache: bool = False) -> typing.Tuple[Matrix, list]:
+    if (M.dimensions[0] != M.dimensions[1]) or M.dimensions == (1, 1) or not M.matrix:
+        raise ValueError(f'Non-square matrixes cannot have a determinant')
+
+    if cache and getattr(M, 'c_dt', None):
+        return M.c_dt
+    orig = M
+    M = M.copy()
+
+    tol = absmin(mnorm(M, 1) * eps)
+    rows = M.rows
+    p = [None] * (rows - 1)
+    for i in range(rows - 1):
+        biggest = 0
+
+        for j in range(i, rows):
+            s = fsum([absmin(M.matrix[j][l]) for l in range(i, rows)])
+            if absmin(s) <= tol:
+                raise ZeroDivisionError(f'Matrix is numerically singular')
+            current = 1 / s * absmin(M.matrix[j][i])
+            if current > biggest:
+                biggest = current
+                p[i] = j
+
+        M.swaprow(i, p[i])
+
+        if absmin(M.matrix[i][i]) <= tol:
+            raise ZeroDivisionError(f'Matrix is numerically singular')
+        for k in range(i + 1, rows):
+            M.matrix[k][i] /= M.matrix[i][i]
+            for j in range(i + 1, rows):
+                M.matrix[k][j] -= M.matrix[k][i] * M.matrix[i][k]
+    
+    if absmin(M.matrix[rows - 1][rows - 1]) <= tol:
+        raise ZeroDivisionError(f'Matrix is numerically singular')
+
+    if cache:
+        orig.c_dt = (orig, M, p)
+    return orig, M, p
