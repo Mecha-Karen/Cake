@@ -41,5 +41,5 @@ setup(
     classifiers=classifiers,
     keywords="Math,Python,OOP",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=["mpmath"],
 )
