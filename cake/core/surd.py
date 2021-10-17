@@ -148,3 +148,16 @@ class Surd(Number):
             raise ValueError(
                 f'Cannot add "{repr(other)}" as the integer is not the same!'
             )
+        
+        return Surd(self.integer, n=self.n, i=(self.i + other.i))
+
+    def __sub__(self, other: "Surd") -> "Surd":
+        if not isinstance(other, Surd):
+            return super().__sub__(other)
+
+        if other.integer != self.integer:
+            raise ValueError(
+                f'Cannot subtract "{repr(other)}" as the integer is not the same!'
+            )
+        
+        return Surd(self.integer, n=self.n, i=(self.i - other.i))
