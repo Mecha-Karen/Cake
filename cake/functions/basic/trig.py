@@ -7,7 +7,7 @@ import math
 __all__ = ("Sin", "Cos", "Tan")
 
 
-class Cos(Function):
+class Sin(Function):
     def __init__(self, value) -> None:
         super().__init__(value, name="sin")
 
