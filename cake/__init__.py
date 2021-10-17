@@ -53,7 +53,7 @@ from . import errors, abc, helpers, sympy, digits
 
 __file__ = __import__("os").path.abspath(__file__)
 __doc__ = "An object orientated math library"
-__version__ = "0.0.1a2"
+__version__ = "0.0.1a3"
 __author__ = "Mecha Karen"
 
 
