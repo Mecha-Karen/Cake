@@ -1,5 +1,5 @@
 # Trigonmetry functions
-from ..base import FunctionBase, Function
+from ..base import Function
 import cake
 import typing
 import math
@@ -7,19 +7,15 @@ import math
 __all__ = ("Sin", "Cos", "Tan")
 
 
-class Sin(FunctionBase):
-    def __init__(self, *, 
-        name: str, 
-        handler: typing.Optional[typing.Callable] = ..., 
-        is_multi: typing.Optional[bool] = False, 
-        raw: typing.Optional[typing.Callable] = None
-    ) -> None:
-        super().__init__(name, handler=self._raw_exec, is_multi=is_multi, raw=raw)
+class Cos(Function):
+    def __init__(self, value) -> None:
+        super().__init__(value, name="sin")
 
     def _raw_exec(self, other) -> typing.Any:
         if isinstance(other, cake.Unknown):
-            other.data['functions'].append(self)
-            return other
+            unknown = other.copy()
+            unknown.data['functions'].append(self.__class__)
+            return unknown
 
         if hasattr(other, 'value'):
             other = other.value
@@ -30,8 +26,6 @@ class Sin(FunctionBase):
 
         return cake.convert_type(math.sin(radians))
 
-    def __call__(self, other, *args, **kwargs) -> typing.Any:
-        return super().evaluate(other, *args, **kwargs)
 
 
 class Cos(Function):
