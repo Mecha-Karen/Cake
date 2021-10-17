@@ -41,7 +41,8 @@ class FunctionBase(object):
         return self.handler(other, *args, **kwargs)
 
     def __repr__(self) -> str:
-        return f'{self.name.title()}(functions={self.functions} handler={self.handler.__qualname__} is_multi={self.is_multi})'
+        value = getattr(self, '_value', '?')
+        return f'{self.name.title()}(functions={self.functions} handler={self.handler.__qualname__} is_multi={self.is_multi} value={value})'
 
 
 class Function(FunctionBase, abc.ABC):
