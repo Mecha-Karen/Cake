@@ -300,3 +300,7 @@ class Matrix:
     @property
     def dimensions(self) -> tuple:
         return (self.cols, self.rows)
+
+
+def _back_deter(M: Matrix) -> typing.Tuple[Matrix, list]:
+    ...
