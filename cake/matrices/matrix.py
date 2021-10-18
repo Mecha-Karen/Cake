@@ -122,7 +122,25 @@ class Matrix:
         if self.determinant() == 0:
             raise ValueError('Determinant is zero, therefore inverse matrix doesn\'t exist')
 
-        M = ...
+        M = self.copy()
+        rows = M.rows
+
+        _, A, p = _BC_DET(M)
+        cols = list()
+
+        for i in range(1, rows + 1):
+            e = unitVector(rows, i)
+            y = lSolve(A, e, p)
+            cols.append(uSolve(A, y))
+
+        inv = list()
+        for i in range(rows):
+            row = list()
+            for j in range(rows):
+                row.append(cols[i][j])
+            inv.append(row)
+
+        return Matrix(*inv)
 
     def determinant(self, *, cache: bool = False) -> int:
         if any(i for i in self.matrix if cake.Unknown in [type(i) for j in i]):
@@ -157,7 +175,7 @@ class Matrix:
         self.matrix[i] = r2
         self.matrix[j] = r1
 
-    def convert_types(self) -> Matrix:
+    def convertMTypes(self) -> Matrix:
         """
         Converts the elements in the matrix to cake objects if possible
         """
