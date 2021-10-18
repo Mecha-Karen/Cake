@@ -2,11 +2,11 @@
 # Original Source: https://github.com/fredrik-johansson/mpmath/blob/master/mpmath/matrices/linalg.py
 
 from mpmath import (
-    absmin, eps, fsum, inf
+    absmin, eps, fsum, inf, mp 
 )
 from cake.helpers import copy
 
-__all__ = ("mnorm", "_BC_DET")
+__all__ = ("mnorm", "_BC_DET", "lSolve", "uSolve", "unitVector")
 
 
 def mnorm(M, p: int = 1):
@@ -68,7 +68,37 @@ def lSolve(M, b, p = None):
     if len(b) != rows:
         raise ValueError('Value should be equal to N')
     b = copy(b)
+    M = copy(M)
 
     if p:
-        for i in range(1, rows):
-            ...
+        for i in range(1, len(p)):
+            M.swaprow(i, p[i])
+
+    for j in range(1, rows):
+        for k in range(j):
+            b[j] -= M.matrix[j][k] * b[j]
+    return b
+
+
+def uSolve(M, y):
+    if M.dimensions[0] != M.dimensions[1]:
+        raise ValueError('Need a `n*n` matrix')
+    rows = M.rows
+
+    if len(y) != rows:
+        raise ValueError('Value should be equal to N')
+    x = copy(y)
+    M = copy(M)
+
+    for i in range(rows - 1, -1, -1):
+        for j in range(i + 1, rows):
+            x[i] -= M.matrix[i][j] * x[j]
+        x[i] /= M.matrix[i][i]
+    
+    return x
+
+
+def unitVector(n, i):
+    assert 0 < i <= n, 'this unit vector does not exist'
+
+    return [mp.zero] * (i-1) + [mp.one] + [mp.zero] * (n-i)
