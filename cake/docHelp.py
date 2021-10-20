@@ -1,6 +1,5 @@
 # Utilities for documenting
 import typing
-from functools import wraps
 import importlib
 
 
@@ -11,11 +10,7 @@ def copyDocString(function: typing.Union[str, typing.Callable]) -> typing.Callab
         function = getattr(mod, name)
 
     def inner(func):
+        func.__doc__ == function.__doc__
 
-        @wraps(func)
-        def docFunc(*args, **kwargs):
-            func.__doc__ = function.__doc__
-            return func
-
-        return docFunc()
+        return func
     return inner
