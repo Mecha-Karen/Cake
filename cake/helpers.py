@@ -2,7 +2,7 @@ import typing
 import cake
 import copy as cd
 
-__all__ = ("convert_type", "compare_multiple", "compare_any")
+__all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
 
 def convert_type(
