@@ -28,6 +28,11 @@ class Graph(object):
         >>> graph.add_vertex("node5")
         >>> graphObject.list_all_vertices()
         {'node2', 'node1', 'node5', 'node3', 'node4'}
+
+        >>> graph.add_edge({"node2","node4"})
+        >>> graph.list_edges("node2")
+        {'node4', 'node3'}
+
     """
 
     def __init__(self, **graph_structure):
@@ -48,4 +53,12 @@ class Graph(object):
         # adds a vertex to the graph by inserting positionally into the graph dict
         if vertex not in self.graph_structure_dict:
             self.graph_structure_dict[vertex] = []
-
+    
+    def add_edge(self, edge):
+        edge = set(edge)
+        start_vertex, end_vertex = tuple(edge)
+        for start, end in [(start_vertex, end_vertex), (end_vertex, start_vertex)]:
+            if start in self.graph_structure_dict:
+                self.graph_structure_dict[start].add(end)
+            else:
+                self.graph_structure_dict[start] = [end]
