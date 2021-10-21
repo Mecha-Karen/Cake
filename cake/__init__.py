@@ -26,7 +26,9 @@ from .core import (
 )
 
 # Markers
-from .core.markers import Marker, Symbol, Operator, PlusOrMinus, Function
+from .core.markers import (
+    Marker, Symbol, Operator, PlusOrMinus, Function,
+    getPlusMinusCombos)
 
 # Built in types
 from .core.types import Complex, Integer, Irrational, Prime, Real, Float
