@@ -27,7 +27,7 @@ from .core import (
 
 # Markers
 from .core.markers import (
-    Marker, Symbol, Operator, PlusOrMinus, Function,
+    Marker, Symbol, Operator, PlusOrMinus, FunctionMarker,
     getPlusMinusCombos)
 
 # Built in types
