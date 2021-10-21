@@ -13,6 +13,9 @@ ALLOWED = {
 
 
 def getPlusMinusCombos(slots: int = 1) -> list:
+    if not slots:
+        return []
+
     if slots == 1:
         return ['+', '-']
     prodString = "+-" * slots
