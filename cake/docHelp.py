@@ -10,7 +10,10 @@ def copyDocString(function: typing.Union[str, typing.Callable]) -> typing.Callab
         function = getattr(mod, name)
 
     def inner(func):
-        func.__doc__ == function.__doc__
+        if func.__doc__:
+            func.__doc__ = func.__doc__ + function.__doc__
+        else:
+            func.__doc__ = function.__doc__
 
         return func
     return inner
