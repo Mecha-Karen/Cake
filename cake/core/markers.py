@@ -1,5 +1,6 @@
 import typing
 from cake.abc import OPERATORS, MAP_OPERATORS
+import itertools
 
 ALLOWED = {
     "(",
@@ -9,6 +10,13 @@ ALLOWED = {
     "[",
     "]",
 }
+
+
+def getPlusMinusCombos(slots: int = 1) -> list:
+    if slots == 1:
+        return ['+', '-']
+    prodString = "+-" * slots
+    return list({''.join(combo) for combo in itertools.product(prodString, repeat=len(prodString))})
 
 
 class Marker(object):
@@ -97,7 +105,7 @@ class PlusOrMinus(Marker):
         return f"Operator(+/-)"
 
 
-class Function(Marker):
+class FunctionMarker(Marker):
     def __init__(self, function: str, inter: typing.Any) -> None:
         super().__init__((function, inter))
 
