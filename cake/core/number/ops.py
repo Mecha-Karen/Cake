@@ -39,7 +39,12 @@ def evaluate(N, O, *, return_class = None, func: str = 'add'):
 
     if cake.compare_any(N, O, type=cake.Expression):
         if hasattr(N, 'expression'):
+            if isinstance(O, cake.Expression):
+                O = O.expression
             return cake.Expression(f'({N.expression}) + {O}')
+            
+        if isinstance(N, cake.Expression):
+            N = N.expression
         return cake.Expression(f'({O.expression}) + {N}')
 
     try:
