@@ -3,14 +3,15 @@ import typing
 import string
 
 from cake import abc, errors
+import cake
 
-
-from ..core.markers import Operator, Symbol, PlusOrMinus, Function
+from ..core.markers import Operator, Symbol, PlusOrMinus, FunctionMarker
 from ..core.types.complex import Complex
 from ..core.types.irrational import Irrational
 from ..core.unknown import Unknown
 
 from .equation import Equation
+from ._ast import *
 from cake.helpers import convert_type
 
 # Imports for tokenizing
@@ -28,14 +29,14 @@ from tokenize import (
 )
 from io import BytesIO
 
-ASCII_CHARS = string.ascii_lowercase
+ASCII_CHARS = list(string.ascii_lowercase)
 # Use lowercases so `X` is equal to `x`
 BLACKLISTED = list(abc.KEYWORDS.keys()) + list(abc.CONSTANTS.keys())
 # Keywords that cant be assigned to an unknown
 VALID_SYMBOLS = {"!", "(", ")"}
 # Used for parsing functions
 IGNORE = (ENDMARKER, NEWLINE, ENCODING)
-# Ignore any tokens from the tokeniser
+# Ignore any tokens from the tokenizer
 
 ################
 #
@@ -50,20 +51,18 @@ INVALID_OPS = re.compile("[a-zA-Z]+[0-9]+", re.IGNORECASE)
 # Looks for any incorrect patterns such as `sqrt4`
 
 # Main Object
+subExecGlobals = {'math': __import__('math'), 'cake': __import__('cake')}
 
 
 class Expression(object):
     """
     Create simple mathmatical expressions and solve/substitute by providing values.
-    If you supply an expression with multiple lines, it splits them and returns a list of expressions instead of a single expression object
-
-    Example
-    -------
+    If you supply an expression with multiple lines or as a list, it splits them and returns a list of expressions instead of a single expression object
 
     .. code-block:: py
 
         >>> from cake import expression
-        >>> circle, line = expression('(x ** 2) + (y ** 2)\n2x + y')
+        >>> circle, line = expression(['(x ** 2) + (y ** 2)', '2x + y'])
 
     Parameters
     ----------
@@ -73,21 +72,16 @@ class Expression(object):
         Default set of arguments used when substituting the expression, IF they are not supplied during substitution.
         If you supply some, it skips the provided ones and uses the ones that havent been provided.
 
-        Example
-        -------
-
         .. code-block:: py
 
             >>> from cake import expression
             >>> y = expression("2x + 3", 1)
             >>> y._sub()
             [Symbol('('), Integer(1), ..., Operator(+), Integer(3)]
+
     **default_kwargs: :class:`~typing.Mapping[str, typing.Any]`
         A set of keyword arguments use when substituting the expression, IF they have not been supplied during substitution.
         Compared to ``default_args``, this allows you to choose which arguments to supply.
-
-        Example
-        -------
 
         .. code-block:: py
 
@@ -96,13 +90,16 @@ class Expression(object):
             >>> eq._sub(y=10)
             [Unknown(x), ..., Operator(+), Integer(10), ...]
 
-
     """
 
     def __new__(
         cls, expression: typing.Union[str, list], *default_args, **default_kwargs
     ):
         multiple = expression.split("\n") if type(expression) == str else expression
+
+        if multiple == Ellipsis:
+            multiple = ""
+
         if len(multiple) > 1:
             eqs = list()
 
@@ -127,6 +124,9 @@ class Expression(object):
                 encoding="ASCII", errors="ignore"
             )
         else:
+            if expression == Ellipsis:
+                expression = ""
+
             self.__expression = expression.lower()
 
         self.args = default_args
@@ -210,7 +210,7 @@ class Expression(object):
             possible_correct += " "
             possible_correct += found_first[index:]
 
-            raise errors.expressionParseError(
+            raise errors.SubstitutionError(
                 f'String `{found_first}`, followed by integer. Perhaps you ment "{possible_correct}"'
             )
 
@@ -275,7 +275,7 @@ class Expression(object):
                     if OPEN_BRACKETS < 1:
                         INCORRECT_BRACK_INDEX = token.start[1]
 
-                        raise errors.expressionParseError(
+                        raise errors.SubstitutionError(
                             f"Unexpected `)` at position {INCORRECT_BRACK_INDEX}"
                         )
 
@@ -290,18 +290,40 @@ class Expression(object):
                         op = Operator(string_)
                         presence.append(op)
                     except ValueError as e:
-                        raise errors.expressionParseError(
+                        raise errors.SubstitutionError(
                             f"Unknown Operator: {string}"
                         ) from e
 
             elif type_ in [NAME, ERRORTOKEN]:
+                # Keep hunting for letters
+                TK_INDEX = (TOKEN_INDEX + 1)
+                TOKENS = list()
+
+                while True:
+                    if TK_INDEX > len(tokens):
+                        break
+                    tk = tokens[TK_INDEX]
+                    if tk.type == NAME:
+                        TOKENS.append(tk)
+                        SKIP += 1
+                    else:
+                        break
+
+                    TK_INDEX += 1
+
+                if TOKENS:
+                    string = ' '.join(map(lambda _: _.string, TOKENS))
+
                 constant = abc.CONSTANTS.get(string)
                 function = abc.KEYWORDS.get(string)
                 symbol_func = abc.SYMBOL_KW.get(string)
+                map_op = abc.MAP_OPERATORS.get(string)
 
-                if constant and function:
-                    raise errors.expressionParseError(
-                        f"{string} is defined both as a function and constant"
+                # Check for lettering
+
+                if len([i for i in (constant, function, symbol_func, map_op) if i is not None]) > 1:
+                    raise errors.SubstitutionError(
+                        f"{string} is defined as multiple keywords"
                     )
 
                 elif constant:
@@ -312,7 +334,7 @@ class Expression(object):
                     # Start from next posfix, else the `function` NAME gets caught
 
                     if not POS_TOKENS:
-                        raise errors.expressionParseError(
+                        raise errors.SubstitutionError(
                             f"{string} Called with no parameters"
                         )
 
@@ -352,7 +374,7 @@ class Expression(object):
                                 FUNQ_EQ += f" {POSFIX.string} "
 
                         if BRACKS > 1:
-                            raise errors.expressionParseError(
+                            raise errors.SubstitutionError(
                                 f"{BRACKS} Unclosed brackets whilst evaluating {function.__qualname__}"
                             )
 
@@ -361,11 +383,11 @@ class Expression(object):
                         )
 
                     if not TREE:
-                        raise errors.expressionParseError(
+                        raise errors.SubstitutionError(
                             f"{string} Called with no parameters"
                         )
 
-                    func = Function(function, TREE)
+                    func = FunctionMarker(function, TREE)
                     SKIP += len(TOKENS)
                     presence.append(func)
 
@@ -374,13 +396,13 @@ class Expression(object):
                     func_name = symbol_func.__qualname__.title()
 
                     if isinstance(LAST_POSFIX, Operator):
-                        raise errors.expressionParseError(
+                        raise errors.SubstitutionError(
                             f"{func_name} called on an operator ({LAST_POSFIX.value}), at index {token.start[1]}."
                         )
 
                     if isinstance(LAST_POSFIX, Symbol):
                         if LAST_POSFIX.value != ")":
-                            raise errors.expressionParseError(
+                            raise errors.SubstitutionError(
                                 f"{func_name} called on an open bracket, at index {token.start[1]}"
                             )
 
@@ -405,7 +427,7 @@ class Expression(object):
                             POS_INDEX += 1
 
                         if OPEN_BRACKS:
-                            raise errors.expressionParseError(
+                            raise errors.SubstitutionError(
                                 f'{OPEN_BRACKS} Unclosed brackets whilst evalutating "{symbol_func.__qualname__}"'
                             )
 
@@ -424,29 +446,44 @@ class Expression(object):
                             **self._sort_values(*args, **kwargs)
                         )
 
-                        func = Function(symbol_func, TREE)
+                        func = FunctionMarker(symbol_func, TREE)
                         presence.append(func)
 
                     else:
                         new_pre = [Symbol("("), LAST_POSFIX, Symbol(")")]
 
-                        func = Function(symbol_func, new_pre)
+                        func = FunctionMarker(symbol_func, new_pre)
 
                         presence[-1] = func
 
+                elif map_op:
+                    presence.append(Operator(map_op))
+
                 else:
-                    if not string in ASCII_CHARS:
-                        raise errors.expressionParseError(
-                            f"Unknown Token ({string}) at index {token.start[1]}"
-                        )
+                    if string in unknown_mapping:
+                        presence.append(convert_type(unknown_mapping[string]))
 
-                    unk = Unknown(string)
-                    value = unknown_mapping.get(string)
+                    if not (string in ASCII_CHARS):
+                        # xy -> (x * y)
+                        cd = '('
+                        for st in string:
+                            if st in unknown_mapping:
+                                cd += str(unknown_mapping[st])
+                            else:
+                                if st not in ASCII_CHARS:
+                                    raise errors.SubstitutionError(
+                                        f"Unknown Token ({string}) at index {token.start[1]}"
+                                    )
+                                cd += st
+                            cd += ' * '
+                        cd = cd[:-3] + ')'
+                        # Remove the ` * ` at the end
 
-                    if value:
-                        presence.append(convert_type(value))
+                        presence.extend(Expression(cd, *self.args, **self.kwargs)._sub(
+                            update_mappings,
+                            *args, **kwargs))
                     else:
-                        presence.append(unk)
+                        presence.append(Unknown(string))
 
             elif type_ == NUMBER:
                 POS_TOKENS = tokens[TOKEN_INDEX:]
@@ -489,7 +526,7 @@ class Expression(object):
                         else:
                             possible_correct = f"{string} * {NEXT.string}"
 
-                            raise errors.expressionParseError(
+                            raise errors.SubstitutionError(
                                 f'Invalid use of function "{function.__qualname__}" at index {NEXT.start[1]}. Perhaps you ment "{possible_correct}"'
                             )
 
@@ -500,7 +537,7 @@ class Expression(object):
 
                 # Stops `' '` from raising an error
                 if string.strip():
-                    raise errors.expressionParseError(
+                    raise errors.SubstitutionError(
                         f"Unknown Token ({string}) at index {token.start[1]}"
                     )
 
@@ -508,71 +545,125 @@ class Expression(object):
             TOKEN_INDEX += 1
 
         if OPEN_BRACKETS > 1:
-            raise errors.expressionParseError(f"{OPEN_BRACKETS} Unclosed brackets")
+            raise errors.SubstitutionError(f"{OPEN_BRACKETS} Unclosed brackets")
 
         if return_tokens:
             return presence, tokens
         return presence
 
-    def substitute(self, update_mapping: bool = False, *args, **kwargs):
+    def _glSubCode(self, update_mapping: bool = False, *args, **kwargs):
         """
-        Supply values, or use pre-existing values to substitute into your expression.
-        Returns the result of the evaluated expression as a tuple.
+        Convert your expression into modern pythonic code, using the `Cake` library.
+        If you want the answer directly, its best to use the `.substitute` method.
 
         Parameters
         ----------
+        update_mapping: :class:`bool`
+            Update the inner unknown mappings with any new args or kwargs
         *args: :class:`~typing.Any`
             Arguments to supply in your expression
         **kwargs: :class:`~typing.Any`
             Keyworded arguments to supply into your expression.
         """
-        presence = self._sub(update_mapping, *args, **kwargs)
-        result = list()
 
-        plusMinusCount = (
-            len(list(filter(lambda x: isinstance(x, PlusOrMinus), presence))) * 2
-        )
-        # How many solutions there can be in total
+        if "dirty" in kwargs:
+            dirty = True
+            vars = kwargs.pop('vars')
+        else:
+            vars = list()
+            dirty = False
 
-        plusMinusIndexes = []
+        presence = kwargs.pop('dirty', self._sub(update_mapping, *args, **kwargs))
+        code = str()
+        VARS = vars
+        pm = 0
 
-        PRESENCE_INDEX = 0
-        RIGHT, LEFT = None, None
+        for posfix in presence:
+            if isinstance(posfix, Unknown):
+                if posfix.value not in VARS:
+                    VARS.append(f"{posfix.value} = Unknown('{posfix.value}')")
+                code += f'{posfix.value}'
 
-        # First iter is remove any useless operators and evaluating brackets and functions
-        # Second iter is evaluating the entire equation, and adding plus/minus operators
-        while True:
-            if PRESENCE_INDEX > len(presence - 1):
-                break
+            elif isinstance(posfix, FunctionMarker):
+                func, dirtyTokens = posfix.value
+                evaluated = Expression(...)._glSubCode(*args, **{**kwargs, 'dirty': dirtyTokens, 'vars': VARS})
 
-            POSFIX = presence[PRESENCE_INDEX]
+                newVars, evaluated, _ = evaluated
+                VARS.extend(newVars)
+                VARS = list(set(VARS))
 
-            if isinstance(POSFIX, PlusOrMinus):
-                plusMinusIndexes.append(PRESENCE_INDEX)
+                code += f"{func.__qualname__}({evaluated})"
 
-            elif isinstance(POSFIX, Operator):
-                if (PRESENCE_INDEX + 1) >= (len(presence) - 1):
-                    raise errors.SubstitutionError(
-                        f"{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}"
-                    )
-                NEXT_POSFIX = presence[(PRESENCE_INDEX + 1)]
+            elif isinstance(posfix, cake.Number):
+                code += f'{posfix.__class__.__name__}({posfix.value})'
 
-                if POSFIX.value == "-":
-                    # Negate the entire right side
-                    if isinstance(NEXT_POSFIX, Symbol):
-                        if NEXT_POSFIX.value == ")":
-                            raise errors.SubstitutionError(
-                                f"{POSFIX.value} Used with no right side expression, at token index {PRESENCE_INDEX}"
-                            )
+            elif isinstance(posfix, PlusOrMinus):
+                code += '(+|-)'     # This gets sorted out later
+                pm += 1
 
-            PRESENCE_INDEX += 1
+            elif isinstance(posfix, (Symbol, Operator)):
+                posfix.validate
 
-        if len(result) < plusMinusCount:
-            raise errors.SubstitutionError(
-                f"Evaluted expression returned {len(result)} results instead of {plusMinusCount}"
-            )
+                code += f'{posfix.value}'
 
-        return tuple(result)
+        if not dirty:
+            return "{}\n{}".format('\n'.join(VARS), code), pm
+        return VARS, code, pm
+
+    def convertToCode(self, update_mapping: bool = False, imports: tuple = tuple(), *args, **kwargs):
+        """
+        Convert your expression into executable code!
+
+        Parameters
+        ----------
+        update_mapping: :class:`bool`
+            Update the inner unknown mappings with any new args or kwargs
+        imports: :class:`tuple`
+            A tuple with import statements to be used when generating your code.
+            
+            .. note::
+                Any imports provided, will overwrite the cake library!
+
+            .. code-block:: py
+
+                >>> from cake import Expression
+                >>> imports = ("math *",)
+                # Imports * from math
+                # "math tan" only imports tan
+                # "math (tan, sin)" only imports tan, sin
+                >>> expr = "x + sqrt(y)"
+                >>> Expr = Expression(expr)
+                >>> Expr.convertToCode(imports=imports)
+        """
+        beginning = GEN_AUTO_CODE_MARKING(*imports)
+        code, _ = self._glSubCode(update_mapping, *args, **kwargs)
+
+        return f'{beginning}{code}'
+
+    def substitute(self, update_mapping: bool = False, imports: tuple = tuple(), *args, **kwargs):
+        """
+        Sub values into your equation, and evaluates the expr.
+        
+        If your using the `(+|-)` op, it will return the result as a tuple. Else just the value.
+        The length of the tuple varies in length, for every plus/minus op just multiply your value by `* 2` 
+
+        Parameters
+        ----------
+        update_mapping: :class:`bool`
+            Update the inner unknown mappings with any new args or kwargs
+        *args: :class:`~typing.Any`
+            Arguments to supply in your expression
+        **kwargs: :class:`~typing.Any`
+            Keyworded arguments to supply into your expression.
+        """
+
+        _, pmCount = self._glSubCode(update_mapping, *args, **kwargs)
+        code = self.convertToCode(update_mapping, imports, *args, **kwargs)
+        combos = cake.getPlusMinusCombos(pmCount)
+
+        if not combos:
+            return execCode(code)
+
 
     def solve(self, *args, **kwargs):
         """
@@ -591,8 +682,6 @@ class Expression(object):
         """
         Places the entire of your current expression into brackets and adds and operator with another query.
 
-        Example
-        ^^^^^^^
         .. code-block:: py
 
             >>> from cake import expression
@@ -627,8 +716,8 @@ class Expression(object):
         """
         Update the built in mapping for unknown values
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         overwrite: :class:`bool`
             Should overwrite the current mapping, or return the mapping which was just created.
 
@@ -659,7 +748,7 @@ class Expression(object):
     @property
     def mapping(self):
         """Returns a copy of the variable mappings for unknowns"""
-        return self.__mappings.copy()
+        return cake.copy(self.__mappings)
 
     @property
     def expression(self):
@@ -671,7 +760,7 @@ class Expression(object):
         Returns the expression set when initialising the class
         """
 
-        return repr(self.expression)
+        return self.expression
 
     def __eq__(self, other: "Expression") -> "Equation":
         """
