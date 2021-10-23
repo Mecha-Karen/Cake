@@ -1,86 +1,70 @@
 # Trigonometric functions
-from ..base import Function
-import cake
-import typing
+from cake.core.types.integer import Integer
+from ..base import MaskFunctionTemp
 import math
 
-__all__ = ("Sin", "Cos", "Tan")
+__all__ = (
+    "Sin", "Cos", "Tan",
+    "ASin", "ACos", "ATan",
+    "SinH", "CosH", "TanH",
+    "Sec", "Cosec", "Cot"
+)
 
 
-class Sin(Function):
+# SIN COS TAN
+
+class Sin(MaskFunctionTemp):
     def __init__(self, value, *, type: str = "radians") -> None:
-        super().__init__(value, name="sin")
+        super().__init__(value, "sin", math.sin, type=type)
 
-        self.type = type
-
-    def _raw_exec(self, other) -> typing.Any:
-        if isinstance(other, cake.Unknown):
-            unknown = other.copy()
-            unknown.data['functions'].append(self.__class__)
-            return unknown
-
-        if hasattr(other, 'value'):
-            other = other.value
-        if hasattr(other, 'get_value'):
-            other = other.get_value()
-
-        otherConverter = getattr(math, self.type, None)
-        if not otherConverter:
-            val = other
-        else:
-            val = otherConverter(other)
-
-        return cake.convert_type(math.sin(val))
-
-
-
-class Cos(Function):
+class Cos(MaskFunctionTemp):
     def __init__(self, value, *, type: str = "radians") -> None:
-        super().__init__(value, name="cos")
+        super().__init__(value, "cos", math.cos, type=type)
 
-        self.type = type
-
-    def _raw_exec(self, other) -> typing.Any:
-        if isinstance(other, cake.Unknown):
-            unknown = other.copy()
-            unknown.data['functions'].append(self.__class__)
-            return unknown
-
-        if hasattr(other, 'value'):
-            other = other.value
-        if hasattr(other, 'get_value'):
-            other = other.get_value()
-
-        otherConverter = getattr(math, self.type, None)
-        if not otherConverter:
-            val = other
-        else:
-            val = otherConverter(other)
-
-        return cake.convert_type(math.cos(val))
-
-
-class Tan(Function):
+class Tan(MaskFunctionTemp):
     def __init__(self, value, *, type: str = "radians") -> None:
-        super().__init__(value, name="tan")
+        super().__init__(value, "tan", math.tan, type=type)
 
-        self.type = type
+# INVERSE TRIG FUNCS
 
-    def _raw_exec(self, other) -> typing.Any:
-        if isinstance(other, cake.Unknown):
-            unknown = other.copy()
-            unknown.data['functions'].append(self.__class__)
-            return unknown
+class ASin(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "asin", math.asin, type=type)
 
-        if hasattr(other, 'value'):
-            other = other.value
-        if hasattr(other, 'get_value'):
-            other = other.get_value()
+class ACos(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "acos", math.asin, type=type)
 
-        otherConverter = getattr(math, self.type, None)
-        if not otherConverter:
-            val = other
-        else:
-            val = otherConverter(other)
+class ATan(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "atan", math.atan, type=type)
 
-        return cake.convert_type(math.tan(val))
+# HYPERBOLIC TRIG FUNCTIONS
+class SinH(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "asin", math.sinh, type=type)
+
+class CosH(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "acos", math.cosh, type=type)
+
+class TanH(MaskFunctionTemp):
+    def __init__(self, value, *, type: str = "radians") -> None:
+        super().__init__(value, "atan", math.tanh, type=type)
+
+# SEC COT COSEC
+
+def Sec(value, *, type: str = "radians"):
+    x = Cos(value, type=type)
+    x.execAfter(lambda x: Integer(1) / x)
+    return x
+
+def Cosec(value, *, type: str = "radians"):
+    x = Sin(value, type=type)
+    x.execAfter(lambda x: Integer(1) / x)
+    return x
+
+def Cot(value, *, type: str = "radians"):
+    x = Tan(value, type=type)
+    x.execAfter(lambda x: Integer(1) / x)
+    return x
