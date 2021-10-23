@@ -10,6 +10,7 @@ from ..unknown import Unknown
 import typing
 
 from .ops import evaluate
+import cake
 
 
 class Number(object):
@@ -66,8 +67,6 @@ class Number(object):
         value: typing.Any,
         check_value_attr: bool = True,
         base_type: typing.Callable  = float,
-        return_me: typing.Callable = ...,
-        return_handler: typing.Callable = None,
         *args,
         **kwargs,
     ):
@@ -78,21 +77,6 @@ class Number(object):
 
         self.args = args
         self.kwargs = kwargs
-
-        if return_me == ...:
-            self.return_class = Number
-        else:
-            if hasattr(return_me, "handler"):
-                if callable(return_me.handler):
-                    self.return_class = return_me.handler
-                else:
-                    raise TypeError("handler must be a callable object")
-            else:
-                self.return_class = return_me
-
-        if return_handler:
-            # Lazy method of keeping short and consise handlers
-            self.return_class = return_handler
 
     # ##############
     #
@@ -110,7 +94,7 @@ class Number(object):
             A class which follows the ``cake.abc.IntegerType`` and has the ``__mul__`` dunder method.
         """
 
-        return evaluate(self.value, O, return_class=self.return_class, func='mul')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='mul')
 
     def __abs__(self):
         if self._value < 0:
@@ -118,19 +102,19 @@ class Number(object):
         else:
             new_val = self._value
 
-        return self.return_class(new_val)
+        return cake.convert_type(new_val)
 
     def __add__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='add')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='add')
 
     def __sub__(self, O):
-        return evaluate(self.value, -O, return_class=self.return_class, func='add')
+        return evaluate(self.value, -O, return_class=cake.convert_type, func='add')
 
     def __neg__(self):
-        return self.return_class(self.value * -1)
+        return cake.convert_type(self.value * -1)
 
     def __pos__(self):
-        return self.return_class(self.value)
+        return cake.convert_type(self.value)
 
     def __mul__(self, other):
         return self.__call__(other)
@@ -138,37 +122,37 @@ class Number(object):
     def __ceil__(self):
         result = ceil(self._value)
 
-        return self.return_class(result)
+        return cake.convert_type(result)
 
     def __truediv__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='truediv')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='truediv')
 
     def __floordiv__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='floordiv')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='floordiv')
 
     def __mod__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='mod')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='mod')
 
     def __divmod__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='divmod')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='divmod')
 
     def __pow__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='pow')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='pow')
 
     def __lshift__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='lshift')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='lshift')
 
     def __rshift__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='rshift')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='rshift')
 
     def __and__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='and_')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='and_')
 
     def __xor__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='xor')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='xor')
 
     def __or__(self, O):
-        return evaluate(self.value, O, return_class=self.return_class, func='or_')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='or_')
 
     # #########
     #
@@ -181,37 +165,37 @@ class Number(object):
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='lt')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='lt')
 
     def __le__(self, O) -> bool:
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='le')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='le')
 
     def __gt__(self, O) -> bool:
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='gt')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='gt')
 
     def __ge__(self, O) -> bool:
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='ge')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='ge')
 
     def __eq__(self, O) -> bool:
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='eq')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='eq')
 
     def __ne__(self, O) -> bool:
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
-        return evaluate(self.value, O, return_class=self.return_class, func='ne')
+        return evaluate(self.value, O, return_class=cake.convert_type, func='ne')
 
     # ################
     #
@@ -248,7 +232,7 @@ class Number(object):
         """
         Returns the value supplied when initialising the class, if it has been converted to the provided type, then that value is returned instead.
 
-        This is overridable and deletable, if deleted value is set to 0.
+        This is overridable and deletable, if deleted value is set to ``cake.Zero``.
         """
         return self._value
 
@@ -260,7 +244,7 @@ class Number(object):
 
     @value.deleter
     def remove_value(self) -> None:
-        self._value = 0
+        self._value = cake.Zero()
 
     @property
     def type(
