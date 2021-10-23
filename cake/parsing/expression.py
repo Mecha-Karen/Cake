@@ -671,9 +671,17 @@ class Expression(object):
             for symbol in combo:
                 ind = codeCopy.find('(+|-)')
 
-                codeCopy[ind] = symbol
+                cmCopy = list(codeCopy)
+                cmCopy[ind:(ind + 5)] = symbol
+                # ind -> the first bracket
+                # (ind + 4) -> captures remaining `+|-)`
+                codeCopy = ''.join(cmCopy)
             toBeEvaluated.append(codeCopy)
-        return toBeEvaluated
+
+        results = list()
+        for rCode in toBeEvaluated:
+            results.append(execCode(rCode))
+        return tuple(results)
 
     def solve(self, *args, **kwargs):
         """
