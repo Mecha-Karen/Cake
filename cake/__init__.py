@@ -6,14 +6,6 @@ from .errors import *
 
 # Core Types
 from .core import (
-    # Markers
-    Marker,
-    Operator,
-    Symbol,
-    PlusOrMinus,
-    Function,
-    ALLOWED,
-    
     # Cores
     Number,
     Unknown,
