@@ -34,32 +34,12 @@ class Number(object):
     check_value_attr: :class:`bool`
         When a user preforms an arithmetic action it will check the `other` argument for the `value` attribute
         If found, it replaces the argument with that value, else returns the original argument
-    base_type: :class:`~typing.Callable[[..., ], typing.Any]`
+    base_type: :class:`~typing.Callable`
         A function or class, which is used to convert the input value to, defaults to :class:`float`
-    return_me: :class:`typing.Callable[[..., ], typing.Any]`
-        A function or class which is returned when an arithmetic operator is used on the class.
-        This is different from `base_type` as this returns the specified class as opposed to just converting the input to specific type.
-    return_handler: :class:`typing.Callable[[..., ], typing.Any]`
-        skips the default return class and calls this method with the following arguments, in the same order.
-
-        .. code-block:: text
-
-            Result
-            Check Value Attribute
-            Type
-            Current Return Class
-            args
-            kwargs
-
-
-    *args: :class:`~typing.Any`
-        Additional arguments which you may supply when using arithmetic operators such as ``+``
-    **kwargs: :class:`~typing.Any`
-        Additional keyword arguments which you may supply when using arithmetic operators such as ``+``
 
     Returns
     -------
-    A number class which can handle all python operators
+    :class:`~cake.Number`
     """
 
     def __init__(
@@ -86,7 +66,7 @@ class Number(object):
 
     def __call__(self, O):
         """
-        Implementation of chaining, Action formed is multiplication
+        Implementation of chaining, Multiplies O
 
         Parameters
         ---------
@@ -97,6 +77,7 @@ class Number(object):
         return evaluate(self.value, O, return_class=cake.convert_type, func='mul')
 
     def __abs__(self):
+        """ Get the absolute value of the number """
         if self._value < 0:
             new_val = self._value * -1
         else:
@@ -105,53 +86,69 @@ class Number(object):
         return cake.convert_type(new_val)
 
     def __add__(self, O):
+        """ Add the number with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='add')
 
     def __sub__(self, O):
+        """ Subtract the number with O """
         return evaluate(self.value, -O, return_class=cake.convert_type, func='add')
 
     def __neg__(self):
+        """ Negate the number, multiplies it by ``-1`` """
         return cake.convert_type(self.value * -1)
 
     def __pos__(self):
+        """ Returns the number in its normal form """
         return cake.convert_type(self.value)
 
-    def __mul__(self, other):
-        return self.__call__(other)
+    def __mul__(self, O):
+        """ Mutliply the number with O """
+        return self.__call__(O)
 
     def __ceil__(self):
+        """ Returns the `ceil` value of the number """
         result = ceil(self._value)
 
         return cake.convert_type(result)
 
     def __truediv__(self, O):
+        """ Divide the number with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='truediv')
 
     def __floordiv__(self, O):
+        """ Floordiv the number with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='floordiv')
 
     def __mod__(self, O):
+        """ Modulus the number with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='mod')
 
     def __divmod__(self, O):
+        """ Returns the divmod of the number with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='divmod')
 
     def __pow__(self, O):
+        """ Raise the number to the power of O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='pow')
 
     def __lshift__(self, O):
+        """ Binary left shit by O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='lshift')
 
     def __rshift__(self, O):
+        """ Binary right shift by O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='rshift')
 
     def __and__(self, O):
+        """ Binary and with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='and_')
 
     def __xor__(self, O):
+        """ Binary xor with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='xor')
 
     def __or__(self, O):
+        """ Binary or with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='or_')
 
     # #########
@@ -161,6 +158,7 @@ class Number(object):
     # #########
 
     def __lt__(self, O) -> bool:
+        """ Check if N < O """
 
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
@@ -168,30 +166,38 @@ class Number(object):
         return evaluate(self.value, O, return_class=cake.convert_type, func='lt')
 
     def __le__(self, O) -> bool:
+        """ Check if N <= O """
+
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
         return evaluate(self.value, O, return_class=cake.convert_type, func='le')
 
     def __gt__(self, O) -> bool:
+        """ Check if N > O """
+
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
         return evaluate(self.value, O, return_class=cake.convert_type, func='gt')
 
     def __ge__(self, O) -> bool:
+        """ Check if N >= O """
+
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
         return evaluate(self.value, O, return_class=cake.convert_type, func='ge')
 
     def __eq__(self, O) -> bool:
+        """ Check if N == O """
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
         return evaluate(self.value, O, return_class=cake.convert_type, func='eq')
 
     def __ne__(self, O) -> bool:
+        """ Check if N != O """
         if isinstance(O, Unknown):
             raise TypeError("Cannot compare known with unknown")
 
@@ -204,18 +210,23 @@ class Number(object):
     # #################
 
     def __bool__(self):
+        """ Returns if N != 0 """
         return self._value != 0
 
     def __int__(self):
+        """ Returns N as an int """
         return int(self._value)
 
     def __float__(self):
+        """ Returns N as a float """
         return float(self._value)
 
     def __complex__(self):
+        """ Returns N as a complex """
         return complex(self._value)
 
     def __str__(self):
+        """ Returns N as a string """
         return str(self._value)
 
     # ################
