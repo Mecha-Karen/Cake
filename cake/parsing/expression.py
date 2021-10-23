@@ -674,7 +674,7 @@ class Expression(object):
                 cmCopy = list(codeCopy)
                 cmCopy[ind:(ind + 5)] = symbol
                 # ind -> the first bracket
-                # (ind + 4) -> captures remaining `+|-)`
+                # (ind + 5) -> captures remaining `+|-)`
                 codeCopy = ''.join(cmCopy)
             toBeEvaluated.append(codeCopy)
 
