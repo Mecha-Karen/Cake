@@ -61,8 +61,8 @@ class Expression(object):
 
     .. code-block:: py
 
-        >>> from cake import expression
-        >>> circle, line = expression(['(x ** 2) + (y ** 2)', '2x + y'])
+        >>> from cake import Expression
+        >>> circle, line = Expression(['(x ** 2) + (y ** 2)', '2x + y'])
 
     Parameters
     ----------
@@ -85,8 +85,8 @@ class Expression(object):
 
         .. code-block:: py
 
-            >>> from cake import expression
-            >>> eq = expression("x ** 2 + y ** 2")
+            >>> from cake import Expression
+            >>> eq = Expression("x ** 2 + y ** 2")
             >>> eq._sub(y=10)
             [Unknown(x), ..., Operator(+), Integer(10), ...]
 
@@ -276,7 +276,7 @@ class Expression(object):
                         INCORRECT_BRACK_INDEX = token.start[1]
 
                         raise errors.SubstitutionError(
-                            f"Unexpected `)` at position {INCORRECT_BRACK_INDEX}"
+                            f"Unexpected `)` at index {INCORRECT_BRACK_INDEX}"
                         )
 
                     presence.append(Symbol(")"))
@@ -634,6 +634,7 @@ class Expression(object):
                 >>> expr = "x + sqrt(y)"
                 >>> Expr = Expression(expr)
                 >>> Expr.convertToCode(imports=imports)
+                ...
         """
         beginning = GEN_AUTO_CODE_MARKING(*imports)
         code, _ = self._glSubCode(update_mapping, *args, **kwargs)
@@ -663,7 +664,16 @@ class Expression(object):
 
         if not combos:
             return execCode(code)
+        toBeEvaluated = list()
 
+        for combo in combos:
+            codeCopy = code
+            for symbol in combo:
+                ind = codeCopy.find('(+|-)')
+
+                codeCopy[ind] = symbol
+            toBeEvaluated.append(codeCopy)
+        return toBeEvaluated
 
     def solve(self, *args, **kwargs):
         """
@@ -678,14 +688,56 @@ class Expression(object):
         """
         raise NotImplementedError()
 
+    def append(self, expr: typing.Union[str, "Expression"]) -> None:
+        """
+        Add a new expression onto your current expression
+
+        .. code-block:: py
+
+            >>> from cake import Expression
+            >>> y = Expression("2x + 2")
+            >>> y.append(" * 2")
+            >>> y
+            2x + 2 * 2
+
+        Parameters
+        ----------
+        expr: :class:`~typing.Union[str, Expression]`
+            The expression to append
+        """
+        if isinstance(expr, Expression):
+            expr = Expression.expression
+        self.__expression += expr
+
+    def prepend(self, expr: typing.Union[str, "Expression"]) -> None:
+        """
+        Add a new expression to the beginning of your current expression.
+
+        .. code-block:: py
+
+            >>> from cake import Expression
+            >>> y = Expression("2x + 2")
+            >>> y.prepend("2 *")
+            >>> y
+            2 * 2x + 2
+
+        Parameters
+        ----------
+        expr: :class:`~typing.Union[str, Expression]`
+            The expression to prepend
+        """
+        if isinstance(expr, Expression):
+            expr = Expression.expression
+        self.__expression = expr + self.__expression
+
     def wrap_all(self, operator: str, ending: str, *eq_args, **eq_kwargs) -> None:
         """
         Places the entire of your current expression into brackets and adds and operator with another query.
 
         .. code-block:: py
 
-            >>> from cake import expression
-            >>> y = expression("2x + 2")
+            >>> from cake import Expression
+            >>> y = Expression("2x + 2")
             >>> y.wrap_all("*", "2")
             >>> y
             (2x + 2) * 2
@@ -697,7 +749,7 @@ class Expression(object):
         ending: :class:`str`
             A seperate query to append onto the end
         *args: :class:`~typing.Any`
-            Arguments for any new vars, its best to do ``list(expression.args) + [...]``
+            Arguments for any new vars
         **kwargs: :class:`~typing.Any`
             Keyworded arguments, works the same way as `*args`, except is much easier to implement.
         """
