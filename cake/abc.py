@@ -1,3 +1,4 @@
+import cake
 import math
 import typing
 
@@ -35,12 +36,12 @@ MAP_OPERATORS = {
 
 KEYWORDS: typing.Mapping[str, typing.Callable] = {
     "sqrt": math.sqrt,
-    "sin": lambda degrees: math.sin(math.radians(degrees)),
-    "cos": lambda degrees: math.cos(math.radians(degrees)),
-    "tan": lambda degrees: math.tan(math.radians(degrees)),
-    "cot": lambda degrees: 1 / (math.tan(math.radians(degrees))),
-    "sec": lambda degrees: 1 / (math.cos(math.radians(degrees))),
-    "cosec": lambda degrees: 1 / (math.sin(math.radians(degrees))),
+    "sin": lambda degrees: cake.Sin(degrees)(),
+    "cos": lambda degrees: cake.Cos(degrees)(),
+    "tan": lambda degrees: cake.Tan(degrees)(),
+    "cot": lambda degrees: 1 / (cake.Sin(degrees)()),
+    "sec": lambda degrees: 1 / (cake.Cos(degrees)()),
+    "cosec": lambda degrees: 1 / (cake.Tan(degrees)()),
 }
 
 SYMBOL_KW: typing.Mapping[str, typing.Callable] = {"!": math.factorial}
