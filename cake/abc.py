@@ -39,9 +39,9 @@ KEYWORDS: typing.Mapping[str, typing.Callable] = {
     "sin": lambda degrees: cake.Sin(degrees)(),
     "cos": lambda degrees: cake.Cos(degrees)(),
     "tan": lambda degrees: cake.Tan(degrees)(),
-    "cot": lambda degrees: 1 / (cake.Sin(degrees)()),
-    "sec": lambda degrees: 1 / (cake.Cos(degrees)()),
-    "cosec": lambda degrees: 1 / (cake.Tan(degrees)()),
+    "cot": lambda degrees: cake.Integer(1) / (cake.Sin(degrees)()),
+    "sec": lambda degrees: cake.Integer(1) / (cake.Cos(degrees)()),
+    "cosec": lambda degrees: cake.Integer(1) / (cake.Tan(degrees)()),
 }
 
 SYMBOL_KW: typing.Mapping[str, typing.Callable] = {"!": math.factorial}
@@ -49,11 +49,11 @@ SYMBOL_KW: typing.Mapping[str, typing.Callable] = {"!": math.factorial}
 CONSTANTS: typing.Mapping[str, IntegerType] = {"pi": math.pi, "e": math.e}
 
 SCALES: typing.Mapping[str, int] = {
-    "hundred": 1 * (10 ** 2),
-    "thousand": 1 * (10 ** 3),
-    "million": 1 * (10 ** 6),
-    "billion": 1 * (10 ** 9),
-    "trillion": 1 * (10 ** 12),
+    "hundred": cake.Integer(1 * (10 ** 2)),
+    "thousand": cake.Integer(1 * (10 ** 3)),
+    "million": cake.Integer(1 * (10 ** 6)),
+    "billion": cake.Integer(1 * (10 ** 9)),
+    "trillion": cake.Integer(1 * (10 ** 12)),
 }
 
 NUMBERS: typing.Mapping[str, int] = (
