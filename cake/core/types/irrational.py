@@ -33,7 +33,7 @@ class Irrational(Number):
         if len(is_float) == 1:
             return Integer(value)
 
-        if len(is_float[-1]) not in [15, 16]:
+        if len(is_float[-1]) < 16:
             # Not irrational
             return Real(value)
 
