@@ -17,7 +17,7 @@ def getPlusMinusCombos(slots: int = 1) -> list:
         return []
 
     if slots == 1:
-        return ['+-']
+        return ['+', '-']
     prodString = "+-" * slots
     return list({''.join(combo) for combo in itertools.product(prodString, repeat=len(prodString))})
 
