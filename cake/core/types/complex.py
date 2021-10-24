@@ -1,7 +1,7 @@
-from math import radians
 from ..number import Number
 from cake.abc import IntegerType
 import typing
+import cake
 
 
 class Complex(Number):
@@ -11,15 +11,20 @@ class Complex(Number):
     A complex is number which can be expressed in the form of ``a + bi``, were a and b are integers.
     Learn more `here <https://en.wikipedia.org/wiki/Complex_number>`_
 
+    .. note::
+
+        If parameters ``a`` and ``b`` are complexes, the value of the complex will be ``a + b``.
+
     Parameters
     ----------
-    a: :class:`~cake.abc.IntegerType`
-        Any object which matches the `IntegerType` protocol. Fills the
+    a: :class:`cake.abc.IntegerType`
+        Any object which matches the `IntegerType` protocol.
         Defaults to 0
-    check_value_attr: :class:`bool`
-        See `me </cake/api/index.html#cake.Number.value>`
-    *args: :class:`~typing.Any`
-        See `me </cake/api/index.html#cake.Number.value>`
+    b: :class:`cake.abc.IntegerType`
+        Any object which matches the `IntegerType` protocol.
+        Defaults to 0
+    raw: :class:`str`
+        A string which represents the complex in the form ``(a + bi)``
     """
 
     def __init__(
@@ -45,9 +50,7 @@ class Complex(Number):
                     'Incorrect formatting for complex number, should be in the format of "a + bi"'
                 )
 
-        if isinstance(a, complex) and not b:
-            integer = a
-        elif isinstance(a, complex) and isinstance(b, complex):
+        if cake.helpers.compare_multiple(a, b, (complex, Complex)):
             # Sum both complexes
             integer = a + b
         else:
