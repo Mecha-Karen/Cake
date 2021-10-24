@@ -285,6 +285,9 @@ class Number(object):
         self._type = newType
 
     def get_value(self, other, check_value_attr, *args, **kwargs):
+        if not other:
+            other = self
+
         if (
             hasattr(other, "value")
             and check_value_attr is True
