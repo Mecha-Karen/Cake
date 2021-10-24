@@ -582,7 +582,7 @@ class Expression(object):
             if isinstance(posfix, Unknown):
                 if posfix.value not in VARS:
                     VARS.append(f"{posfix.value} = Unknown('{posfix.value}')")
-                code += f'{posfix.value}'
+                code += f'({posfix.value})'
 
             elif isinstance(posfix, FunctionMarker):
                 func, dirtyTokens = posfix.value
@@ -592,10 +592,10 @@ class Expression(object):
                 VARS.extend(newVars)
                 VARS = list(set(VARS))
 
-                code += f"{func.__qualname__}({evaluated})"
+                code += f"({func.__qualname__}({evaluated}))"
 
             elif isinstance(posfix, cake.Number):
-                code += f'{posfix.__class__.__name__}({posfix.value})'
+                code += f'({posfix.__class__.__name__}({posfix.value}))'
 
             elif isinstance(posfix, PlusOrMinus):
                 code += '(+|-)'     # This gets sorted out later
@@ -614,27 +614,27 @@ class Expression(object):
         """
         Convert your expression into executable code!
 
+        .. warning::
+            Any imports provided, can overwrite imports from the cake library!
+
+        .. code-block:: py
+
+            >>> from cake import Expression
+            >>> imports = ("math *",)
+            # Imports * from math
+            # "math tan" only imports tan
+            # "math (tan, sin)" only imports tan, sin
+            >>> expr = "x + sqrt(y)"
+            >>> Expr = Expression(expr)
+            >>> Expr.convertToCode(imports=imports)
+            ...
+
         Parameters
         ----------
         update_mapping: :class:`bool`
             Update the inner unknown mappings with any new args or kwargs
         imports: :class:`tuple`
             A tuple with import statements to be used when generating your code.
-            
-            .. note::
-                Any imports provided, will overwrite the cake library!
-
-            .. code-block:: py
-
-                >>> from cake import Expression
-                >>> imports = ("math *",)
-                # Imports * from math
-                # "math tan" only imports tan
-                # "math (tan, sin)" only imports tan, sin
-                >>> expr = "x + sqrt(y)"
-                >>> Expr = Expression(expr)
-                >>> Expr.convertToCode(imports=imports)
-                ...
         """
         beginning = GEN_AUTO_CODE_MARKING(*imports)
         code, _ = self._glSubCode(update_mapping, *args, **kwargs)
