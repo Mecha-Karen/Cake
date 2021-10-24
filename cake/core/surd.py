@@ -56,7 +56,7 @@ class Surd(Number):
     integer: `~cake.abc.IntegerType`
         The irrational integer
     n: `~cake.abc.IntegerType`
-        the nth term of the root, e.g ``3`` is cube-root. Doing ``'(2/3)'`` will cube root it an then raise it to the power of 2
+        the nth term of the root, e.g ``3`` is cube-root. Doing ``'(2/3)'`` will cube root it and then raise it to the power of 2
     i: :`~cake.abc.IntegerType`:
         Coefficient of the unsolved root
     """
@@ -92,6 +92,15 @@ class Surd(Number):
 
     # Some utilities
     def rationalise(self, **kwargs):
+        """
+        Rationalises the surd.
+
+        If N cannot be rationalised as N.value < 1, class:`~cake.Imaginary` is returned.
+
+        .. note::
+
+            Additional kwargs may be supplied, these are passed to the ``_rationalise`` function
+        """
         from cake import Imaginary
 
         res = _rationalise(self.value, **kwargs)
@@ -107,6 +116,7 @@ class Surd(Number):
 
     @property
     def decimal(self):
+        """ Converts surd to decimal form """
         if self.i != 1:
             integer = self.integer * (self.i ** 2)
         else:
@@ -121,10 +131,12 @@ class Surd(Number):
 
     @property
     def simplify(self):
+        """ Returns N.decimal """
         return self.decimal
 
     @property
     def evaluate(self):
+        """ Returns N.decimal """
         return self.decimal
 
     def __repr__(self) -> str:
@@ -140,24 +152,26 @@ class Surd(Number):
 
         return f"{co}√{self.integer} {n}"
 
-    def __add__(self, other: "Surd") -> "Surd":
-        if not isinstance(other, Surd):
-            return super().__add__(other)
+    def __add__(self, O: "Surd") -> "Surd":
+        """ N + O where O is a surd and O.integer == N.integer """
+        if not isinstance(O, Surd):
+            return super().__add__(O)
 
-        if other.integer != self.integer:
+        if O.integer != self.integer:
             raise ValueError(
-                f'Cannot add "{repr(other)}" as the integer is not the same!'
+                f'Cannot add "{repr(O)}" as the integer is not the same!'
             )
         
-        return Surd(self.integer, n=self.n, i=(self.i + other.i))
+        return Surd(self.integer, n=self.n, i=(self.i + O.i))
 
-    def __sub__(self, other: "Surd") -> "Surd":
-        if not isinstance(other, Surd):
-            return super().__sub__(other)
+    def __sub__(self, O: "Surd") -> "Surd":
+        """ N - O where O is a surd and O.integer == N.integer """
+        if not isinstance(O, Surd):
+            return super().__sub__(O)
 
-        if other.integer != self.integer:
+        if O.integer != self.integer:
             raise ValueError(
-                f'Cannot subtract "{repr(other)}" as the integer is not the same!'
+                f'Cannot subtract "{repr(O)}" as the integer is not the same!'
             )
         
-        return Surd(self.integer, n=self.n, i=(self.i - other.i))
+        return Surd(self.integer, n=self.n, i=(self.i - O.i))
