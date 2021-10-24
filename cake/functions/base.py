@@ -44,6 +44,11 @@ class FunctionBase(object):
             return self._execAfter(res)
         return res
 
+    @property
+    def hasNested(self) -> bool:
+        """ Check if the function has another function in it """
+        return self.functions != []
+
     def __repr__(self) -> str:
         value = getattr(self, '_value', '?')
         execA = getattr(self, '_execAfter', None)
@@ -55,6 +60,14 @@ class FunctionBase(object):
 
 
 class Function(FunctionBase, abc.ABC):
+    """
+    A simple wrapper function for the ``FunctionBase`` class
+
+    .. seealso::
+
+        `Example <https://github.com/Mecha-Karen/Cake/blob/main/examples/functions.py#L24>`_.
+            An example of how to use the ``Function`` class
+    """
     def __init__(self, value, *, name: str) -> None:
         functions = list()
 
@@ -123,7 +136,7 @@ class MaskFunctionTemp(Function):
         if hasattr(other, 'get_value'):
             other = other.get_value()
 
-        otherConverter = getattr(math, self.type, None)
+        otherConverter = getattr(math, self._type, None)
         if not otherConverter:
             val = other
         else:
