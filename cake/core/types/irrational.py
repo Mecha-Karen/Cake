@@ -18,10 +18,6 @@ class Irrational(Number):
     value: :class:`~cake.abc.FloatType`
         Any object which matches the `FloatType` protocol.
         Defaults to 0
-    check_value_attr: :class:`bool`
-        See :class:`~cake.Number`
-    *args: :class:`~typing.Any`
-        See :class:`~cake.Number`
     """
 
     def __new__(

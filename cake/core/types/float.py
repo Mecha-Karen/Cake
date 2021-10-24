@@ -12,10 +12,6 @@ class Float(Number):
     number: :class:`~cake.abc.FloatType`
         Any object which matches the `FloatType` protocol.
         Defaults to 0
-    check_value_attr: :class:`bool`
-        See `me </cake/api/index.html#cake.Number.value>`
-    *args: :class:`~typing.Any`
-        See `me </cake/api/index.html#cake.Number.value>`
     """
 
     def __init__(
