@@ -491,6 +491,16 @@ class Unknown(object):
     def __repr__(self) -> str:
         return _prettify_repr(self)
 
+    # UNARY
+
+    def __pos__(self) -> "Unknown":
+        """ Returns N """
+        return self.copy()
+
+    def __neg__(self) -> "Unknown":
+        """ Negates N, Same as doing N * -1 """
+        return self * -1
+
     # Arithmetic
 
     def __mul__(self, other) -> "Unknown":
