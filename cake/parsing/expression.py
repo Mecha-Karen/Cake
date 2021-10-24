@@ -463,7 +463,7 @@ class Expression(object):
                     if string in unknown_mapping:
                         presence.append(convert_type(unknown_mapping[string]))
 
-                    if not (string in ASCII_CHARS):
+                    elif not (string in ASCII_CHARS):
                         # xy -> (x * y)
                         cd = '('
                         for st in string:
@@ -679,6 +679,7 @@ class Expression(object):
             toBeEvaluated.append(codeCopy)
 
         results = list()
+
         for rCode in toBeEvaluated:
             results.append(execCode(rCode))
         return tuple(results)
