@@ -217,9 +217,6 @@ class Number(object):
 
     def __imod__(self, O):
         return O % self
-
-    def __idivmod__(self, O):
-        return self.__rdivmod__(O)
     
     def __ipow__(self, O):
         return O ** self
