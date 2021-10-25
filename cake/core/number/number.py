@@ -87,19 +87,22 @@ class Number(object):
 
         return cake.convert_type(new_val)
 
-    def __neg__(self):
-        """ Negate the number, multiplies it by ``-1`` """
-        return cake.convert_type(self.value * -1)
-
-    def __pos__(self):
-        """ Returns the number in its normal form """
-        return cake.convert_type(self.value)
-
     def __ceil__(self):
         """ Returns the `ceil` value of the number """
         result = ceil(self._value)
 
         return cake.convert_type(result)
+
+    def __neg__(self):
+        """ Negate the number, multiplies it by ``-1`` """
+        return cake.convert_type(self._value * -1)
+
+    def __pos__(self):
+        """ Returns the number in its normal form """
+        return cake.convert_type(self._value)
+
+    def __invert__(self):
+        return cake.convert_type(~self._value)
 
     # ARITHMETIC OPERATORS
 
