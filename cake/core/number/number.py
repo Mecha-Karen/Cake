@@ -5,7 +5,7 @@ cake.core.number.Number
 The root class for pretty much any number, digit in this library.
 """
 
-from math import ceil
+from math import ceil, trunc
 from ..unknown import Unknown
 import typing
 
@@ -87,12 +87,6 @@ class Number(object):
 
         return cake.convert_type(new_val)
 
-    def __ceil__(self):
-        """ Returns the `ceil` value of the number """
-        result = ceil(self._value)
-
-        return cake.convert_type(result)
-
     def __neg__(self):
         """ Negate the number, multiplies it by ``-1`` """
         return cake.convert_type(self._value * -1)
@@ -102,7 +96,27 @@ class Number(object):
         return cake.convert_type(self._value)
 
     def __invert__(self):
+        """ Inverts all of N's bits """
         return cake.convert_type(~self._value)
+
+    # MATH FUNCTIONS
+
+    def __round__(self, n=None):
+        """ Rounds N to n """
+        return round(self._value, n)
+    
+    def __trunc__(self):
+        """ Truncates N """
+        return trunc(self._value)
+
+    def __floor__(self):
+        """ Returnss the :class:`floor` value of N """
+
+    def __ceil__(self):
+        """ Returns the :class:`floor` value of N """
+        result = ceil(self._value)
+
+        return cake.convert_type(result)
 
     # ARITHMETIC OPERATORS
 
