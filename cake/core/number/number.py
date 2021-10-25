@@ -76,6 +76,8 @@ class Number(object):
 
         return evaluate(self.value, O, return_class=cake.convert_type, func='mul')
 
+    # UNARY OPERATORS
+
     def __abs__(self):
         """ Get the absolute value of the number """
         if self._value < 0:
@@ -85,14 +87,6 @@ class Number(object):
 
         return cake.convert_type(new_val)
 
-    def __add__(self, O):
-        """ Add the number with O """
-        return evaluate(self.value, O, return_class=cake.convert_type, func='add')
-
-    def __sub__(self, O):
-        """ Subtract the number with O """
-        return evaluate(self.value, -O, return_class=cake.convert_type, func='add')
-
     def __neg__(self):
         """ Negate the number, multiplies it by ``-1`` """
         return cake.convert_type(self.value * -1)
@@ -101,15 +95,25 @@ class Number(object):
         """ Returns the number in its normal form """
         return cake.convert_type(self.value)
 
-    def __mul__(self, O):
-        """ Mutliply the number with O """
-        return self.__call__(O)
-
     def __ceil__(self):
         """ Returns the `ceil` value of the number """
         result = ceil(self._value)
 
         return cake.convert_type(result)
+
+    # ARITHMETIC OPERATORS
+
+    def __add__(self, O):
+        """ Add the number with O """
+        return evaluate(self.value, O, return_class=cake.convert_type, func='add')
+
+    def __sub__(self, O):
+        """ Subtract the number with O """
+        return evaluate(self.value, -O, return_class=cake.convert_type, func='sub')
+
+    def __mul__(self, O):
+        """ Mutliply the number with O """
+        return self.__call__(O)
 
     def __truediv__(self, O):
         """ Divide the number with O """
@@ -150,6 +154,90 @@ class Number(object):
     def __or__(self, O):
         """ Binary or with O """
         return evaluate(self.value, O, return_class=cake.convert_type, func='or_')
+
+    ## Replicate dunders
+    ## __r... dunders are called by `x + Number`
+
+    def __radd__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='add')
+
+    def __rsub__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='sub')
+    
+    def __rmul__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='mul')
+
+    def __rtruediv__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='truediv')
+
+    def __rfloordiv__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='floordiv')
+    
+    def __rmod__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='mod')
+    
+    def __rdivmod__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='divmod')
+    
+    def __rpow__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='pow')
+
+    def __rlshift__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='lshift')
+
+    def __rrshift__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='rshift')
+
+    def __rand__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='and_')
+
+    def __rxor__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='xor')
+
+    def __ror__(self, O):
+        return evaluate(O, self.value, return_class=cake.convert_type, func='or_')
+
+    # Replacate R dunders
+    # __i... dunders are called by `x += Number`
+
+    def __iadd__(self, O):
+        return O + self
+
+    def __isub__(self, O):
+        return O - self
+
+    def __imul__(self, O):
+        return O * self
+
+    def __itruediv__(self, O):
+        return O / self
+
+    def __ifloordiv__(self, O):
+        return O // self
+
+    def __imod__(self, O):
+        return O % self
+
+    def __idivmod__(self, O):
+        return self.__rdivmod__(O)
+    
+    def __ipow__(self, O):
+        return O ** self
+
+    def __ilshift__(self, O):
+        return O << self
+
+    def __irshift__(self, O):
+        return O >> self
+
+    def __iand__(self, O):
+        return O & self
+
+    def __ixor__(self, O):
+        return O ^ self
+
+    def __ior__(self, O):
+        return O | self
 
     # #########
     #
