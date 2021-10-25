@@ -5,7 +5,7 @@ cake.core.number.Number
 The root class for pretty much any number, digit in this library.
 """
 
-from math import ceil, trunc
+from math import ceil, floor, trunc
 from ..unknown import Unknown
 import typing
 
@@ -103,14 +103,15 @@ class Number(object):
 
     def __round__(self, n=None):
         """ Rounds N to n """
-        return round(self._value, n)
+        return cake.convert_type(round(self._value, n))
     
     def __trunc__(self):
         """ Truncates N """
-        return trunc(self._value)
+        return cake.convert_type(trunc(self._value))
 
     def __floor__(self):
-        """ Returnss the :class:`floor` value of N """
+        """ Returns the :class:`floor` value of N """
+        return cake.convert_type(floor(self._value))
 
     def __ceil__(self):
         """ Returns the :class:`floor` value of N """
