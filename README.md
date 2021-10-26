@@ -1,4 +1,8 @@
 <h1 align="center">Cake</h1>
+<div align="center">
+    <img alt="PyPi - Version" src="https://img.shields.io/pypi/v/MathCake?logo=pypi&style=plastic">
+    <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/MathCake">
+</div>
 <p align="center">An object orientated math library, Built with power and simplicity!</p>
 
 <p>
