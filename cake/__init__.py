@@ -14,7 +14,6 @@ from .core import (
     # Other Functions
     get_perfect_square,
     _rationalise,
-    _prettify_repr,
 )
 
 # Markers
