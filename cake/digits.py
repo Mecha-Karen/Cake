@@ -1,11 +1,5 @@
-from types import prepare_class
-from cake.core.markers import ALLOWED
 import typing
 import cake
-
-
-def forceImaginary(n: int):
-    ...
 
 
 class Zero(cake.Integer):
@@ -23,60 +17,65 @@ class Zero(cake.Integer):
     def __init__(
         self, check_value_attr: typing.Optional[bool] = False, *args, **kwargs
     ):
-        super().__init__(check_value_attr=check_value_attr, *args, **kwargs)
+        super().__init__(0, check_value_attr=check_value_attr, *args, **kwargs)
 
     def __repr__(self) -> str:
-        return "Zero"
+        return "Zero()"
 
 
 class Imaginary(cake.Number):
     """
-    An object representing an Imaginary number, You will find this object appearing when your trying to sqrt a negative and so on.
-    When adding imaginaries, the value will become a complex!
+    An object representing an Imaginary number.
 
     Parameters
     ----------
-    value: :class:`~typing.Any`
-        The value of the imaginary number
-    cause: :class:`~typing.Callable`
-        The function which lead to the imaginary integer, if making your own up.
-        Simply use the ``forceImaginary`` function to represent it or ``None``
-    letter: :class:`~typing.Optional[str]`
-        A letter from either ``i``, ``j`` to represent the imaginary
+    i: :class:`int`
+        The value for i, for complexes it will be the value for ``b``.
     """
+    def __init__(self, i: int = None) -> None:
+        self.i = (i or 1) * 1j
 
-    ALLOWED_LETTERS = ["i", "j"]
-
-    def __init__(
-        self,
-        value: typing.Any,
-        cause: typing.Callable,
-        letter: typing.Optional[str] = "i",
-        check_value_attr: typing.Optional[bool] = True,
-        repr: typing.Optional[
-            str
-        ] = "{self.callable.__qualname__}({self.value}){self.letter}",
-        *args,
-        **kwargs,
-    ):
-        if letter.lower() not in Imaginary.ALLOWED_LETTERS:
-            raise ValueError(
-                f'Letter ({letter}) provided was not in: {", ".join(Imaginary.ALLOWED_LETTERS)}'
-            )
-
-        self.value = value
-        self.letter = letter
-
-        if not cause:
-            cause = forceImaginary
-
-        self.cause = cause
-
-        self.repr = repr
-
-        super().__init__(
-            value, check_value_attr, complex, cake.Complex, *args, **kwargs
-        )
+    def toComplex(self):
+        """ Returns N.i as a :class:`~cake.Complex` """
+        return cake.Complex(a=0, b=self.i.imag)
 
     def __repr__(self) -> str:
-        return self.repr.format(self=self)
+        return f"Imaginary({self.i}i)"
+
+
+class Infinity(cake.Number):
+    """
+    A class representing infinity
+    """
+    VALUE = float('inf')
+
+    def __init__(self, check_value_attr: typing.Optional[bool] = False, *args, **kwargs) -> None:
+        super().__init__(Infinity.VALUE, check_value_attr, Infinity, *args, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"Infinity()"
+
+
+class NegativeInfinity(cake.Number):
+    """
+    A class representing negative infinity
+    """
+    VALUE = float('-inf')
+
+    def __init__(self, check_value_attr: typing.Optional[bool] = False, *args, **kwargs) -> None:
+        super().__init__(NegativeInfinity.VALUE, check_value_attr, NegativeInfinity, *args, **kwargs)
+
+    def __repr__(self) -> str:
+        return f"NegativeInfinity()"
+
+
+class NaN(cake.Number):
+    """ A class representing NaN """
+    VALUE = float('nan')
+
+    def __init__(self, check_value_attr: typing.Optional[bool] = False, *args, **kwargs) -> None:
+        super().__init__(NaN.VALUE, check_value_attr, NegativeInfinity, *args, **kwargs)
+
+    def __repr__(self) -> str:
+        return "NaN()"
+    
