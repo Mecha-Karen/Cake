@@ -2,6 +2,8 @@
 <div align="center">
     <img alt="PyPi - Version" src="https://img.shields.io/pypi/v/MathCake?logo=pypi&style=plastic">
     <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/MathCake">
+    <img alt="PyPi - Python Versions" src="https://img.shields.io/pypi/pyversions/mathcake.svg">
+    <img alt="PyPi - Status" src="https://img.shields.io/pypi/status/ansicolortags.svg">
 </div>
 <p align="center">An object orientated math library, Built with power and simplicity!</p>
 
