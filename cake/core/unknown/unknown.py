@@ -622,4 +622,5 @@ class Unknown(object):
     def _set_factorial(self, new_val: bool) -> None:
         self.data["factorial"] = bool(new_val)
 
+# Delayed to prevent cyclic import
 from .repr import _prettify_repr
