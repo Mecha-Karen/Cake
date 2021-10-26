@@ -122,13 +122,13 @@ class Unknown(object):
 
     # MULTIPLICATION / DIVISION
 
-    def multiply(self, other, *, create_new: bool = True):
+    def multiply(self, O, *, create_new: bool = True, swap: bool = False):
         """
         Multiply your unknown value
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to multiply the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
@@ -140,26 +140,26 @@ class Unknown(object):
         """
         # *
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} * ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
-        elif isinstance(other, Unknown) and other.value == self.value:
+        elif isinstance(O, Unknown) and O.value == self.value:
 
             cur_power = self.data["raised"]
 
-            otherPower = other.data["raised"]
+            OPower = O.data["raised"]
 
-            if isinstance(otherPower, list):
+            if isinstance(OPower, list) or isinstance(cur_power, list):
                 raise NotImplementedError(
                     f"listed fractional powers is not supported yet"
                 )
 
             try:
-                fractional = FRACTIONAL_POWER.match(otherPower)
+                fractional = FRACTIONAL_POWER.match(OPower)
             except TypeError:
                 fractional = None
 
@@ -168,25 +168,27 @@ class Unknown(object):
                     f"Fraction + Fraction actions are not yet supported"
                 )
 
-            if otherPower != 1:
-                res = cur_power + otherPower
+            if OPower != 1:
+                res = cur_power + OPower
 
             else:
                 res = cur_power + 1
 
             if not create_new:
                 self.data["raised"] = res
+                self.data['swap'] = swap
                 return self
 
             copy = cp.deepcopy(self.data)
             copy["raised"] = res
+            copy['MulSwap'] = swap
 
             return Unknown(value=self.value, **copy)
 
         try:
-            res = other * self.data["operators"]["multi"]
+            res = O * self.data["operators"]["multi"]
         except Exception:
-            res = self.data["operators"]["multi"] * other
+            res = self.data["operators"]["multi"] * O
 
         # Allows `Number` classes to be used
 
@@ -199,13 +201,13 @@ class Unknown(object):
 
         return Unknown(value=self.value, **copy)
 
-    def truediv(self, other, *, create_new: bool = True):
+    def truediv(self, O, *, create_new: bool = True, swap: bool = False):
         """
         Divide your unknown value
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to divide the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
@@ -217,30 +219,30 @@ class Unknown(object):
         """
         # /
 
-        if getattr(other, "value", other) == 0:
+        if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("division by zero")
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} / ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
-        elif isinstance(other, Unknown) and other.value == self.value:
+        elif isinstance(O, Unknown) and O.value == self.value:
             cur_power = self.data["raised"]
 
-            otherPower = other.data["raised"]
+            OPower = O.data["raised"]
 
             # Special powers
 
-            if isinstance(otherPower, list):
+            if isinstance(OPower, list):
                 raise NotImplementedError(
                     f"listed fractional powers is not supported yet"
                 )
 
             try:
-                fractional = FRACTIONAL_POWER.match(otherPower)
+                fractional = FRACTIONAL_POWER.match(OPower)
             except TypeError:
                 fractional = None
 
@@ -249,13 +251,13 @@ class Unknown(object):
                     f"Fraction + Fraction actions are not yet supported"
                 )
 
-            if otherPower != 1:
+            if OPower != 1:
                 if not create_new:
-                    self.data["raised"] = cur_power - otherPower
+                    self.data["raised"] = cur_power - OPower
                     return self
 
                 data = cp.deepcopy(self.data)
-                data["raised"] = cur_power - otherPower
+                data["raised"] = cur_power - OPower
 
                 return Unknown(data)
 
@@ -265,9 +267,9 @@ class Unknown(object):
             cur_res = 0
 
         try:
-            res = cur_res + other
+            res = cur_res + O
         except Exception:
-            res = other + cur_res
+            res = O + cur_res
 
         if not create_new:
             self.data["operators"]["div"] = res
@@ -280,13 +282,13 @@ class Unknown(object):
 
     # FLOOR DIVISION / MODULUS
 
-    def floordiv(self, other, *, create_new: bool = True):
+    def floordiv(self, O, *, create_new: bool = True, swap: bool = False):
         """
         Divide your unknown value with no remainders
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to divide the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
@@ -298,15 +300,15 @@ class Unknown(object):
         """
         # //
 
-        if getattr(other, "value", other) == 0:
+        if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} // ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
         cur_res = self.data["operators"]["fdiv"]
 
@@ -314,26 +316,28 @@ class Unknown(object):
             cur_res = 0
 
         try:
-            res = other + cur_res
+            res = O + cur_res
         except Exception:
-            res = cur_res + other
+            res = cur_res + O
 
         if not create_new:
             self.data["operators"]["fdiv"] = res
+            self.data['Fswap'] = swap
             return self
 
         copy = cp.deepcopy(self.data)
         copy["operators"]["fdiv"] = res
+        copy['Fswap'] = swap
 
         return Unknown(value=self.value, **copy)
 
-    def mod(self, other, *, create_new: bool = True):
+    def mod(self, O, *, create_new: bool = True, swap: bool = False):
         """
         Modulo your unknown value
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to mod the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
@@ -345,15 +349,15 @@ class Unknown(object):
         """
         ## %
 
-        if getattr(other, "value", other) == 0:
+        if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} % ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
         cur_res = self.data["operators"]["mod"]
 
@@ -361,28 +365,30 @@ class Unknown(object):
             cur_res = 0
 
         try:
-            res = other + cur_res
+            res = O + cur_res
         except Exception:
-            res = cur_res + other
+            res = cur_res + O
 
         if not create_new:
             self.data["operators"]["mod"] = res
+            self.data['Mswap'] = swap
             return self
 
         copy = cp.deepcopy(self.data)
         copy["operators"]["mod"] = res
+        copy["Mswap"] = swap
 
         return Unknown(value=self.value, **copy)
 
     # POWER
 
-    def pow(self, other, *, create_new: bool = True):
+    def pow(self, O, *, create_new: bool = True, swap: bool = False):
         """
         raise your unknown value to a value
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to raise the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
@@ -394,23 +400,23 @@ class Unknown(object):
         """
         cur_power = self.data["raised"]
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} ** ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
-        elif isinstance(other, Unknown) and other.value == self.value:
-            otherPower = other.data["raised"]
+        elif isinstance(O, Unknown) and O.value == self.value:
+            OPower = O.data["raised"]
 
-            if isinstance(otherPower, list):
+            if isinstance(OPower, list):
                 raise NotImplementedError(
                     f"listed fractional powers is not supported yet"
                 )
 
             try:
-                fractional = FRACTIONAL_POWER.match(otherPower)
+                fractional = FRACTIONAL_POWER.match(OPower)
             except TypeError:
                 fractional = None
 
@@ -419,69 +425,79 @@ class Unknown(object):
                     f"Fraction + Fraction actions are not yet supported"
                 )
 
-            cur_power = cur_power * otherPower
+            cur_power = cur_power * OPower
         else:
             try:
-                cur_power = other + cur_power
+                cur_power = O + cur_power
             except Exception:
-                cur_power = cur_power + other
+                cur_power = cur_power + O
 
         if not create_new:
             self.data["raised"] = cur_power
+            self.data['Rswap'] = swap
             return self
 
         data = cp.deepcopy(self.data)
         data["raised"] = cur_power
+        data['Rswap'] = swap
 
         return Unknown(self.value, **data)
 
     # ADDITION / SUBTRACTION
 
-    def add(self, other, *, create_new: bool = True):
+    def add(self, O, *, create_new: bool = True, swap: bool = False, negate: bool = False):
         """
         Add your unknown value, The subtraction method piggy banks this method and simply negates your value before sending it through here.
         So ``Unknown.add(-10)`` is equal to ``Unknown.subtract(10)``
 
         Parameters
         ----------
-        other: :class:`~typing.Any`
+        O: :class:`~typing.Any`
             The value to add the unknown by
         create_new: :class:`bool`
             Whether to create a new object or return the same object
             arithmetic operators like ``+=`` will always return the same object
+        swap: :class:`bool`
+            Inverse the op, so `N + O` becomes `O + N`
+        negate: :class:`bool`
+            Usually paired with ``swap``, so `O` becomes `-O`.
 
-            .. note::
-
-                This is a keyword-only argument!
+            When paired with, ``swap`` `N - O` becomes `O - N`  
         """
         # +
 
-        if isinstance(other, cake.parsing.Expression):
-            expr = other.expression
+        if isinstance(O, cake.parsing.Expression):
+            expr = O.expression
 
             expr = f"{self.__repr__(safe=True)} + ({expr})"
 
-            return cake.parsing.Expression(expr, *other.args, **other.kwargs)
+            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
         try:
-            res = other + self.data["operators"]["add"]
+            res = O + self.data["operators"]["add"]
         except Exception:
-            res = self.data["operators"]["add"] + other
+            res = self.data["operators"]["add"] + O
 
         if not create_new:
             self.data["operators"]["add"] = res
+            self.data['Aswap'] = swap
+            self.data['Aneg'] = negate
+
             return self
 
         copy = cp.deepcopy(self.data)
         copy["operators"]["add"] = res
 
+        copy['Aswap'] = swap
+        copy['Aneg'] = negate
+
         return Unknown(value=self.value, **copy)
 
-    def subtract(self, other, *, create_new=True):
+    def subtract(self, O, *, create_new=True, swap: bool = False, negate: bool = False):
         """
         Refer to the ``add`` method for more info
         """
-        return self.add(-other, create_new=create_new)
+        return self.add(-O, create_new=create_new, swap=swap, negate=negate)
 
     # DUNDER METHODS
 
@@ -501,32 +517,62 @@ class Unknown(object):
         """ Negates N, Same as doing N * -1 """
         return self * -1
 
+    def __invert__(self) -> "Unknown":
+        import operator
+
+        cp = self.copy()
+        cp.data['functions'].append(operator.invert)
+
+        return cp
+
     # Arithmetic
 
-    def __mul__(self, other) -> "Unknown":
-        return self.multiply(other)
+    def __mul__(self, O) -> "Unknown":
+        return self.multiply(O)
 
-    def __call__(self, other) -> "Unknown":
-        return self.multiply(other)
+    def __call__(self, O) -> "Unknown":
+        return self.multiply(O)
 
-    def __add__(self, other) -> "Unknown":
-        return self.add(other)
+    def __add__(self, O) -> "Unknown":
+        return self.add(O)
 
-    def __sub__(self, other) -> "Unknown":
+    def __sub__(self, O, *, swap: bool = False) -> "Unknown":
         # Nifty shortcut
-        return self.add(-other)
+        return self.add(-O, swap=swap)
 
-    def __truediv__(self, other):
-        return self.truediv(other)
+    def __truediv__(self, O):
+        return self.truediv(O)
 
-    def __floordiv__(self, other):
-        return self.floordiv(other)
+    def __floordiv__(self, O):
+        return self.floordiv(O)
 
-    def __mod__(self, other):
-        return self.mod(other)
+    def __mod__(self, O):
+        return self.mod(O)
 
-    def __pow__(self, other):
-        return self.pow(other)
+    def __pow__(self, O):
+        return self.pow(O)
+
+    # Rep dunders
+    def __rmul__(self, O):
+        return self * O
+
+    def __radd__(self, O):
+        return self + O
+
+    def __rsub__(self, O):
+        return self.add(O, swap=True, negate=True)
+
+    def __rtruediv__(self, O):
+        return
+
+    def __rfloordiv__(self, O):
+        return
+
+    def __rmod__(self, O):
+        return
+
+    def __rpow__(self, O):
+        return self.pow(O)
 
     # Built in functions
     def __ceil__(self):
@@ -576,72 +622,4 @@ class Unknown(object):
     def _set_factorial(self, new_val: bool) -> None:
         self.data["factorial"] = bool(new_val)
 
-
-def _prettify_repr(unk: Unknown) -> str:
-    """
-    Returns a parsable version of an unknown
-    """
-    value = unk.value
-    raised = unk.data["raised"]
-    factorial = unk.data["factorial"]
-    multip = unk.data["operators"]["multi"]
-    div = unk.data["operators"]["div"]
-    add = unk.data["operators"]["add"]
-    sqrt = unk.data["sqrt"]
-    factorial = unk.data["factorial"]
-
-    STRING = value
-
-    if factorial:
-        value += "!"
-
-    if raised and raised != 1:
-        if isinstance(raised, Unknown):
-            raised = f"({str(raised)})"
-        else:
-            raised = str(raised)
-        STRING += f" ** {raised}"
-
-    if div:
-        if isinstance(div, Unknown):
-            div = f"({str(div)})"
-        else:
-            div = str(div)
-        STRING += f" / {div}"
-
-    if multip and multip != 1:
-        if isinstance(multip, Unknown):
-            div = f"({str(div)})"
-        else:
-            div = str(div)
-        STRING += f" * {div}"
-
-    if add:
-        passed = False
-
-        try:
-            negated = add < 0
-            passed = True
-        except Exception:
-            pass
-
-        if not passed:
-            try:
-                negated = getattr(add, "value", 0) < 0
-            except TypeError:
-                negated = getattr(add, "negated", False)
-
-        if isinstance(add, Unknown):
-            val = f"({str(add)})"
-        else:
-            val = str(add)
-
-        if negated:
-            STRING += f" - {val}"
-        else:
-            STRING += f" + {val}"
-
-    if sqrt:
-        STRING = f"sqrt({STRING})"
-
-    return STRING
+from .repr import _prettify_repr

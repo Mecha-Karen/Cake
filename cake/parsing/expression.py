@@ -8,7 +8,7 @@ import cake
 from ..core.markers import Operator, Symbol, PlusOrMinus, FunctionMarker
 from ..core.types.complex import Complex
 from ..core.types.irrational import Irrational
-from ..core.unknown import Unknown
+from ..core.unknown.unknown import Unknown
 
 from .equation import Equation
 from ._ast import *
