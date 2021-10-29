@@ -5,24 +5,7 @@ from typing import NamedTuple, Literal
 from .errors import *
 
 # Core Types
-from .core import (
-    # Cores
-    Number,
-    Unknown,
-    Surd,
-
-    # Other Functions
-    get_perfect_square,
-    _rationalise,
-)
-
-# Markers
-from .core.markers import (
-    Marker, Symbol, Operator, PlusOrMinus, FunctionMarker,
-    getPlusMinusCombos)
-
-# Built in types
-from .core.types import Complex, Integer, Irrational, Prime, Real, Float
+from .core import *
 
 from .parsing import Expression, Equation
 
