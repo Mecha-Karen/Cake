@@ -3,6 +3,7 @@ import typing
 import string
 
 from cake import abc, errors
+from . import pABC
 import cake
 
 from ..core.markers import Operator, Symbol, PlusOrMinus, FunctionMarker
@@ -14,6 +15,7 @@ from ..core.number import Number
 from .equation import Equation
 from ._ast import *
 from cake.helpers import convert_type
+from cake.functions import basic
 
 # Imports for tokenizing
 from tokenize import (
@@ -32,7 +34,7 @@ from io import BytesIO
 
 ASCII_CHARS = list(string.ascii_lowercase)
 # Use lowercases so `X` is equal to `x`
-BLACKLISTED = list(abc.KEYWORDS.keys()) + list(abc.CONSTANTS.keys())
+BLACKLISTED = list(pABC.KEYWORDS.keys()) + list(pABC.CONSTANTS.keys())
 # Keywords that cant be assigned to an unknown
 VALID_SYMBOLS = {"!", "(", ")"}
 # Used for parsing functions
@@ -316,9 +318,9 @@ class Expression(object):
                 if TOKENS:
                     string = ' '.join(map(lambda _: _.string, TOKENS))
 
-                constant = abc.CONSTANTS.get(string)
-                function = abc.KEYWORDS.get(string)
-                symbol_func = abc.SYMBOL_KW.get(string)
+                constant = pABC.CONSTANTS.get(string)
+                function = pABC.KEYWORDS.get(string)
+                symbol_func = pABC.SYMBOL_KW.get(string)
                 map_op = abc.MAP_OPERATORS.get(string)
 
                 # Check for lettering
@@ -497,8 +499,8 @@ class Expression(object):
                     NEXT = POS_TOKENS[1]
 
                     if NEXT.type == NAME:
-                        constant = abc.CONSTANTS.get(NEXT.string)
-                        function = abc.KEYWORDS.get(NEXT.string)
+                        constant = pABC.CONSTANTS.get(NEXT.string)
+                        function = pABC.KEYWORDS.get(NEXT.string)
 
                         value = unknown_mapping.get(NEXT.string)
                         unk = Unknown(NEXT.string)
@@ -507,12 +509,11 @@ class Expression(object):
                             value = convert_type(value)
                         else:
                             value = unk
-
+                        
                         if constant:
-                            SKIP += 1
-                            presence.append(Irrational(constant))
+                            value = Irrational(constant)
 
-                        elif not function:
+                        if not function:
                             SKIP += 1
 
                             presence.extend(
@@ -594,7 +595,7 @@ class Expression(object):
                 VARS.extend(newVars)
                 VARS = list(set(VARS))
 
-                code += f"({func.__qualname__}({evaluated}))"
+                code += f"({func.__qualname__}({evaluated}))()"
 
             elif isinstance(posfix, cake.Number):
                 code += f'({posfix.__class__.__name__}({posfix.value}))'
