@@ -563,16 +563,16 @@ class Unknown(object):
         return self.add(O, swap=True, negate=True)
 
     def __rtruediv__(self, O):
-        return
+        return self.truediv(O, swap=True)
 
     def __rfloordiv__(self, O):
-        return
+        return self.floordiv(O, swap=True)
 
     def __rmod__(self, O):
-        return
+        return self.mod(O, swap=True)
 
     def __rpow__(self, O):
-        return self.pow(O)
+        return self.pow(O, swap=True)
 
     # Built in functions
     def __ceil__(self):
