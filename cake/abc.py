@@ -1,6 +1,7 @@
 import cake
 import math
 import typing
+import string
 
 # Types
 class IntegerType(typing.Protocol):
@@ -19,6 +20,7 @@ class ComplexType(typing.Protocol):
 
 
 OPERATORS: typing.Set[str] = {"+", "-", "/", "*", "**", "^", "//", "&", ">>", "<<", "|"}
+ASCII_CHARS = list(string.ascii_letters)
 
 MAP_OPERATORS = {
     "add": "+",
