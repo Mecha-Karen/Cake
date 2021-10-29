@@ -4,6 +4,7 @@ import math
 import typing
 import cake
 import abc
+from collections.abc import Iterable
 
 
 class FunctionBase(object):
@@ -135,11 +136,16 @@ class MaskFunctionTemp(Function):
             other = other.value
         if hasattr(other, 'get_value'):
             other = other.get_value()
+        
+        if not isinstance(other, Iterable):
+            other = (other,)
 
         otherConverter = getattr(math, self._type, None)
         if not otherConverter:
             val = other
         else:
-            val = otherConverter(other)
+            val = otherConverter(*other)
+            if not isinstance(val, Iterable):
+                val = (val,)
 
-        return cake.convert_type(self._function(val))
+        return cake.convert_type(self._function(*val))
