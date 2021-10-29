@@ -129,7 +129,10 @@ class MaskFunctionTemp(Function):
     def _raw_exec(self, other) -> typing.Any:
         if isinstance(other, cake.Unknown):
             unknown = other.copy()
-            unknown.data['functions'].append(self.__class__)
+            if hasattr(unknown, self.name.lower()):
+                unknown.data[self.name.lower()] = True
+            else:
+                unknown.data['functions'].append(self.__class__)
             return unknown
 
         if hasattr(other, 'value'):
