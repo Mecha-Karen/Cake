@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
     "License :: OSI Approved :: MIT License",
     
-    "Programming Language :: Python :: Implementation :: CPython',"
+    "Programming Language :: Python :: Implementation :: CPython"
     "Programming Language :: Python :: 3",
 
     'Topic :: Scientific/Engineering :: Mathematics',
@@ -42,6 +42,7 @@ setup(
         "Organisation": "https://github.com/Mecha-Karen",
     },
     author="Mecha Karen",
+    author_email="admin@mechakaren.xyz",
     license="MIT License",
     classifiers=classifiers,
     keywords="Math,Python3,OOP",
