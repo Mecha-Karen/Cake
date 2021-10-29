@@ -24,7 +24,9 @@ def convert_type(
         return tuple(convert_type(i) for i in result)
 
     if hasattr(result, 'value'):
-        return result
+        result = result.value
+    if hasattr(result, 'get_value'):
+        result = result.get_value()
 
     if len(str(result).split(".")) > 1:
         return cake.Float(result, check_value_attr, *args, **kwargs)
