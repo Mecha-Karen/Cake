@@ -1,6 +1,7 @@
 import typing
 import cake
 import copy as cd
+from collections.abc import Iterable
 
 __all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
@@ -18,6 +19,9 @@ def convert_type(
     """
     if not result:
         return cake.Zero()
+
+    if isinstance(result, Iterable):
+        return tuple(convert_type(i) for i in result)
 
     if hasattr(result, 'value'):
         return result
