@@ -1,20 +1,21 @@
-import cake
+from ..functions.basic.trig import *
+from ..functions.basic.elem import *
 import typing
 from cake.abc import IntegerType, pi, e
 
 
 KEYWORDS: typing.Mapping[str, typing.Callable] = {
-    "sqrt": cake.Sqrt,
-    "sin": cake.Sin,
-    "cos": cake.Cos,
-    "tan": cake.Tan,
-    "cot": cake.Cot,
-    "sec": cake.Sec,
-    "cosec": cake.Cosec,
+    "sqrt": Sqrt,
+    "sin": Sin,
+    "cos": Cos,
+    "tan": Tan,
+    "cot": Cot,
+    "sec": Sec,
+    "cosec": Cosec,
 }
 
 SYMBOL_KW: typing.Mapping[str, typing.Callable] = {
-    "!": cake.Factorial
+    "!": Factorial
 }
 
 CONSTANTS: typing.Mapping[str, IntegerType] = {"pi": pi, "e": e}
