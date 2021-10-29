@@ -9,6 +9,7 @@ from ..core.markers import Operator, Symbol, PlusOrMinus, FunctionMarker
 from ..core.types.complex import Complex
 from ..core.types.irrational import Irrational
 from ..core.unknown.unknown import Unknown
+from ..core.number import Number
 
 from .equation import Equation
 from ._ast import *
@@ -288,6 +289,7 @@ class Expression(object):
 
                     try:
                         op = Operator(string_)
+
                         presence.append(op)
                     except ValueError as e:
                         raise errors.SubstitutionError(
@@ -805,6 +807,25 @@ class Expression(object):
             self.__mappings = mapping
         else:
             return mapping
+
+    @property
+    def terms(self) -> list:
+        if not self.__expression:
+            return list()
+        terms = list()
+
+        NEGATE_NEXT = False
+
+        # Cannot provide any new vals as were using what we already have in the expr
+        for term in self._sub():
+            if isinstance(term, (Unknown, Number)):
+                if NEGATE_NEXT:
+                    term = term * -1
+                terms.append(term)
+            elif isinstance(term, Operator) and term.value == '-':
+                NEGATE_NEXT = True
+        
+        return terms
 
     @property
     def mapping(self):
