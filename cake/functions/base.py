@@ -42,6 +42,13 @@ class FunctionBase(object):
             res = self.handler(other, *args, **kwargs)
 
         if hasattr(self, '_execAfter'):
+            aExec = self._execAfter
+
+            if isinstance(aExec, Iterable):
+                for function in aExec:
+                    res = function(res)
+                return res
+
             return self._execAfter(res)
         return res
 
@@ -94,6 +101,9 @@ class Function(FunctionBase, abc.ABC):
         ...
 
     def execAfter(self, function) -> None:
+        if hasattr(self, "_execAfter"):
+            self._execAfter = [self._execAfter]
+            return self._execAfter.append(function)
         self._execAfter = function
 
     def __call__(self, *args, **kwargs) -> typing.Any:
