@@ -9,7 +9,8 @@ from .core import *
 
 from .parsing import Expression, Equation
 
-from .matrices import *
+from .matrices.matrix import Matrix
+from .matrices.shorthand import *
 from .fractions import *
 
 # Functions
