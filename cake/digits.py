@@ -34,14 +34,15 @@ class Imaginary(cake.Number):
     """
     def __init__(self, i: int = None) -> None:
         self.i = (i or 1) * 1j
-        self._pretty = str(self.i)[:-1] + 'i'
+
+        super().__init__(self.i, base_type=cake.Complex)
 
     def toComplex(self):
         """ Returns N.i as a :class:`~cake.Complex` """
         return cake.Complex(a=0, b=self.i.imag)
 
     def __repr__(self) -> str:
-        return f"Imaginary({self._pretty})"
+        return f"Imaginary({str(self.i)[:-1]})"
 
 
 class Infinity(cake.Number):
