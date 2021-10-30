@@ -50,7 +50,7 @@ class Complex(Number):
                     'Incorrect formatting for complex number, should be in the format of "a + bi"'
                 )
 
-        if cake.helpers.compare_multiple(a, b, (complex, Complex)):
+        if cake.helpers.compare_multiple(a, b, type=(complex, Complex)):
             # Sum both complexes
             integer = a + b
         else:
