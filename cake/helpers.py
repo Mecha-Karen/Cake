@@ -32,13 +32,16 @@ def convert_type(
         return cake.Float(result, check_value_attr, *args, **kwargs)
 
     try:
-        return cake.Complex(raw=str(result))
+        try:
+            return cake.Complex(raw=str(result))
+        except ValueError:
+            return cake.Complex(result)
     except ValueError:
         pass
 
     try:
         ir = cake.Irrational(result, check_value_attr, *args, **kwargs)
-    except ValueError:
+    except (ValueError, TypeError):
         return result
 
     return ir
