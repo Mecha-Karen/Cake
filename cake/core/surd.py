@@ -67,8 +67,15 @@ class Surd(Number):
         n: IntegerType = 1,
         i: IntegerType = 1,
     ) -> typing.Union["Surd", Float]:
+    
+        from cake import Imaginary
 
-        is_rational = sqrt(integer)
+        try:
+            is_rational = sqrt(integer)
+        except ValueError:
+            if not integer < -1:
+                return Imaginary()
+            return Imaginary(sqrt(abs(integer)))
 
         if int(is_rational) - is_rational == 0:
             return Float(is_rational)
