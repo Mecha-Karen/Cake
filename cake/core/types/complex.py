@@ -54,9 +54,15 @@ class Complex(Number):
             # Sum both complexes
             integer = a + b
         else:
-            integer = complex(float(a), float(b))
+            if not isinstance(a, (complex, Complex)) and a:
+                a = float(a)
+            if not isinstance(b, (complex, Complex)) and b:
+                b = float(b)
 
-        super().__init__(integer, check_value_attr, complex, Complex, *args, **kwargs)
+            # Fool-proof for NoneType
+            integer = complex((a or 0), (b or 0))
+
+        super().__init__(integer, check_value_attr, complex, *args, **kwargs)
 
     @staticmethod
     def handler(res: complex):
