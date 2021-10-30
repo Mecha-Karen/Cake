@@ -15,11 +15,12 @@ def _prettify_repr(unk) -> str:
 
     sqrt = unk.data["sqrt"]
     factorial = unk.data["factorial"]
+    functions = unk.data['functions']
 
     STRING = value
 
     if factorial:
-        value += "!"
+        STRING += "!"
 
     if raised and raised != 1:
         if isinstance(raised, Unknown):
@@ -107,5 +108,8 @@ def _prettify_repr(unk) -> str:
 
     if sqrt:
         STRING = f"sqrt({STRING})"
+
+    for function in functions:
+        STRING = f'{function}({STRING})'
 
     return STRING
