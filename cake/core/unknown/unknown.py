@@ -120,6 +120,9 @@ class Unknown(object):
 
         return convert_type(NEW_VALUE)
 
+    def _getTerms(self) -> list:
+        return cake.Expression(repr(self)).terms
+
     # MULTIPLICATION / DIVISION
 
     def multiply(self, O, *, create_new: bool = True, swap: bool = False):
@@ -143,7 +146,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} * ({expr})"
+            expr = f"{repr(self)} * ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -225,7 +228,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} / ({expr})"
+            expr = f"{repr(self)} / ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -273,10 +276,12 @@ class Unknown(object):
 
         if not create_new:
             self.data["operators"]["div"] = res
+            self.data['Dswap'] = swap
             return self
 
         copy = cp.deepcopy(self.data)
         copy["operators"]["div"] = res
+        copy['Dswap'] = swap
 
         return Unknown(value=self.value, **copy)
 
@@ -306,7 +311,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} // ({expr})"
+            expr = f"{repr(self)} // ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -355,7 +360,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} % ({expr})"
+            expr = f"{repr(self)} % ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -403,7 +408,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} ** ({expr})"
+            expr = f"{repr(self)} ** ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -469,7 +474,7 @@ class Unknown(object):
         if isinstance(O, cake.parsing.Expression):
             expr = O.expression
 
-            expr = f"{self.__repr__(safe=True)} + ({expr})"
+            expr = f"{repr(self)} + ({expr})"
 
             return cake.parsing.Expression(expr, *O.args, **O.kwargs)
 
@@ -518,6 +523,7 @@ class Unknown(object):
         return self * -1
 
     def __invert__(self) -> "Unknown":
+        """ Inverts bits for the value of N when provided """
         import operator
 
         cp = self.copy()
@@ -624,4 +630,3 @@ class Unknown(object):
 
 # Delayed to prevent cyclic import
 from .repr import _prettify_repr
-
