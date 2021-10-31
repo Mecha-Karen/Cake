@@ -107,6 +107,16 @@ print(y - x)
 # Result = ([9, 8, 7], [6, 5, 4])
 ```
 
+<h2>Submitting PRs</h2>
+When submitting your PR, you must make sure your code:
+
+<ul>
+    <li>Doesn't conflict with the rest of the library</li>
+    <li>Docstrings must be completed if method is not private</li>
+    <li>Typehints are correct, PEP 484 and 526 standards. You can check by running MyPy.</li>
+    <li>Can be run as intended with minimal bugs</li>
+</ul>
+
 <h2>Links</h2>
 <ul>
     <li><a href="https://docs.mechakaren.xyz/cake">Documentation</a></li>
