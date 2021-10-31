@@ -1,5 +1,11 @@
 from setuptools import setup, find_packages
 import re
+import sys
+
+versionInfo = sys.version_info
+
+if (versionInfo.major < 3) and (versionInfo.minor < 8):
+    sys.exit('Cannot install Cake on python version below 3.8, Please upgrade!')
 
 version = ""
 
