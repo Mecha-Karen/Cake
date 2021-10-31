@@ -3,6 +3,9 @@ import cake
 import copy as cd
 from collections.abc import Iterable
 
+from cake.core.number.number import Number
+from cake.core.types.complex import Complex
+
 __all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
 
@@ -19,6 +22,8 @@ def convert_type(
     """
     if not result:
         return cake.Zero()
+    if isinstance(result, Number):
+        return result
 
     if isinstance(result, Iterable):
         return tuple(convert_type(i) for i in result)
@@ -28,16 +33,11 @@ def convert_type(
     if hasattr(result, 'get_value'):
         result = result.get_value()
 
+    if isinstance(result, complex):
+        return Complex(result)
+
     if len(str(result).split(".")) > 1:
         return cake.Float(result, check_value_attr, *args, **kwargs)
-
-    try:
-        try:
-            return cake.Complex(raw=str(result))
-        except ValueError:
-            return cake.Complex(result)
-    except ValueError:
-        pass
 
     try:
         ir = cake.Irrational(result, check_value_attr, *args, **kwargs)
