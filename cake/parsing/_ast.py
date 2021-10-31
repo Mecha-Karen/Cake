@@ -1,6 +1,9 @@
 # Parsing Helpers
 import ast
 import typing
+from typing import (
+    Any, List, Tuple, Union, Dict
+)
 
 EVAL_FUNCTION_NAME = "CakeWorker"
 # Function name for running the generated code
@@ -31,8 +34,9 @@ from cake import *\n
 {LINE_SEP.join(Newimports)}"""
 
 
-def getEvalBody(code: str, *imports) -> str:
-    code = code.splitlines()
+def getEvalBody(code: Union[List[str], str], *imports) -> Tuple[str, List[str]]:
+    if not isinstance(code, list):
+        code = code.splitlines()
 
     code = code[(8 + len(imports)):]
 
@@ -54,7 +58,7 @@ def execCode(code: str, *, local: dict = {}) -> typing.Any:
     evalBody, imports = getEvalBody(code)
 
     imports.insert(0, 'from cake import *')
-    globDict = dict()
+    globDict: Dict[str, Any] = dict()
 
     for _import in imports:
         exec(_import, globDict)
