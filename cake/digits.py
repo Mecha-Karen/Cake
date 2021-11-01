@@ -32,8 +32,21 @@ class Imaginary(cake.Number):
     i: :class:`int`
         The value for i, for complexes it will be the value for ``b``.
     """
-    def __init__(self, i: int = None) -> None:
-        self.i = (i or 1) * 1j
+    def __new__(cls, i: int = None) -> None:
+        if isinstance(i, (complex, cake.Complex)):
+            if isinstance(i, cake.Complex):
+                i = i.value
+                
+            if i.real:
+                return cake.Complex(i)
+
+        return super(Imaginary, cls).__new__(Imaginary)
+
+    def __init__(self, i):
+        if not isinstance(i, (cake.Complex, complex)):
+            self.i = (i or 1) * 1j
+
+        self.i = i
 
         super().__init__(self.i, base_type=cake.Complex)
 
