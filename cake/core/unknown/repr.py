@@ -1,6 +1,7 @@
-from .unknown import Unknown
+from .unknown import Unknown    # type: ignore
 
-def _prettify_repr(unk) -> str:
+
+def _prettify_repr(unk: Unknown) -> str:
     """
     Returns a parsable version of an unknown
     """

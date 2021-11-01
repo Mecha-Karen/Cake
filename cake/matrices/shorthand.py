@@ -5,7 +5,7 @@ import cake
 import random as rd
 
 
-def randomMatrix(col: int = 3, row: int = 3, _range: typing.Tuple[int] = (0, 100)) -> "cake.Matrix":
+def randomMatrix(col: int = 3, row: int = 3, _range: typing.Tuple[int, int] = (0, 100)) -> "cake.Matrix":
     """
     Returns a matrix with random numbers
 
@@ -21,7 +21,9 @@ def randomMatrix(col: int = 3, row: int = 3, _range: typing.Tuple[int] = (0, 100
         A tuple with 2 values, denoting the start and end for the random number selection.
         Defaults to ``(0, 100)``
     """
-    return cake.Matrix(*[[rd.randint(*_range) for j in range(row)] for i in range(col)])
+    a, b = _range
+    
+    return cake.Matrix(*[[rd.randint(a, b) for j in range(row)] for i in range(col)])
 
 
 def identityMatrix(col: int = 3, row: int = 3) -> "cake.Matrix":
