@@ -47,14 +47,14 @@ def _prettify_repr(unk: Unknown) -> str:
 
     if multip and multip != 1:
         if isinstance(multip, Unknown):
-            div = f"({str(div)})"
+            multip = f"({str(multip)})"
         else:
-            div = str(div)
+            multip = str(multip)
 
         if unk.data.get('MulSwap', False):
-            STRING = f"{div} * {STRING}"
+            STRING = f"{multip} * {STRING}"
         else:
-            STRING += f" * {div}"
+            STRING += f" * {multip}"
 
     if add:
         passed = False
