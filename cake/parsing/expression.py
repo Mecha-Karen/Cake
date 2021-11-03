@@ -718,7 +718,7 @@ class Expression(object):
             The expression to append
         """
         if isinstance(expr, Expression):
-            expr = Expression.expression
+            expr = expr.expression
         self.__expression += expr
 
     def prepend(self, expr: typing.Union[str, "Expression"]) -> None:
@@ -739,7 +739,7 @@ class Expression(object):
             The expression to prepend
         """
         if isinstance(expr, Expression):
-            expr = Expression.expression
+            expr = expr.expression
         self.__expression = expr + self.__expression
 
     def wrap_all(self, operator: str, ending: str, *eq_args, **eq_kwargs) -> None:
