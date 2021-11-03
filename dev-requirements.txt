@@ -1,0 +1,2 @@
+mathcake
+pydata-sphinx-theme
