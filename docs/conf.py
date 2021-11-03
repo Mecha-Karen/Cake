@@ -2,13 +2,14 @@ import pydata_sphinx_theme
 import datetime
 import os
 import sys
+import cake
 
 sys.path.append(os.path.abspath('../extensions'))
 
 project = 'Documentation'
 copyright = '2021, Mecha Karen'
 author = 'Mecha Karen'
-release = '0.0.1a'
+release = cake.__version__
 
 extensions = [
    'sphinx.ext.autodoc', 
@@ -87,12 +88,7 @@ html_context = {
 
 html_sidebars = {
     "**": ["search-field", "sidebar-nav-bs"],
-    "index": ["search-field", "home-navbar"]
 }
-
-if os.path.exists('./_templates/arc.html'):
-   for key in html_sidebars.keys():
-      html_sidebars[key].append('arc.html')
 
 html_static_path = ['_static']
 html_css_files = [
