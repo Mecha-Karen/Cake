@@ -266,7 +266,7 @@ class Matrix:
     def __matmul__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         return self.__mul__(other)
 
-    def __div__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
+    def __truediv__(self, other: typing.Union[IntegerType, Matrix]) -> Matrix:
         return self * other.inverse()
 
     def __repr__(self) -> str:
