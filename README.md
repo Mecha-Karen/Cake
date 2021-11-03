@@ -4,6 +4,9 @@
     <img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/MathCake">
     <img alt="PyPi - Python Versions" src="https://img.shields.io/pypi/pyversions/mathcake.svg">
     <img alt="PyPi - Status" src="https://img.shields.io/pypi/status/ansicolortags.svg">
+    <a href='https://mcake.readthedocs.io/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/mcake/badge/?version=latest' alt='Documentation Status' />
+    </a>    
 </div>
 <p align="center">An object orientated math library, Built with power and simplicity!</p>
 
