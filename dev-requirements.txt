@@ -1,2 +1,2 @@
-mathcake
+mathcake==0.0.1a3
 pydata-sphinx-theme
