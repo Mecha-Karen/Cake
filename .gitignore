@@ -24,3 +24,6 @@ __pycache__/
 build/
 dist/
 MathCake.egg-info
+
+# Documentation junk
+docs/build
