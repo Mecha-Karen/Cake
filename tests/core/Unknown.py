@@ -11,5 +11,21 @@ def testBase():
     assert repr(BASE / BASE) == 'x / (x)', "Division failed"    # Evaluates the x from brack first
     
 
+def testTermMultiplication():
+    BS = BASE.copy()
+    # x
+    BS += 20
+    # x + 20
+    BS *= BASE
+    # x ** 2 + 20x
+
+    # same as x(x + 20)
+    # x * x -> x ** 2
+    # x * 20 -> 20x
+    # And add then your done
+
+    print(BS)
+
 if __name__ == '__main__':
     testBase()
+    testTermMultiplication()
