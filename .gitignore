@@ -27,3 +27,8 @@ MathCake.egg-info
 
 # Documentation junk
 docs/build
+
+# Ignore any test generated folders/files
+*.log
+tests/errors
+tests/bin
