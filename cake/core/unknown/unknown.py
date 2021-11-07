@@ -12,7 +12,7 @@ FRACTIONAL_POWER = re.compile(r"\([0-9]+\/[0-9]+\)")
 class Unknown(object):
 
     VALID_DATA_KEYS = {
-        "raised": 1,
+        "raised": None,
         "operators": {"div": None, "multi": 1, "fdiv": None, "mod": None, "add": 0},
         "sqrt": False,
         "factorial": False,
@@ -74,51 +74,10 @@ class Unknown(object):
             Args and kwargs may be supplied, they will used for any functions used on the unknown
             The same set of args and kwargs will be used for every function
         """
-        from cake import Irrational, Integer, convert_type
+        expr = cake.Expression(repr(self))
+        data = {self.value: value, **kwargs}
 
-        DATA = self.data
-        NEW_VALUE = value
-
-        for function in DATA["functions"]:
-            NEW_VALUE = function(NEW_VALUE, *args, **kwargs)
-            if isinstance(NEW_VALUE, cake.Function):
-                NEW_VALUE = NEW_VALUE()
-
-        POWER = DATA["raised"]
-        DIVISION = DATA["operators"]["div"]
-        MULTIPLICATION = DATA["operators"]["multi"]
-        OP = DATA["operators"]["add"]
-
-        if POWER:
-            fractional = FRACTIONAL_POWER.match(str(POWER))
-
-            if isinstance(POWER, list):
-                indice, root = POWER
-                FRACTIONAL = True
-            elif fractional:
-                group = fractional.group()[1:-1]
-                indice, root = map(Irrational, group.split("/"))
-                FRACTIONAL = True
-            else:
-                FRACTIONAL = False
-
-            if FRACTIONAL:
-                root = NEW_VALUE ** (Integer(1) / root)
-                NEW_VALUE = root ** indice
-
-            else:
-                NEW_VALUE = NEW_VALUE ** POWER
-
-        if DIVISION:
-            NEW_VALUE /= DIVISION
-
-        if MULTIPLICATION:
-            NEW_VALUE *= MULTIPLICATION
-
-        if OP:
-            NEW_VALUE += OP
-
-        return convert_type(NEW_VALUE)
+        return expr.substitute(*args, **data)
 
     def _getTerms(self) -> list:
         return cake.Expression(repr(self)).terms
@@ -143,18 +102,23 @@ class Unknown(object):
         """
         # *
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} * ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         elif isinstance(O, Unknown) and O.value == self.value:
 
             cur_power = self.data["raised"]
 
             OPower = O.data["raised"]
+
+            if OPower == None:
+                OPower = 1
+            if cur_power == None:
+                cur_power = 1
 
             if isinstance(OPower, list) or isinstance(cur_power, list):
                 raise NotImplementedError(
@@ -172,7 +136,7 @@ class Unknown(object):
                 )
 
             if OPower != 1:
-                res = cur_power + OPower
+                res = cur_power * OPower
 
             else:
                 res = cur_power + 1
@@ -186,14 +150,19 @@ class Unknown(object):
             copy["raised"] = res
             copy['MulSwap'] = swap
 
-            return Unknown(value=self.value, **copy)
+            return Unknown(value=self.value, **copy)      
 
         terms = self._getTerms()
 
         res = cake.Zero()
 
         for term in terms:
-            res += (term * O)
+            if isinstance(term, Unknown):
+                new = self.copy()
+                new.data['operators']['multi'] *= term
+                res += new
+            else:
+                res += (term * O)
 
         return res
 
@@ -218,17 +187,22 @@ class Unknown(object):
         if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("division by zero")
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} / ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         elif isinstance(O, Unknown) and O.value == self.value:
             cur_power = self.data["raised"]
 
             OPower = O.data["raised"]
+
+            if OPower == None:
+                OPower = 1
+            if cur_power == None:
+                cur_power = 1
 
             # Special powers
 
@@ -301,12 +275,12 @@ class Unknown(object):
         if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} // ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         cur_res = self.data["operators"]["fdiv"]
 
@@ -350,12 +324,12 @@ class Unknown(object):
         if getattr(O, "value", O) == 0:
             raise ZeroDivisionError("integer division or modulo by zero")
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} % ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         cur_res = self.data["operators"]["mod"]
 
@@ -398,12 +372,12 @@ class Unknown(object):
         """
         cur_power = self.data["raised"]
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} ** ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         elif isinstance(O, Unknown) and O.value == self.value:
             OPower = O.data["raised"]
@@ -464,12 +438,12 @@ class Unknown(object):
         """
         # +
 
-        if isinstance(O, cake.parsing.Expression):
+        if isinstance(O, cake.Expression):
             expr = O.expression
 
             expr = f"{repr(self)} + ({expr})"
 
-            return cake.parsing.Expression(expr, *O.args, **O.kwargs)
+            return cake.Expression(expr, *O.args, **O.kwargs)
 
         try:
             res = O + self.data["operators"]["add"]
