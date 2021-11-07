@@ -107,7 +107,6 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-print(dir(args))
 TIMEOUT = args.t
 
 # Files all .py files

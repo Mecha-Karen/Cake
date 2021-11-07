@@ -1,4 +1,4 @@
-# Tests for number
+# Basic testing for numbers
 import cake
 
 INTEGER_TEST = 10
