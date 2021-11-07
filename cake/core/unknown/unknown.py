@@ -188,21 +188,14 @@ class Unknown(object):
 
             return Unknown(value=self.value, **copy)
 
-        try:
-            res = O * self.data["operators"]["multi"]
-        except Exception:
-            res = self.data["operators"]["multi"] * O
+        terms = self._getTerms()
 
-        # Allows `Number` classes to be used
+        res = cake.Zero()
 
-        if not create_new:
-            self.data["operators"]["multi"] = res
-            return self
+        for term in terms:
+            res += (term * O)
 
-        copy = cp.deepcopy(self.data)
-        copy["operators"]["multi"] = res
-
-        return Unknown(value=self.value, **copy)
+        return res
 
     def truediv(self, O, *, create_new: bool = True, swap: bool = False):
         """
