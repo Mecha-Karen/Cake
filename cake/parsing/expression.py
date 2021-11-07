@@ -539,7 +539,7 @@ class Expression(object):
             else:
 
                 # Stops `' '` from raising an error
-                if string.strip():
+                if string.strip() or string == ' ':
                     raise errors.SubstitutionError(
                         f"Unknown Token ({string}) at index {token.start[1]}"
                     )
@@ -585,7 +585,7 @@ class Expression(object):
             if isinstance(posfix, Unknown):
                 if posfix.value not in VARS:
                     VARS.append(f"{posfix.value} = Unknown('{posfix.value}')")
-                code += f'({posfix.value})'
+                code += f' ( {posfix.value} ) '
 
             elif isinstance(posfix, FunctionMarker):
                 func, dirtyTokens = posfix.value
@@ -595,10 +595,10 @@ class Expression(object):
                 VARS.extend(newVars)
                 VARS = list(set(VARS))
 
-                code += f"({func.__qualname__}({evaluated}))()"
+                code += f" ( {func.__qualname__} ( {evaluated} ) ) ( )"
 
             elif isinstance(posfix, cake.Number):
-                code += f'({posfix.__class__.__name__}({posfix.value}))'
+                code += f' ( {posfix.__class__.__name__} ( {posfix.value} ) )'
 
             elif isinstance(posfix, PlusOrMinus):
                 code += '(+|-)'     # This gets sorted out later
@@ -607,7 +607,7 @@ class Expression(object):
             elif isinstance(posfix, (Symbol, Operator)):
                 posfix.validate
 
-                code += f'{posfix.value}'
+                code += f' {posfix.value} '
 
         if not dirty:
             return "{}\n{}".format('\n'.join(VARS), code), pm
@@ -811,6 +811,9 @@ class Expression(object):
 
     @property
     def terms(self) -> list:
+        if hasattr(self, 'lru_cache'):
+            return self.lru_cache
+
         if not self.__expression:
             return list()
         terms = list()
@@ -823,9 +826,17 @@ class Expression(object):
                 if NEGATE_NEXT:
                     term = term * -1
                 terms.append(term)
+            elif isinstance(term, FunctionMarker):
+                function, inter = term.value
+
+                _, evaluated, _ = Expression(...)._glSubCode(*self.args, **{**self.kwargs, 'dirty': inter, 'vars': list()})
+                cd = f"{function.__qualname__}({evaluated})"
+                terms.append(Expression(cd).substitute())
+
             elif isinstance(term, Operator) and term.value == '-':
                 NEGATE_NEXT = True
-        
+
+        self.lru_cache = terms
         return terms
 
     @property
