@@ -32,5 +32,22 @@ def TestBase():
     print('Passed I... dunder operator')
     
 
+def testTypeConversion():
+    num = cake.Number(INTEGER_TEST)
+
+    integer = cake.Integer(num)
+    comp = cake.Complex(20, 6j)
+    
+    assert integer.type == int, "Incorrect typing for integer class"
+    print('Passed Integer Type Testing')
+
+    assert isinstance((10.5 + integer), cake.Float), "Incorrect type conversion"
+    print('Passed int + float -> float, test rig')
+
+    assert (num + comp) == cake.Complex(30, 6j), "Failed int -> complex conversion"
+    print('Passed int + complex -> complex, test rig')
+
+
 if __name__ == '__main__':
     TestBase()
+    testTypeConversion()
