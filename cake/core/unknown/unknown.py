@@ -12,7 +12,7 @@ FRACTIONAL_POWER = re.compile(r"\([0-9]+\/[0-9]+\)")
 class Unknown(object):
 
     VALID_DATA_KEYS = {
-        "raised": None,
+        "raised": 1,
         "operators": {"div": None, "multi": 1, "fdiv": None, "mod": None, "add": 0},
         "sqrt": False,
         "factorial": False,
@@ -109,61 +109,36 @@ class Unknown(object):
 
             return cake.Expression(expr, *O.args, **O.kwargs)
 
-        elif isinstance(O, Unknown) and O.value == self.value:
-
-            cur_power = self.data["raised"]
-
-            OPower = O.data["raised"]
-
-            if OPower == None:
-                OPower = 1
-            if cur_power == None:
-                cur_power = 1
-
-            if isinstance(OPower, list) or isinstance(cur_power, list):
-                raise NotImplementedError(
-                    f"listed fractional powers is not supported yet"
-                )
-
-            try:
-                fractional = FRACTIONAL_POWER.match(OPower)
-            except TypeError:
-                fractional = None
-
-            if fractional:
-                raise NotImplementedError(
-                    f"Fraction + Fraction actions are not yet supported"
-                )
-
-            if OPower != 1:
-                res = cur_power * OPower
-
-            else:
-                res = cur_power + 1
-
-            if not create_new:
-                self.data["raised"] = res
-                self.data['swap'] = swap
-                return self
-
-            copy = cp.deepcopy(self.data)
-            copy["raised"] = res
-            copy['MulSwap'] = swap
-
-            return Unknown(value=self.value, **copy)      
+        if isinstance(O, Unknown):
+            Oterms = O._getTerms()
+        else:
+            Oterms = getattr(O, 'terms', [O])
 
         terms = self._getTerms()
 
         res = cake.Zero()
 
         for term in terms:
-            if isinstance(term, Unknown):
-                new = self.copy()
-                new.data['operators']['multi'] *= term
-                res += new
-            else:
-                res += (term * O)
+            for Oterm in Oterms:
+                if isinstance(term, Unknown):
+                    if isinstance(Oterm, Unknown) and Oterm.value == self.value:
+                        res += term ** Oterm
+                    elif isinstance(Oterm, Unknown):
+                        nterm = term.copy()
+                        nterm.data['operators']['multi'] *= Oterm.data['operators']['multi']
+                        res += nterm
+                    else:
+                        nterm = term.copy()
+                        nterm.data['operators']['multi'] *= Oterm
+                        res += nterm
 
+                elif isinstance(Oterm, Unknown):
+                    nterm = Oterm.copy()
+                    nterm.data['operators']['multi'] *= term
+                    res += nterm
+                else:
+                    res += term * Oterm
+                    
         return res
 
     def truediv(self, O, *, create_new: bool = True, swap: bool = False):
@@ -370,50 +345,32 @@ class Unknown(object):
 
                 This is a keyword-only argument!
         """
-        cur_power = self.data["raised"]
 
-        if isinstance(O, cake.Expression):
-            expr = O.expression
+        if isinstance(O, list):
+            O = cake.Fraction(*O)
 
-            expr = f"{repr(self)} ** ({expr})"
+        if isinstance(O, Unknown):
 
-            return cake.Expression(expr, *O.args, **O.kwargs)
+            if self.data['raised'] == 1 and O.data['raised'] == 1:
+                raised = 2
+            else:
+                raised = self.data['raised'] * O.data['raised']
 
-        elif isinstance(O, Unknown) and O.value == self.value:
-            OPower = O.data["raised"]
-
-            if isinstance(OPower, list):
-                raise NotImplementedError(
-                    f"listed fractional powers is not supported yet"
-                )
-
-            try:
-                fractional = FRACTIONAL_POWER.match(OPower)
-            except TypeError:
-                fractional = None
-
-            if fractional:
-                raise NotImplementedError(
-                    f"Fraction + Fraction actions are not yet supported"
-                )
-
-            cur_power = cur_power * OPower
-        else:
-            try:
-                cur_power = O + cur_power
-            except Exception:
-                cur_power = cur_power + O
+            if not create_new:
+                self.data['raised'] = raised
+                return
+            x = self.copy()
+            x.data['raised'] = raised
+            return x
 
         if not create_new:
-            self.data["raised"] = cur_power
-            self.data['Rswap'] = swap
-            return self
+            self.data['raised'] *= O
+            return
 
-        data = cp.deepcopy(self.data)
-        data["raised"] = cur_power
-        data['Rswap'] = swap
+        x = self.copy()
+        x.data['raised'] *= O
 
-        return Unknown(self.value, **data)
+        return x
 
     # ADDITION / SUBTRACTION
 
