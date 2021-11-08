@@ -25,9 +25,6 @@ def convert_type(
     if isinstance(result, Number):
         return result
 
-    if isinstance(result, Iterable):
-        return tuple(convert_type(i) for i in result)
-
     if hasattr(result, 'value'):
         result = result.value
     if hasattr(result, 'get_value'):
