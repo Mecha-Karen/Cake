@@ -1,5 +1,4 @@
 from .float import Float
-from cake.abc import IntegerType
 import typing
 
 
@@ -16,7 +15,7 @@ class Integer(Float):
 
     def __init__(
         self,
-        integer: typing.Optional[bool] = 0,
+        integer: typing.Optional[int] = 0,
         check_value_attr: typing.Optional[bool] = True,
         *args,
         **kwargs,
@@ -29,4 +28,4 @@ class Integer(Float):
         Return the integer set when initialising the class
         """
 
-        return f"Integer({super().value})"
+        return f"Integer({int(super().value.real)})"
