@@ -10,10 +10,11 @@ from ..unknown import Unknown
 import typing
 
 from .ops import evaluate
+from .numberMeta import Number_
 import cake
 
 
-class Number(object):
+class Number(Number_):
     r"""
     Base class for creating digits, unknowns etc.
 
