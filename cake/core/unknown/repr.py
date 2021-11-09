@@ -1,3 +1,5 @@
+# Converts an unknown into a parsable string, directly passable through `Expression`
+
 from .unknown import Unknown    # type: ignore
 
 
@@ -78,12 +80,16 @@ def _prettify_repr(unk: Unknown) -> str:
 
         Op = '+'
         if negated or unk.data.get('Aneg', False):
-            Op = '-'
+            if Op == '-' and unk.data.get('Aneg', False):
+                Op = '+'
+            else:
+                val = str(val)[1:]
+                Op = '-'
 
         if unk.data.get('Aswap', False):
             STRING = f'{val} {Op} {STRING}'
         else:
-            STRING += f' + {val}'
+            STRING += f' {Op} {val}'
 
     if floor:
         if isinstance(floor, Unknown):
