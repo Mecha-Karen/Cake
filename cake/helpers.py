@@ -2,10 +2,6 @@ import typing
 import cake
 import copy as cd
 
-from cake.core.number.number import Number
-from cake.core.types.complex import Complex
-from cake.core.types.float import Float
-
 __all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
 
@@ -22,7 +18,15 @@ def convert_type(
     """
     if not result:
         return cake.Zero()
-    if isinstance(result, Number):
+
+    if result == cake.abc.INF_VALUE:
+        return cake.Infinity()
+    if result == cake.abc.NEG_INF_VALUE:
+        return cake.NegativeInfinity()
+    if result == cake.abc.NAN_VALUE:
+        return cake.NaN()
+        
+    if isinstance(result, cake.Number):
         return result
 
     if hasattr(result, 'value'):
@@ -32,8 +36,8 @@ def convert_type(
 
     if isinstance(result, complex):
         if not result.imag:
-            return Float(result.real)
-        return Complex(result)
+            return cake.Float(result.real)
+        return cake.Complex(result)
 
     if len(str(result).split(".")) > 1:
         return cake.Float(result, check_value_attr, *args, **kwargs)
