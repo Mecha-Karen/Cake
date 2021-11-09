@@ -29,7 +29,7 @@ class Irrational(Number):
         if len(is_float) == 1:
             return Integer(value)
 
-        if len(is_float[-1]) < 16:
+        if len(is_float[-1]) < 15:
             # Not irrational
             return Real(value)
 
@@ -41,10 +41,6 @@ class Irrational(Number):
         super().__init__(
             float(value), check_value_attr, float, Irrational, *args, **kwargs
         )
-
-    @staticmethod
-    def handler(res: FloatType):
-        return Irrational(real=float(res))
 
     def __repr__(self) -> str:
         """

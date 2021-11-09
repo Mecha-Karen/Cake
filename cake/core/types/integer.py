@@ -1,9 +1,9 @@
-from ..number import Number
+from .float import Float
 from cake.abc import IntegerType
 import typing
 
 
-class Integer(Number):
+class Integer(Float):
     """
     A class representing a whole number, subclass of :class:`~cake.Number`
 
@@ -21,11 +21,8 @@ class Integer(Number):
         *args,
         **kwargs,
     ):
-        super().__init__(int(integer), check_value_attr, int, Integer, *args, **kwargs)
+        super().__init__(int(integer), check_value_attr, *args, **kwargs)
 
-    @staticmethod
-    def handler(res: IntegerType):
-        return Integer(integer=int(res))
 
     def __repr__(self) -> str:
         """

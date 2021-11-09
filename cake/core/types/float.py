@@ -1,10 +1,11 @@
 from ..number import Number
+from .complex import Complex
 from cake.abc import FloatType
 
 
-class Float(Number):
+class Float(Complex):
     """
-    A class representing a whole number, subclass of :class:`~cake.core.number.Number`
+    A class representing a real number, subclass of :class:`~cake.core.number.Number`
 
     Parameters
     ----------
@@ -16,20 +17,17 @@ class Float(Number):
     def __init__(
         self, real: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
     ):
-        super().__init__(
-            float(real), check_value_attr, float, FloatType, *args, **kwargs
-        )
+        super().__init__(a=real, *args, **kwargs, check_value_attr=check_value_attr)
 
-    @staticmethod
-    def handler(res: FloatType):
-        return Float(real=float(res))
+        # Change base typing
+        self._type = float
 
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class
         """
 
-        return f"Real({super().value})"
+        return f"Real({super().value.real})"
 
 
 Real = Float

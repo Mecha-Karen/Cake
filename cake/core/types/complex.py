@@ -64,12 +64,6 @@ class Complex(Number):
 
         super().__init__(integer, check_value_attr, complex, *args, **kwargs)
 
-    @staticmethod
-    def handler(res: complex):
-        return Complex(
-            a=res.real, b=res.imag,
-        )
-
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class
