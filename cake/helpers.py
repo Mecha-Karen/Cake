@@ -1,10 +1,10 @@
 import typing
 import cake
 import copy as cd
-from collections.abc import Iterable
 
 from cake.core.number.number import Number
 from cake.core.types.complex import Complex
+from cake.core.types.float import Float
 
 __all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
@@ -31,6 +31,8 @@ def convert_type(
         result = result.get_value()
 
     if isinstance(result, complex):
+        if not result.imag:
+            return Float(result.real)
         return Complex(result)
 
     if len(str(result).split(".")) > 1:
