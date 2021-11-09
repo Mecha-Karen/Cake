@@ -18,8 +18,11 @@ class ComplexType(typing.Protocol):
         ...
 
 
-OPERATORS: typing.Set[str] = {"+", "-", "/", "*", "**", "^", "//", "&", ">>", "<<", "|"}
-ASCII_CHARS = list(string.ascii_letters)
+OPERATORS     = {"+", "-", "/", "*", "**", "^", "//", "&", ">>", "<<", "|"}
+ASCII_CHARS   = list(string.ascii_letters)
+INF_VALUE     = float('inf')
+NEG_INF_VALUE = float('-inf')
+NAN_VALUE     = float('nan')
 
 MAP_OPERATORS = {
     "add": "+",
