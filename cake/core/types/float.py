@@ -1,6 +1,5 @@
 from ..number import Number
 from cake.abc import FloatType
-import typing
 
 
 class Float(Number):
