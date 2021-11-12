@@ -2,6 +2,8 @@ import typing
 import cake
 import copy as cd
 
+from cake import abc
+
 __all__ = ("convert_type", "compare_multiple", "compare_any", "copy")
 
 
@@ -19,13 +21,13 @@ def convert_type(
     if not result:
         return cake.Zero()
 
-    if result == cake.abc.INF_VALUE:
+    if result == abc.INF_VALUE:
         return cake.Infinity()
-    if result == cake.abc.NEG_INF_VALUE:
+    if result == abc.NEG_INF_VALUE:
         return cake.NegativeInfinity()
-    if result == cake.abc.NAN_VALUE:
+    if result == abc.NAN_VALUE:
         return cake.NaN()
-        
+
     if isinstance(result, cake.Number):
         return result
 
