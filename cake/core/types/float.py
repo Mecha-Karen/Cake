@@ -16,7 +16,7 @@ class Float(Number):
     def __init__(
         self, real: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
     ):
-        super().__init__(a=real, *args, **kwargs, check_value_attr=check_value_attr)
+        super().__init__(real, *args, **kwargs, check_value_attr=check_value_attr)
 
         # Change base typing
         self._type = float
