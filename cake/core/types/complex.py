@@ -6,7 +6,7 @@ import cake
 
 class Complex(Number):
     """
-    A class representing a complex number, subclass of :class:`~cake.core.number.Number`
+    A class representing a complex number, subclass of :class:`~cake.Number`
 
     A complex is number which can be expressed in the form of ``a + bi``, were a and b are integers.
     Learn more `here <https://en.wikipedia.org/wiki/Complex_number>`_
