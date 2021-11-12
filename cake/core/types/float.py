@@ -1,9 +1,8 @@
 from ..number import Number
-from .complex import Complex
 from cake.abc import FloatType
 
 
-class Float(Complex):
+class Float(Number):
     """
     A class representing a real number, subclass of :class:`~cake.core.number.Number`
 

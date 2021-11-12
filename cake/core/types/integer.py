@@ -1,10 +1,10 @@
-from .float import Float
+from ..number import Number
 import typing
 
 
-class Integer(Float):
+class Integer(Number):
     """
-    A class representing a whole number, subclass of :class:`~cake.Number`
+    A class representing a whole number, subclass of :class:`~cake.Float`.
 
     Parameters
     ----------
@@ -12,6 +12,8 @@ class Integer(Float):
         Any object which matches the `IntegerType` protocol.
         Defaults to 0
     """
+
+    # Many methods inherit the complex class
 
     def __init__(
         self,
@@ -22,10 +24,9 @@ class Integer(Float):
     ):
         super().__init__(int(integer), check_value_attr, *args, **kwargs)
 
-
     def __repr__(self) -> str:
         """
         Return the integer set when initialising the class
         """
 
-        return f"Integer({int(super().value.real)})"
+        return f"Integer({super().value})"

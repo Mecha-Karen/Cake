@@ -1,5 +1,6 @@
 from ..number import Number
 from cake.abc import FloatType
+import cake
 import typing
 
 
@@ -21,17 +22,16 @@ class Irrational(Number):
     """
 
     def __new__(
-        cls, value: FloatType = 0, check_value_attr: bool = True, *args, **kwargs
+        cls, value: FloatType = 0, check_value_attr: typing.Optional[bool] = True, *args, **kwargs
     ):
-        from cake import Integer, Real
 
         is_float = str(value).split(".")
         if len(is_float) == 1:
-            return Integer(value)
+            return cake.Integer(value)
 
         if len(is_float[-1]) < 15:
             # Not irrational
-            return Real(value)
+            return cake.Float(value)
 
         return super(Irrational, cls).__new__(Irrational)
 
