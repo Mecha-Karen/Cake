@@ -10,6 +10,10 @@
 </div>
 <p align="center">An object orientated math library, Built with power and simplicity!</p>
 
+# NOTICE:
+This version of cake has been discontinued, to view the new updated version visit:
+https://github.com/Seniatical/Cake
+
 <p>
     Cake is an object orientated math library based off <strong>Sympy</strong> and aims to be simple and easy to use. Its main advantages are easy of use, chaining and provides shortcuts to lengthy methods.<br><br>
     License: MIT License (see the LICENSE file for details) covers all files in the <strong>cake</strong> repository unless stated otherwise.
